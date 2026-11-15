@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LayarTix Beranda – LayarTix</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/beranda.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+  <div class="app-frame">
+
+    <!-- HEADER -->
+    <header class="app-header">
+      <div class="header-container">
+        <div style="display:flex;align-items:center;gap:20px">
+          <div class="header-logo" onclick="window.location.href='beranda.html'">LAYARTIX</div>
+          <!-- Desktop Nav -->
+          <nav class="desktop-nav">
+          <a href="beranda.html" class="desktop-nav-link active">LayarTix Beranda</a>
+          <a href="fnb.html" class="desktop-nav-link ">LayarTix Kantin F&amp;B</a>
+          <a href="tiket.html" class="desktop-nav-link ">LayarTix Tiket &amp; Kenangan</a>
+          <a href="parkir.html" class="desktop-nav-link ">LayarTix Info Parkir</a>
+          <a href="akun.html" class="desktop-nav-link ">Akun</a>
+        </nav>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:14px">
+          <!-- Dynamic Greeting Pill -->
+          <div class="hidden sm:flex flex-col text-right justify-center">
+            <span class="text-[10px] text-gray-400 font-medium leading-none mb-1" id="greetingTime">Selamat Datang,</span>
+            <span class="text-xs font-bold text-amber-400 leading-none" id="greetingName">Sobat Nonton </span>
+          </div>
+
+          <!-- City Selector Pill -->
+          <button class="header-city" onclick="openCityModal()" id="cityBtn" title="Pilih Kota Bioskop">
+            <span class="text-sm"></span>
+            <span class="header-city-name font-semibold" id="cityName">Makassar</span>
+            <span class="text-[10px] opacity-60">▼</span>
+          </button>
+
+          <!-- Profile Avatar -->
+          <div class="header-avatar" id="userAvatar" onclick="window.location.href='akun.html'" title="Profil Akun"></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- PAGE CONTENT -->
+    <div class="page-content page-enter">
+
+      <!-- MOBILE GREETING BAR -->
+      <div class="sm:hidden px-4 pt-3 pb-1 flex justify-between items-center">
+        <div>
+          <div class="text-[11px] text-gray-400 font-medium" id="mobileGreetingTime">Selamat Datang,</div>
+          <div class="text-sm font-bold text-amber-400" id="mobileGreetingName">Sobat Nonton </div>
+        </div>
+        <div class="text-[11px] text-gray-400 bg-white/5 px-2.5 py-1 rounded-full border border-white/10 flex items-center gap-1">
+          <span></span> <span>Cinema Experience</span>
+        </div>
+      </div>
+
+      <!-- HERO CAROUSEL & PARTNER BANNER -->
+      <div class="hero-wrap" id="heroWrap">
+        <div class="hero-slides" id="heroSlides"></div>
+        <div class="hero-dots" id="heroDots"></div>
+        <div style="position:absolute;top:16px;left:16px;z-index:2;">
+          <div style="font-family:'Cinzel',serif;font-size:12px;color:rgba(255,255,255,0.85);letter-spacing:0.08em;background:rgba(0,0,0,0.55);backdrop-filter:blur(8px);padding:4px 12px;border-radius:20px;border:1px solid rgba(255,255,255,0.15)">
+             HIGHLIGHT TIX & PROMO MITRA
+          </div>
+        </div>
+
+        <!-- DERETAN LOGO & MITRA PEMBAYARAN / TRANSPORTASI -->
+        <div style="position:absolute;bottom:28px;left:16px;right:16px;z-index:2;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;background:rgba(10,12,20,0.78);backdrop-filter:blur(10px);padding:8px 14px;border-radius:14px;border:1px solid rgba(255,255,255,0.12)">
+          <div style="font-size:11px;font-weight:700;color:var(--gold);display:flex;align-items:center;gap:5px">
+            <span> Mitra Pembayaran & Transportasi:</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;overflow-x:auto;padding:2px 0">
+            <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;background:rgba(0,181,71,0.15);border:1px solid rgba(0,181,71,0.3);color:#22c55e;font-size:11px;font-weight:800;letter-spacing:0.02em">
+              <span style="width:7px;height:7px;border-radius:50%;background:#22c55e"></span>Grab
+            </span>
+            <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;background:rgba(0,170,41,0.15);border:1px solid rgba(0,170,41,0.3);color:#4ade80;font-size:11px;font-weight:800;letter-spacing:0.02em">
+              <span style="width:7px;height:7px;border-radius:50%;background:#4ade80"></span>Gojek
+            </span>
+            <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;background:rgba(76,43,141,0.25);border:1px solid rgba(168,85,247,0.35);color:#c084fc;font-size:11px;font-weight:800;letter-spacing:0.02em">
+              <span style="width:7px;height:7px;border-radius:50%;background:#c084fc"></span>OVO
+            </span>
+            <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;background:rgba(17,142,234,0.2);border:1px solid rgba(56,189,248,0.35);color:#38bdf8;font-size:11px;font-weight:800;letter-spacing:0.02em">
+              <span style="width:7px;height:7px;border-radius:50%;background:#38bdf8"></span>DANA
+            </span>
+            <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;background:rgba(238,77,45,0.2);border:1px solid rgba(251,113,133,0.35);color:#fb7185;font-size:11px;font-weight:800;letter-spacing:0.02em">
+              <span style="width:7px;height:7px;border-radius:50%;background:#fb7185"></span>ShopeePay
+            </span>
+            <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;background:rgba(0,90,167,0.2);border:1px solid rgba(96,165,250,0.35);color:#93c5fd;font-size:11px;font-weight:800;letter-spacing:0.02em">
+              <span style="width:7px;height:7px;border-radius:50%;background:#93c5fd"></span>BCA QRIS
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick genre filters -->
+      <div style="padding:16px 16px 0">
+        <div class="quick-filters" id="genreFilters">
+          <button class="filter-chip active" onclick="filterByGenre('all',this)"> Semua</button>
+          <button class="filter-chip" onclick="filterByGenre('Aksi',this)">Aksi</button>
+          <button class="filter-chip" onclick="filterByGenre('Horor',this)"> Horor</button>
+          <button class="filter-chip" onclick="filterByGenre('Drama',this)"> Drama</button>
+          <button class="filter-chip" onclick="filterByGenre('Romantis',this)">Romantis</button>
+          <button class="filter-chip" onclick="filterByGenre('Sci-Fi',this)"> Sci-Fi</button>
+          <button class="filter-chip" onclick="filterByGenre('Komedi',this)"> Komedi</button>
+        </div>
+      </div>
+
+      <!-- NOW PLAYING -->
+      <div id="nowPlayingSection" style="padding:20px 16px 8px;scroll-margin-top:74px">
+        <div class="section-title">
+           Sedang Tayang di Bioskop
+          <span class="section-sub" id="nowPlayingCount"></span>
+        </div>
+      </div>
+      <div class="movies-scroll" id="nowPlayingList"></div>
+
+      <!-- COMING SOON -->
+      <div style="padding:20px 16px 8px">
+        <div class="section-title">
+           Akan Datang
+          <span class="section-sub" id="comingSoonCount"></span>
+        </div>
+      </div>
+      <div class="movies-scroll" id="comingSoonList"></div>
+
+      <div style="height:24px"></div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+      <a class="nav-tab active" href="beranda.html">
+        <div class="nav-icon-wrap"></div>
+        <div class="nav-label">LayarTix Beranda</div>
+      </a>
+      <a class="nav-tab " href="fnb.html">
+        <div class="nav-icon-wrap"></div>
+        <div class="nav-label">LayarTix Kantin F&amp;B</div>
+      </a>
+      <a class="nav-tab " href="tiket.html">
+        <div class="nav-icon-wrap"></div>
+        <div class="nav-label">LayarTix Tiket &amp; Kenangan</div>
+      </a>
+      <a class="nav-tab " href="parkir.html">
+        <div class="nav-icon-wrap"></div>
+        <div class="nav-label">LayarTix Info Parkir</div>
+      </a>
+      <a class="nav-tab " href="akun.html">
+        <div class="nav-icon-wrap"></div>
+        <div class="nav-label">Akun</div>
+      </a>
+    </nav>
+  </div>
+
+  <!-- CITY MODAL -->
+  <div class="modal-overlay center" id="cityModal">
+    <div class="modal" style="max-width:520px;border-radius:24px;background:#13131c;border:1px solid rgba(255,255,255,0.12)">
+      <div class="modal-handle"></div>
+      <div class="modal-header" style="padding:20px 24px 16px;border-bottom:1px solid rgba(255,255,255,0.08)">
+        <div class="modal-title" style="display:flex;align-items:center;gap:8px;font-size:18px">
+          <span></span> <span>Pilih Kota Bioskop</span>
+        </div>
+        <button class="modal-close" onclick="closeCityModal()"></button>
+      </div>
+      <div class="modal-body" style="padding:20px 24px 24px">
+        <div class="city-search-wrap">
+          <input class="city-search" id="citySearch" placeholder=" Cari kota bioskop (Makassar, Jakarta, dll)..." oninput="filterCities(this.value)" />
+        </div>
+        <div class="city-grid" id="cityGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOVIE DETAIL BOTTOM SHEET / MODAL -->
+  <div class="modal-overlay" id="movieModal">
+    <div class="modal md:max-w-3xl lg:max-w-4xl" style="max-height:90vh;border-radius:24px;overflow:hidden;background:#10111a;border:1px solid rgba(255,255,255,0.1)">
+      <div class="modal-handle"></div>
+      <div id="movieModalContent"></div>
+    </div>
+  </div>
+
+  <!-- AGE RATING WARNING MODAL (17+ / 21+) -->
+  <div class="modal-overlay center" id="ageWarningModal">
+    <div class="modal" style="max-width:440px;border:1px solid rgba(230,57,70,0.5);box-shadow:0 0 35px rgba(230,57,70,0.25)">
+      <div class="modal-header" style="border-bottom:1px solid rgba(230,57,70,0.2)">
+        <div class="modal-title" style="color:#ef4444;display:flex;align-items:center;gap:8px">
+          <span></span> PERINGATAN BATAS USIA
+        </div>
+        <button class="modal-close" onclick="closeAgeWarningModal()"></button>
+      </div>
+      <div class="modal-body" style="text-align:center;padding:24px 20px">
+        <div style="font-size:48px;margin-bottom:12px"></div>
+        <span class="badge" id="ageModalRatingBadge" style="background:#ef4444;color:#fff;font-size:13px;font-weight:800;padding:4px 12px;margin-bottom:10px">17+</span>
+        <div style="font-size:17px;font-weight:800;margin-bottom:6px" id="ageModalMovieTitle">Judul Film</div>
+        <div style="font-size:12px;color:var(--gold);font-weight:700;margin-bottom:14px" id="ageModalRatingDesc">KHUSUS 17 TAHUN KE ATAS</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.6;background:rgba(255,255,255,0.03);padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,0.08);margin-bottom:20px;text-align:left">
+          Film ini memuat konten intens atau adegan dewasa yang ditujukan bagi penonton sesuai klasifikasi usia. Petugas bioskop berhak memverifikasi KTP/Identitas di pintu masuk studio.
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-outline" style="flex:1;padding:12px" onclick="closeAgeWarningModal()">Batal</button>
+          <button class="btn btn-danger" style="flex:1.5;padding:12px;border-radius:12px;font-weight:700" onclick="confirmAgeWarning()">Saya Berusia Cukup (Lanjut) ›</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../data.js"></script>
+  <script src="../js/beranda.js"></script>
+</body>
+
+</html>

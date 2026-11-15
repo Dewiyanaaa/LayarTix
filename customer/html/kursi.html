@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pilih Kursi – LayarTix</title>
+  <link rel="stylesheet" href="../css/kursi.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { align-items:flex-start; }
+    .seats-container-scroll {
+      overflow-x: auto;
+      padding-bottom: 8px;
+      -webkit-overflow-scrolling: touch;
+    }
+    @media (min-width: 768px) {
+      .screen { height: 44px; font-size: 13px; }
+      .seat { max-width: 44px; min-width: 32px; font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-frame">
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-container">
+      <div style="display:flex;align-items:center;gap:16px">
+        <div class="header-logo" onclick="window.location.href='beranda.html'">LAYARTIX</div>
+        <button class="back-btn" onclick="history.back()" title="Kembali" aria-label="Kembali">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+        </button>
+        <div>
+          <div style="font-size:15px;font-weight:700" id="seatMovieTitle">Pilih Kursi</div>
+          <div style="font-size:11px;color:var(--muted)" id="seatCinemaInfo"></div>
+        </div>
+        <nav class="desktop-nav">
+          <a href="beranda.html" class="desktop-nav-link ">LayarTix Beranda</a>
+          <a href="fnb.html" class="desktop-nav-link ">LayarTix Kantin F&amp;B</a>
+          <a href="tiket.html" class="desktop-nav-link ">LayarTix Tiket &amp; Kenangan</a>
+          <a href="parkir.html" class="desktop-nav-link ">LayarTix Info Parkir</a>
+          <a href="akun.html" class="desktop-nav-link ">Akun</a>
+        </nav>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:10px;color:var(--muted)">per tiket</div>
+        <div style="font-size:15px;font-weight:700;color:var(--gold)" id="seatPriceDisplay"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="page-content page-enter" style="padding-bottom:120px">
+
+    <!-- FULL 3D INTERACTIVE THEATER LAYOUT (Centered Cinematic Studio) -->
+    <div class="max-w-4xl mx-auto px-4">
+
+      <div class="bg-[#12121a]/85 p-4 md:p-8 rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden backdrop-blur-xl theater-3d-space" id="theater3dSpace">
+
+        <!-- 3D Cinematic Curved Screen Stage with Dynamic First-Person Camera Effect -->
+        <div class="cinema-3d-stage" id="cinema3dStage">
+          <!-- Ambient Projector Light Beam -->
+          <div class="projector-light-cone"></div>
+
+          <!-- Gigantic Curved Screen -->
+          <div class="screen-3d-curved" id="screen3dCurved">
+            <div class="screen-surface">
+              <img id="screenPosterBg" class="screen-poster-bg" src="" alt="Layar Bioskop" />
+              <div class="screen-inner-content">
+                <span class="screen-brand">LAYARTIX ULTRA-CINEMA 3D</span>
+                <span class="screen-sub" id="screenMovieInfo">Pilih kursi untuk melihat sudut pandang dari posisi duduk</span>
+              </div>
+              <div class="screen-glow-reflection"></div>
+            </div>
+            <!-- Physical Screen Frame Arc -->
+            <div class="screen-arch-curve"></div>
+          </div>
+          <div class="screen-label-3d">LAYAR BIOSKOP UTAMA (FRONT CURVED SCREEN)</div>
+
+          <!-- Dynamic Camera POV HUD Overlay (Muncul Real-Time saat Kursi Dipilih) -->
+          <div class="camera-hud-badge" id="cameraHudBadge">
+            <div class="hud-status-dot"></div>
+            <span id="cameraHudText">PILIH KURSI UNTUK SIMULASI 3D POV</span>
+          </div>
+        </div>
+
+        <!-- 3D Interactive Seats Theater Ground (Perspective Grid) -->
+        <div class="theater-3d-viewport">
+          <div class="seats-container-scroll">
+            <div class="seats-area" id="seatsArea" style="min-width:320px"></div>
+          </div>
+        </div>
+
+        <!-- Status & Ergonomic Heatmap Zones Legend -->
+        <div class="legend" style="margin-top:16px;margin-bottom:12px">
+          <div class="legend-item">
+            <div class="legend-box" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2)"></div>
+            <span>Tersedia</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-box" style="background:var(--gold)"></div>
+            <span>Dipilih</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-box" style="background:rgba(239,68,68,0.3)"></div>
+            <span>Terjual</span>
+          </div>
+        </div>
+
+        <!-- Ergonomic Heatmap Zone Indicators -->
+        <div class="heatmap-legend-bar">
+          <div style="font-weight:700;color:var(--text);margin-right:4px">ZONA ERGONOMI:</div>
+          <div class="heatmap-legend-item">
+            <div class="heatmap-dot" style="background:#f59e0b"></div>
+            <span style="color:#fde68a">Baris A-B: Zona Mendongak (Kuning)</span>
+          </div>
+          <div class="heatmap-legend-item">
+            <div class="heatmap-dot" style="background:#22c55e"></div>
+            <span style="color:#bbf7d0">Baris C-E: Zona Ideal / Sweet Spot Emas (Hijau)</span>
+          </div>
+          <div class="heatmap-legend-item">
+            <div class="heatmap-dot" style="background:#3b82f6"></div>
+            <span style="color:#bfdbfe">Baris F-G: Zona Santai Menyeluruh (Biru)</span>
+          </div>
+        </div>
+
+        <!-- Desktop Action & Real-Time Telemetry Bar -->
+        <div class="hidden md:flex items-center justify-between mt-6 pt-5 border-t border-white/10">
+          <div>
+            <div style="font-size:12px;color:var(--muted)">Kursi Dipilih:</div>
+            <div style="font-size:18px;font-weight:700;color:var(--gold)" id="desktopSeatsList">Belum ada</div>
+          </div>
+          <div>
+            <div style="font-size:12px;color:var(--muted)">Total Pembayaran:</div>
+            <div style="font-size:20px;font-weight:800;color:#fff" id="desktopTotalPrice">Rp 0</div>
+          </div>
+          <button class="btn btn-primary" id="desktopContinueBtn" style="padding:14px 32px;border-radius:14px;opacity:0.4;pointer-events:none" onclick="goToFnb()">
+            Lanjut ke Bundling F&B →
+          </button>
+        </div>
+
+        <div style="text-align:center;font-size:12px;color:rgba(255,255,255,0.4);margin-top:14px">
+          <span style="color:var(--gold);font-weight:600" id="seatTypeLabel">Regular</span> · Maksimal 10 kursi per transaksi
+        </div>
+      </div>
+
+    </div>
+
+    <div style="height:16px"></div>
+  </div>
+
+  <!-- BOTTOM SUMMARY (Visible on Mobile / Compact) -->
+  <div class="seat-summary md:hidden">
+    <div class="seat-summary-row">
+      <div class="seat-info">
+        <div class="seat-info-label">Kursi Dipilih</div>
+        <div class="seat-info-value" id="selectedSeatsInfo">Belum ada</div>
+      </div>
+      <div class="seat-price">
+        <div class="seat-price-label">Total Tiket</div>
+        <div class="seat-price-value" id="totalPriceDisplay">Rp 0</div>
+      </div>
+      <button class="btn btn-primary" id="continueBtn" style="padding:12px 20px;opacity:0.4;pointer-events:none" onclick="goToFnb()">
+        Lanjut →
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="../../data.js"></script>
+<script src="../js/kursi.js"></script>
+</body>
+</html>

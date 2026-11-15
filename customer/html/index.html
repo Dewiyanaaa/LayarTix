@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#07090e" />
+  <title>Masuk ke Akun Anda — LayarTix</title>
+
+  <!-- Google Fonts: Poppins & Cinzel -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Modular Customer Login Centered Stylesheet -->
+  <link rel="stylesheet" href="../css/login.css" />
+</head>
+<body>
+
+  <!-- Ambient Cinematic Background Glow & Movie Poster Collage -->
+  <div class="auth-ambient" aria-hidden="true"></div>
+
+  <!-- Centered Form Wrapper -->
+  <main class="auth-centered-wrapper">
+    <div class="auth-card" id="authCard">
+
+      <!-- Header Branding & Page Title -->
+      <header class="auth-header">
+        <div class="brand-title">LayarTix</div>
+        <h1 class="page-title">Masuk ke Akun Anda</h1>
+      </header>
+
+      <!-- Primary Tabs: Masuk / Daftar -->
+      <nav class="auth-nav-tabs" aria-label="Pilihan Autentikasi">
+        <button type="button" class="auth-tab-btn active" id="tabLogin" onclick="switchTab('login')">
+          Masuk
+        </button>
+        <button type="button" class="auth-tab-btn" id="tabRegister" onclick="switchTab('register')">
+          Daftar Akun
+        </button>
+      </nav>
+
+      <!-- Error Notification Box -->
+      <div class="auth-error" id="errorBox" role="alert" aria-live="assertive">
+        <span id="errorText">Email atau password yang dimasukkan salah.</span>
+      </div>
+
+      <!-- ================= LOGIN FORM ================= -->
+      <form id="loginForm" onsubmit="handleLoginSubmit(event)" novalidate>
+        <!-- Method Toggle: Email / Nomor Telepon -->
+        <div class="method-toggle" role="group" aria-label="Metode Masuk">
+          <button type="button" class="method-btn active" id="loginByEmail" onclick="setLoginMethod('email')">
+            Email
+          </button>
+          <button type="button" class="method-btn" id="loginByPhone" onclick="setLoginMethod('phone')">
+            Nomor Telepon
+          </button>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" id="loginInputLabel" for="loginInput">Alamat Email</label>
+          <div class="input-container">
+            <input class="form-input" id="loginInput" type="email" placeholder="nama@email.com" autocomplete="username" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="loginPass">Password</label>
+          <div class="input-container input-with-action">
+            <input class="form-input" id="loginPass" type="password" placeholder="Masukkan password" autocomplete="current-password" required />
+            <button type="button" class="eye-btn" onclick="togglePasswordVisibility('loginPass', this)" aria-label="Tampilkan password" title="Tampilkan/Sembunyikan password">
+              <svg class="eye-icon" viewBox="0 0 24 24">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="forgot-link-wrap">
+          <a href="#" class="forgot-link" onclick="alert('Silakan hubungi dukungan pelanggan di support@layartix.id untuk pengaturan ulang password.'); return false;">
+            Lupa password?
+          </a>
+        </div>
+
+        <button type="submit" class="btn-submit-auth">
+          Masuk ke Akun
+        </button>
+      </form>
+
+      <!-- ================= REGISTER FORM ================= -->
+      <form id="registerForm" onsubmit="handleRegisterSubmit(event)" style="display:none;" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="regName">Nama Lengkap</label>
+          <div class="input-container">
+            <input class="form-input" id="regName" type="text" placeholder="Masukkan nama lengkap Anda" autocomplete="name" required />
+          </div>
+        </div>
+
+        <!-- Method Toggle: Email / Nomor Telepon -->
+        <div class="method-toggle" role="group" aria-label="Metode Pendaftaran">
+          <button type="button" class="method-btn active" id="regByEmail" onclick="setRegMethod('email')">
+            Email
+          </button>
+          <button type="button" class="method-btn" id="regByPhone" onclick="setRegMethod('phone')">
+            Nomor Telepon
+          </button>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" id="regInputLabel" for="regInput">Alamat Email</label>
+          <div class="input-container">
+            <input class="form-input" id="regInput" type="email" placeholder="nama@email.com" autocomplete="email" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="regPass">Password Baru</label>
+          <div class="input-container input-with-action">
+            <input class="form-input" id="regPass" type="password" placeholder="Minimal 6 karakter" oninput="evaluatePasswordStrength(this.value)" autocomplete="new-password" required />
+            <button type="button" class="eye-btn" onclick="togglePasswordVisibility('regPass', this)" aria-label="Tampilkan password" title="Tampilkan/Sembunyikan password">
+              <svg class="eye-icon" viewBox="0 0 24 24">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+          </div>
+          <div class="strength-track">
+            <div class="strength-bar" id="pwBar"></div>
+          </div>
+          <div class="strength-label" id="pwLabel"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="regPassConf">Konfirmasi Password</label>
+          <div class="input-container input-with-action">
+            <input class="form-input" id="regPassConf" type="password" placeholder="Ulangi password baru Anda" autocomplete="new-password" required />
+            <button type="button" class="eye-btn" onclick="togglePasswordVisibility('regPassConf', this)" aria-label="Tampilkan password" title="Tampilkan/Sembunyikan password">
+              <svg class="eye-icon" viewBox="0 0 24 24">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="terms-wrap">
+          <input type="checkbox" id="agreeCheck" checked required />
+          <label for="agreeCheck" class="terms-text">
+            Saya menyetujui <span>Syarat &amp; Ketentuan</span> serta Kebijakan Privasi LayarTix
+          </label>
+        </div>
+
+        <button type="submit" class="btn-submit-auth">
+          Daftarkan Akun
+        </button>
+      </form>
+
+    </div>
+  </main>
+
+  <!-- Shared Data/Auth Logic -->
+  <script src="../../data.js"></script>
+  <!-- Authentication Logic -->
+  <script src="../js/login.js"></script>
+
+</body>
+</html>

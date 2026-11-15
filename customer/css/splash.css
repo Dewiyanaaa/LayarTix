@@ -1,0 +1,297 @@
+/* ==========================================================================
+   LayarTix — Cinematic Text-Only Splash Screen Styles
+   Theme: Luxury Dark Cinematic (#07090e) with Gold & Crimson Gradient Shimmer
+   ========================================================================== */
+
+:root {
+  --bg-cinematic: #07090e;
+  --gold-primary: #ffd700;
+  --rose-gold: #f59e0b;
+  --crimson-accent: #e63946;
+  --text-muted: rgba(255, 255, 255, 0.65);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+}
+
+body, html {
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-cinematic);
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow: hidden;
+  color: #ffffff;
+  user-select: none;
+}
+
+/* Atmosphere Light Cone & Radial Glow */
+.splash-wrapper {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at 50% 45%, rgba(230, 57, 70, 0.12) 0%, rgba(255, 215, 0, 0.05) 30%, #07090e 75%);
+  transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 1;
+  transform: scale(1);
+}
+
+.splash-wrapper.fade-out {
+  opacity: 0;
+  transform: scale(1.04);
+  pointer-events: none;
+}
+
+/* Ambient Ambient Beam (Cinematic Lens Flare Effect) */
+.ambient-glow {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  width: 600px;
+  height: 280px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(ellipse at center, rgba(255, 215, 0, 0.18) 0%, rgba(230, 57, 70, 0.12) 40%, transparent 70%);
+  filter: blur(50px);
+  pointer-events: none;
+  animation: pulseGlow 4s ease-in-out infinite alternate;
+}
+
+/* Central Content Container */
+.splash-content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 24px;
+}
+
+/* Luxury Text Logo */
+.brand-title-wrap {
+  position: relative;
+  overflow: hidden;
+  padding: 10px 20px;
+}
+
+.brand-title {
+  font-family: 'Cinzel', 'Poppins', serif;
+  font-size: clamp(3rem, 9vw, 5.2rem);
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin: 0;
+  line-height: 1.1;
+
+  /* Rose Gold to Crimson Gradient */
+  background: linear-gradient(
+    135deg,
+    #ffffff 0%,
+    #ffeaa7 20%,
+    #ffd700 40%,
+    #f39c12 60%,
+    #e63946 85%,
+    #ff7675 100%
+  );
+  background-size: 250% 250%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  /* Animations: Entrance Zoom-In + Gradient Flow + Ambient Glow */
+  animation: 
+    entranceZoom 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards,
+    gradientShift 4.5s ease-in-out infinite alternate,
+    cinematicGlow 3s ease-in-out infinite alternate;
+}
+
+/* Badge / Pill Sub-Header */
+.brand-category {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 4px 18px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  backdrop-filter: blur(12px);
+  opacity: 0;
+  transform: translateY(12px);
+  animation: fadeInUp 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards;
+}
+
+.brand-category span {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  color: var(--gold-primary);
+  text-transform: uppercase;
+}
+
+/* Elegant Subtitle with wide letter spacing */
+.brand-subtitle {
+  font-size: clamp(0.75rem, 2.5vw, 1.05rem);
+  font-weight: 400;
+  color: var(--text-muted);
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  margin-top: 24px;
+  max-width: 580px;
+  line-height: 1.6;
+  opacity: 0;
+  transform: translateY(16px);
+  animation: fadeInUp 1.4s cubic-bezier(0.16, 1, 0.3, 1) 1.2s forwards;
+}
+
+/* Progress & Timer Indicator Section */
+.timer-container {
+  margin-top: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 280px;
+  opacity: 0;
+  animation: fadeIn 1.2s ease 1.5s forwards;
+}
+
+/* Precision 6-Second Loading Bar */
+.progress-track {
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #e63946, #ffd700, #ffeaa7);
+  box-shadow: 0 0 14px rgba(255, 215, 0, 0.8), 0 0 4px #e63946;
+  border-radius: 6px;
+  animation: progressFill 6s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+/* Status dots & countdown counter */
+.status-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.15em;
+  font-variant-numeric: tabular-nums;
+}
+
+.dots-pulse {
+  display: inline-flex;
+  gap: 5px;
+}
+
+.dots-pulse span {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--gold-primary);
+  opacity: 0.3;
+  animation: dotPulse 1.4s infinite ease-in-out;
+}
+
+.dots-pulse span:nth-child(2) { animation-delay: 0.2s; }
+.dots-pulse span:nth-child(3) { animation-delay: 0.4s; }
+
+/* Skip button for thumb-zone */
+.skip-btn {
+  margin-top: 32px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 8px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(8px);
+}
+
+.skip-btn:hover {
+  border-color: var(--gold-primary);
+  color: #ffffff;
+  background: rgba(255, 215, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+/* KEYFRAMES */
+@keyframes entranceZoom {
+  0% {
+    opacity: 0;
+    transform: scale(0.86) translateY(20px);
+    filter: blur(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes cinematicGlow {
+  0% {
+    filter: drop-shadow(0 0 16px rgba(230, 57, 70, 0.35)) drop-shadow(0 0 35px rgba(255, 215, 0, 0.2));
+  }
+  100% {
+    filter: drop-shadow(0 0 28px rgba(255, 215, 0, 0.6)) drop-shadow(0 0 65px rgba(230, 57, 70, 0.45));
+  }
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes progressFill {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+@keyframes dotPulse {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+@keyframes pulseGlow {
+  0% { opacity: 0.4; transform: translate(-50%, -50%) scale(0.9); }
+  100% { opacity: 0.85; transform: translate(-50%, -50%) scale(1.15); }
+}
+

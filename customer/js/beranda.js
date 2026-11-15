@@ -1,0 +1,789 @@
+/**
+ * LayarTix Customer Beranda Controller
+ * customer/js/beranda.js
+ */
+
+// ── Auth Check & Dynamic Greeting ──
+const user = LT.requireAuth('customer');
+if (user) {
+  const avatarEl = document.getElementById('userAvatar');
+  if (avatarEl) avatarEl.textContent = user.avatar || '';
+
+  // Admin link visibility: Hanya tampil jika role akun adalah admin
+  const adminHeaderLink = document.getElementById('adminHeaderLink');
+  if (adminHeaderLink) {
+    if (user.role === 'admin') {
+      adminHeaderLink.style.display = 'inline-flex';
+    } else {
+      adminHeaderLink.style.display = 'none';
+    }
+  }
+
+  // Greeting by time of day
+  const hour = new Date().getHours();
+  let timeGreeting = 'Selamat Malam';
+  if (hour >= 4 && hour < 11) timeGreeting = 'Selamat Pagi';
+  else if (hour >= 11 && hour < 15) timeGreeting = 'Selamat Siang';
+  else if (hour >= 15 && hour < 18) timeGreeting = 'Selamat Sore';
+
+  const userName = user.name ? user.name.split(' ')[0] : 'Sobat Nonton';
+
+  const greetingTime = document.getElementById('greetingTime');
+  const greetingName = document.getElementById('greetingName');
+  if (greetingTime) greetingTime.textContent = `${timeGreeting},`;
+  if (greetingName) greetingName.textContent = `${userName} `;
+
+  const mobGreetingTime = document.getElementById('mobileGreetingTime');
+  const mobGreetingName = document.getElementById('mobileGreetingName');
+  if (mobGreetingTime) mobGreetingTime.textContent = `${timeGreeting},`;
+  if (mobGreetingName) mobGreetingName.textContent = `${userName} `;
+}
+
+// -------------------------------------------------------------------
+// Hard‑coded movie catalog for Beranda (5 core films)
+function forceRenderMovies() {
+  // 1. Clear any old movie caches
+  localStorage.removeItem('layartix_movies');
+  localStorage.removeItem('layartix_now_playing');
+
+  // 2. Define Now Playing (14 film) & Upcoming (6 film)
+  const nowPlayingMovies = [
+    { id: 'm_clayface', title: 'Clayface', genre: 'Thriller, Horror, Drama, Sci-fi', rating: 'D17+', duration: 105, poster: '../assets/images/clayface.jpg', synopsis: 'Transformasi mengerikan seorang aktor yang terobsesi dengan kesempurnaan hingga berubah menjadi entitas mematikan.' },
+    { id: 'm_kuasagelap', title: 'Kuasa Gelap: Perjanjian Darah', genre: 'Horror', rating: 'D17+', duration: 120, poster: '../assets/images/kuasa-gelap.jpg', synopsis: 'Teror supranatural mencekam dari masa lalu yang menagih janji darah kelam dan mengancam keselamatan seluruh anggota keluarga.' },
+    { id: 'm_pirunduk', title: 'Pirunduk', genre: 'Horror', rating: 'D17+', duration: 96, poster: '../assets/images/pirunduk.png', synopsis: 'Kisah horor menegangkan tentang sekumpulan remaja yang terjebak di gedung terlarang.' },
+    { id: 'm_bapakjujur', title: 'Bapak Paling Jujur', genre: 'Comedy', rating: 'SU / 13+', duration: 103, poster: '../assets/images/bapak-paling-jujur.jpg', synopsis: 'Kisah komedi keluarga yang hangat dan mengocok perut tentang kejujuran seorang ayah yang justru memicu kekacauan lucu dalam kesehariannya.' },
+    { id: 'm_streetfighter', title: 'Street Fighter', genre: 'Action, Drama', rating: 'D17+', duration: 125, poster: '../assets/images/street-fighter.jpg', synopsis: 'Pertarungan jalanan yang epik antara legenda beladiri.' },
+    { id: 'm_ibu', title: 'Ibu, Bagaimana Aku Tanpamu?', genre: 'Drama, Family', rating: 'SU / 13+', duration: 111, poster: '../assets/images/ibu-bagaimana-aku-tanpamu.jpg', synopsis: 'Drama emosional tentang ikatan ibu‑anak yang diuji oleh waktu.' },
+    { id: 'm_sitivampir', title: 'Siti Si Vampir', genre: 'Horror, Comedy', rating: '13+', duration: 98, poster: 'https://picsum.photos/seed/sitivampir2026/400/600', synopsis: 'Kisah humor gelap tentang vampir muda yang mencari identitas.' },
+    { id: 'm_othermommy', title: 'Other Mommy', genre: 'Horror, Thriller', rating: 'D17+', duration: 104, poster: 'https://picsum.photos/seed/othermommy2026/400/600', synopsis: 'Misteri mengerikan di balik peran seorang ibu.' },
+    { id: 'm_residentevil', title: 'Resident Evil (2026)', genre: 'Action, Sci-fi, Horror', rating: 'D17+', duration: 118, poster: 'https://picsum.photos/seed/residentevil2026/400/600', synopsis: 'Kelanjutan epik melawan wabah bioteror.' },
+    { id: 'm_beautifulpain', title: 'Beautiful Pain', genre: 'Romance, Drama', rating: '13+', duration: 110, poster: 'https://picsum.photos/seed/beautifulpain2026/400/600', synopsis: 'Cinta yang tumbuh di tengah penderitaan.' },
+    { id: 'm_wargarusan', title: 'Warga Rusun 609', genre: 'Comedy, Horror', rating: 'D17+', duration: 95, poster: 'https://picsum.photos/seed/wargarusan2026/400/600', synopsis: 'Komedi horor tentang penghuni apartemen seram.' },
+    { id: 'm_verity', title: 'Verity', genre: 'Thriller, Mystery', rating: 'D17+', duration: 115, poster: 'https://picsum.photos/seed/verity2026/400/600', synopsis: 'Intrik misteri yang mengungkap kebenaran tersembunyi.' },
+    { id: 'm_henryfirstdate', title: "Henry’s First Date", genre: 'Romance, Comedy', rating: '13+', duration: 97, poster: 'https://picsum.photos/seed/henryfirstdate2026/400/600', synopsis: 'Kencan pertama Henry yang lucu dan canggung.' },
+    { id: 'm_empatmusim', title: 'Empat Musim Pertiwi', genre: 'Family Drama', rating: 'SU / 13+', duration: 115, poster: 'https://picsum.photos/seed/empatmusim2026/400/600', synopsis: 'Drama keluarga puitis tentang kepulangan Pertiwi ke kampung halaman, merajut kembali luka lama dan kehangatan rumah melewati pergantian empat musim.' }
+  ];
+
+  const upcomingMovies = [
+    { id: 'm_whalefall', title: 'Whalefall', genre: 'Adventure, Drama, Horror, Thriller', rating: 'D17+', duration: 106, poster: '../assets/images/whalefall.jpg', synopsis: 'Petualangan mistik di kedalaman laut yang menyingkap rahasia kuno.', cast: 'Daniel Kraus, MTV Books', director: 'Daniel Kraus', status: 'upcoming', releaseDate: '2026-11-28' },
+    { id: 'm_lingsirwengi', title: 'Lingsir Wengi: Motel Malioboro', genre: 'Horror, Adventure', rating: 'D17+', duration: 102, poster: '../assets/images/lingsir-wengi-motel-malioboro.jpg', synopsis: 'Malam menakutkan di motel yang menyimpan kutukan gelap.', cast: 'Ochi Rosdiana, Jeff Smith', director: 'Adhe Dharmastriya', status: 'upcoming', releaseDate: '2026-12-05' },
+    { id: 'm_dune_messiah', title: 'Dune: Messiah', genre: 'Sci-fi, Adventure', rating: 'D17+', duration: 130, poster: '../assets/images/dune-messiah.jpg', synopsis: 'Kelanjutan epik saga Dune, mengikuti pemberontakan dan takdir Paul Atreides.', cast: 'Timothée Chalamet, Zendaya, Florence Pugh', director: 'Denis Villeneuve', status: 'upcoming', releaseDate: '2026-12-18' },
+    { id: 'm_toystory5', title: 'Toy Story 5', genre: 'Animasi, Petualangan, Keluarga', rating: 'SU', duration: 104, poster: '../assets/images/toy-story-5.jpg', synopsis: 'Woody, Buzz Lightyear, dan kawan-kawan menghadapi tantangan era modern bersaing dengan layar gawai.', cast: 'Tom Hanks, Tim Allen, Joan Cusack', director: 'Andrew Stanton', status: 'upcoming', releaseDate: '2026-12-25' },
+    { id: 'm_aplikasiblis', title: 'Aplikasi Iblis', genre: 'Horror, Techno-Thriller', rating: 'D17+', duration: 102, poster: 'https://picsum.photos/seed/aplikasiblis2026/400/600', synopsis: 'Aplikasi misterius yang mengendalikan pikiran penggunanya.', cast: 'Bio One, Caitlin Halderman', director: 'Kimo Stamboel', status: 'upcoming', releaseDate: '2027-01-08' },
+    { id: 'm_avengersendgame', title: 'Avengers Endgame: Encore', genre: 'Action, Superhero', rating: 'SU / 13+', duration: 185, poster: 'https://picsum.photos/seed/avengers2026/400/600', synopsis: 'Kemunculan kembali para pahlawan dalam pertempuran akhir.', cast: 'Robert Downey Jr., Chris Evans', director: 'Anthony & Joe Russo', status: 'upcoming', releaseDate: '2027-01-15' }
+  ];
+
+  // 3. Persist the catalogs for other modules
+  localStorage.setItem('layartix_now_playing', JSON.stringify(nowPlayingMovies));
+  localStorage.setItem('layartix_coming_soon', JSON.stringify(upcomingMovies));
+
+  // Update counter badges
+  const npCountEl = document.getElementById('nowPlayingCount');
+  const csCountEl = document.getElementById('comingSoonCount');
+  if (npCountEl) npCountEl.textContent = `${nowPlayingMovies.length} film`;
+  if (csCountEl) csCountEl.textContent = `${upcomingMovies.length} film`;
+
+  // 4. Force render directly into Now Playing container
+  const container = document.getElementById('nowPlayingList') || document.getElementById('movies-container') || document.querySelector('.movie-grid');
+  if (container) {
+    container.innerHTML = '';
+    nowPlayingMovies.forEach(m => {
+      container.innerHTML += `
+        <div class="movie-card flex flex-col justify-between h-full bg-gray-800 rounded-xl overflow-hidden shadow-md p-2.5" style="cursor:pointer;" onclick="showMovieDetail('${m.id}')">
+          <img src="${m.poster}" alt="${m.title}" class="w-full h-[320px] object-cover shrink-0 rounded-t-xl" loading="lazy" onerror="this.style.display='none'"/>
+          <div class="flex flex-col justify-between flex-grow mt-2">
+            <h3 class="text-base font-semibold text-white h-[48px] line-clamp-2 flex items-center leading-snug" title="${m.title}">${m.title}</h3>
+            <button class="w-full mt-3 py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm tracking-wide shadow-md transition-all duration-200" onclick="event.stopPropagation(); handleBookingClick('${m.id}')">Pesan Tiket</button>
+          </div>
+        </div>`;
+    });
+  }
+
+  // 5. Force render directly into Coming Soon container (6 film seragam)
+  const csContainer = document.getElementById('comingSoonList');
+  if (csContainer) {
+    csContainer.innerHTML = '';
+    upcomingMovies.forEach(m => {
+      csContainer.innerHTML += `
+        <div class="movie-card flex flex-col justify-between h-full bg-gray-800 rounded-xl overflow-hidden shadow-md p-2.5" style="cursor:pointer;" onclick="showMovieDetail('${m.id}')">
+          <img src="${m.poster}" alt="${m.title}" class="w-full h-[320px] object-cover shrink-0 rounded-t-xl" loading="lazy" onerror="this.style.display='none'"/>
+          <div class="flex flex-col justify-between flex-grow mt-2">
+            <h3 class="text-base font-semibold text-white h-[48px] line-clamp-2 flex items-center leading-snug" title="${m.title}">${m.title}</h3>
+            <div class="mt-2.5 p-2 bg-slate-900/80 rounded-xl border border-slate-700/60 text-xs flex flex-col gap-1 text-slate-300">
+              <div class="flex items-center justify-between"><span class="text-slate-400 font-medium">Genre / Durasi:</span> <span class="text-amber-400 font-semibold line-clamp-1">${m.genre} · ${m.duration}m</span></div>
+              <div class="flex items-center justify-between"><span class="text-slate-400 font-medium">Sutradara:</span> <span class="text-white font-medium line-clamp-1">${m.director || 'Denis Villeneuve'}</span></div>
+              <div class="flex items-center justify-between"><span class="text-slate-400 font-medium">Aktor:</span> <span class="text-white font-medium line-clamp-1">${m.cast || 'Bintang Ternama'}</span></div>
+            </div>
+          </div>
+        </div>`;
+    });
+  }
+}
+
+// Fallback helper pemesanan instan jika dipanggil langsung
+window.addTicketFromMovie = function(movie) {
+  if (typeof movie === 'string') {
+    handleBookingClick(movie);
+  } else if (movie && movie.id) {
+    handleBookingClick(movie.id);
+  }
+};
+
+
+// Ensure movies are initialized and rendered after DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  forceRenderMovies();
+  LT.initMovies(); // re‑load movies from storage for other components
+});
+// -------------------------------------------------------------------
+
+// ── City Initialization (Default: Makassar) ──
+const currentCity = LT.getSelectedCity();
+const cityNameEl = document.getElementById('cityName');
+if (cityNameEl) cityNameEl.textContent = currentCity;
+
+// ── Hero Carousel & Strategic Partner Banners ──
+let heroIdx = 0;
+let heroSlidesData = [];
+
+// Banner Iklan Sponsor & Mitra Strategis LayarTix
+const partnerBanners = [
+  {
+    type: 'sponsor',
+    title: 'Diskon 50% Tiket Nonton dengan QRIS BCA',
+    subtitle: 'Maks. Cashback Rp 25.000 setiap Jumat-Minggu di seluruh jaringan bioskop mitra LayarTix',
+    badge: ' BANK PARTNER',
+    tagColor: '#3b82f6',
+    image: 'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=800&q=80',
+    btnText: 'Klaim Promo',
+    btnAction: "LT.toast('Pilih metode QRIS BCA saat pembayaran untuk mendapatkan diskon 50%!','info',4000)"
+  },
+  {
+    type: 'sponsor',
+    title: 'Cashback 40% & Saldo Points bareng GoPay & OVO',
+    subtitle: 'Nonton film hemat & nikmati poin reward transaksi untuk setiap pembelian tiket bioskop',
+    badge: ' E-WALLET PARTNER',
+    tagColor: '#00d2d3',
+    image: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&w=800&q=80',
+    btnText: 'Gunakan E-Wallet',
+    btnAction: "LT.toast('Pilih metode E-Wallet (GoPay/OVO/DANA) saat checkout tiket!','info',4000)"
+  },
+  {
+    type: 'sponsor',
+    title: 'Paket Bundling Popcorn XXI & Coca-Cola Spesial',
+    subtitle: 'Hemat hingga Rp 35.000 untuk paket combo jumbo renyah langsung ambil di loket F&B bioskop',
+    badge: ' F&B SPONSOR',
+    tagColor: '#ffd700',
+    image: 'https://images.unsplash.com/photo-1585647347483-22b66260dfff?auto=format&fit=crop&w=800&q=80',
+    btnText: 'Pesan Snack',
+    btnAction: "window.location.href='fnb.html'"
+  }
+];
+
+function buildHero() {
+  const nowPlaying = LT.getNowPlaying();
+  const featuredMovies = nowPlaying.slice(0, 3).map(m => ({
+    type: 'movie',
+    id: m.id,
+    title: m.title,
+    subtitle: `${m.genre} · ${m.duration} mnt`,
+    badge: LT.getRatingBadge(m.rating).label,
+    tagColor: LT.getRatingBadge(m.rating).color,
+    image: m.poster,
+    btnText: 'Pesan Tiket',
+    btnAction: `showMovieDetail('${m.id}')`
+  }));
+
+  // Gabungkan film blockbuster dengan banner sponsor mitra
+  heroSlidesData = [...featuredMovies, ...partnerBanners];
+
+  const slidesEl = document.getElementById('heroSlides');
+  const dotsEl = document.getElementById('heroDots');
+  if (!slidesEl) return;
+
+  slidesEl.innerHTML = heroSlidesData.map(item => {
+    return `<div class="hero-slide">
+      <img src="${item.image}" alt="${item.title}" loading="lazy" onerror="this.src='https://picsum.photos/seed/${item.title}/600/300'"/>
+      <div class="hero-overlay">
+        <div class="hero-rating">
+          <span class="badge" style="background:rgba(0,0,0,0.6);color:${item.tagColor};border:1px solid ${item.tagColor}40">
+            ${item.badge}
+          </span>
+        </div>
+        <div class="hero-title">${item.title}</div>
+        <div class="hero-genre">${item.subtitle}</div>
+        <button class="btn btn-primary btn-sm" style="margin-top:10px;padding:8px 18px;width:fit-content" onclick="${item.btnAction}">
+          ${item.type === 'movie' ? ' ' : ' '} ${item.btnText}
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+
+  if (dotsEl) {
+    dotsEl.innerHTML = heroSlidesData.map((_, i) =>
+      `<div class="hero-dot ${i === 0 ? 'active' : ''}" id="dot-${i}" onclick="goToSlide(${i})"></div>`
+    ).join('');
+  }
+}
+
+function goToSlide(idx) {
+  if (!heroSlidesData.length) return;
+  heroIdx = (idx + heroSlidesData.length) % heroSlidesData.length;
+  const slidesEl = document.getElementById('heroSlides');
+  if (slidesEl) slidesEl.style.transform = `translateX(-${heroIdx * 100}%)`;
+  document.querySelectorAll('.hero-dot').forEach((d, i) => d.classList.toggle('active', i === heroIdx));
+}
+
+buildHero();
+const heroTimer = setInterval(() => goToSlide(heroIdx + 1), 4500);
+
+// Swipe Support
+const heroWrap = document.getElementById('heroWrap');
+if (heroWrap) {
+  let touchStart = 0;
+  heroWrap.addEventListener('touchstart', e => touchStart = e.touches[0].clientX);
+  heroWrap.addEventListener('touchend', e => {
+    const diff = touchStart - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) goToSlide(heroIdx + (diff > 0 ? 1 : -1));
+  });
+}
+
+// ── Smooth Scroll Helper ──
+function scrollToSection(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
+// ── Movie Filtering & Lists ──
+let genreFilter = 'all';
+
+function filterByGenre(genre, btn) {
+  genreFilter = genre;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  renderMovieLists();
+}
+
+function renderMovieLists() {
+  // Read directly from localStorage
+  const npAll = LT.getNowPlaying();
+  const csAll = LT.getComingSoon();
+
+  const filterFn = m => genreFilter === 'all' || (m.genre && m.genre.toLowerCase().includes(genreFilter.toLowerCase()));
+
+  const np = npAll.filter(filterFn);
+  const cs = csAll.filter(filterFn);
+
+  const npCountEl = document.getElementById('nowPlayingCount');
+  const csCountEl = document.getElementById('comingSoonCount');
+  if (npCountEl) npCountEl.textContent = `${np.length} film`;
+  if (csCountEl) csCountEl.textContent = `${cs.length} film`;
+
+  const npList = document.getElementById('nowPlayingList');
+  if (npList && !npList.querySelector('.btn-primary')) {
+    npList.innerHTML = np.length
+      ? np.map(m => movieCardHTML(m, false)).join('')
+      : '<div style="padding:0 16px;color:var(--muted);font-size:13px">Semua tiket film ini telah Anda miliki di menu Tiket!</div>';
+  }
+
+  const csList = document.getElementById('comingSoonList');
+  if (csList) {
+    csList.innerHTML = cs.length
+      ? cs.map(m => movieCardHTML(m, true)).join('')
+      : '<div style="padding:0 16px;color:var(--muted);font-size:13px">Tidak ada film akan datang</div>';
+  }
+}
+
+function movieCardHTML(m, isComing) {
+  const rb = LT.getRatingBadge(m.rating);
+  return `<div class="movie-card ${isComing ? 'coming-overlay' : ''}" onclick="showMovieDetail('${m.id}')">
+    <div class="movie-poster-wrap">
+      <span class="movie-rating-badge" style="background:${rb.bg};color:${rb.color}">${rb.label}</span>
+      <img class="movie-poster" src="${m.poster}" alt="${m.title}"
+           onerror="this.src='https://picsum.photos/seed/${m.id}/180/270'"
+           ${isComing ? 'style="filter:brightness(0.75)"' : ''}/>
+    </div>
+    <div class="movie-info">
+      <div class="movie-title" title="${m.title}">${m.title}</div>
+      <div class="movie-meta">
+        <span class="movie-genre" title="${m.genre}">${m.genre}</span>
+        <span style="font-weight:600;color:var(--text)">${m.duration}m</span>
+      </div>
+      ${!isComing ? `
+        <button class="btn-buy-ticket"
+                onclick="event.stopPropagation();handleBookingClick('${m.id}')">
+           Beli Tiket
+        </button>
+      ` : `<button class="btn-coming-status" disabled>Segera Hadir</button>`}
+      ${isComing && m.releaseDate ? `<div style="font-size:10px;color:var(--gold);margin-top:auto;padding-top:4px;font-weight:600"> ${new Date(m.releaseDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+// ── TIX Rekreasi Data (TIX ID Style) ──
+const tixAttractionsData = [
+  {
+    id: 'att_1',
+    category: 'Taman Rekreasi',
+    title: 'Trans Studio Mall Makassar Theme Park',
+    loc: 'TSM Makassar, Sulawesi Selatan',
+    price: 185000,
+    rating: '4.8 ',
+    thumb: 'https://images.unsplash.com/photo-1513889961551-628c1e5e2ee9?auto=format&fit=crop&w=500&q=80'
+  },
+  {
+    id: 'att_2',
+    category: 'Aquarium & Edukasi',
+    title: 'Jakarta Aquarium & Safari Neo Soho',
+    loc: 'Grogol Petamburan, Jakarta',
+    price: 175000,
+    rating: '4.9 ',
+    thumb: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=500&q=80'
+  },
+  {
+    id: 'att_3',
+    category: 'Wahana Hiburan',
+    title: 'Dufan Ancol Wonder Day Pass',
+    loc: 'Ancol, Jakarta Utara',
+    price: 220000,
+    rating: '4.7 ',
+    thumb: 'https://images.unsplash.com/photo-1576085898323-218337e3e43c?auto=format&fit=crop&w=500&q=80'
+  },
+  {
+    id: 'att_4',
+    category: 'Alam & Resort',
+    title: 'Taman Safari Indonesia Puncak',
+    loc: 'Bogor, Jawa Barat',
+    price: 240000,
+    rating: '4.9 ',
+    thumb: 'https://images.unsplash.com/photo-1534567153574-2b12153a87f0?auto=format&fit=crop&w=500&q=80'
+  }
+];
+
+function renderEventsAndAttractions() {
+  const attractionsContainer = document.getElementById('attractionsList');
+  if (attractionsContainer) {
+    attractionsContainer.innerHTML = tixAttractionsData.map(a => `
+      <div class="event-card" onclick="LT.toast('Voucher Rekreasi ${a.title} dapat ditukarkan di loket atraksi!','info',3000)">
+        <img class="event-thumb" src="${a.thumb}" alt="${a.title}" onerror="this.src='https://picsum.photos/seed/${a.id}/250/130'"/>
+        <div class="event-body">
+          <div class="flex items-center justify-between mb-1">
+            <span class="event-category" style="color:#22c55e"> ${a.category}</span>
+            <span class="text-[10px] font-bold text-amber-400">${a.rating}</span>
+          </div>
+          <div class="event-title">${a.title}</div>
+          <div class="event-loc"> ${a.loc}</div>
+          <div class="event-footer">
+            <span class="text-[10px] text-gray-400">Harga Tiket</span>
+            <span class="event-price" style="color:#22c55e">${LT.formatRp(a.price)}</span>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+}
+
+// renderMovieLists();
+renderEventsAndAttractions();
+
+// ── Movie Detail Modal (Rincian Batasan Usia & Ulasan Spoiler Shield) ──
+let activeDetailMovieId = null;
+
+function showMovieDetail(movieId) {
+  const allMovies = LT.getAllMovies();
+  const m = allMovies.find(x => x.id === movieId);
+  if (!m) return;
+
+  activeDetailMovieId = movieId;
+  const rb = LT.getRatingBadge(m.rating);
+  const advisory = LT.getContentAdvisory(m.rating, m.genre);
+  const isComing = m.status === 'coming_soon';
+  const reviews = LT.getReviews(movieId);
+
+  const modalContent = document.getElementById('movieModalContent');
+  if (!modalContent) return;
+
+  modalContent.innerHTML = `
+    <div class="md:flex md:flex-row max-h-[88vh] overflow-y-auto">
+      <!-- SISI KIRI: POSTER & BANNER INFO -->
+      <div class="relative md:w-5/12 flex-shrink-0 bg-black/40">
+        <img src="${m.poster}" alt="${m.title}" style="width:100%;height:260px;object-fit:cover;filter:brightness(0.7);"
+             class="md:h-72 md:rounded-tl-2xl"
+             onerror="this.src='https://picsum.photos/seed/${m.id}/480/280'"/>
+        <div class="absolute inset-0 bg-gradient-to-t from-[#10111a] via-black/40 to-transparent flex items-end p-4">
+          <div>
+            <span class="badge" style="background:${rb.bg};color:${rb.color};font-weight:800;font-size:11px;margin-bottom:6px">${rb.label}</span>
+            <div style="font-size:22px;font-weight:800;line-height:1.2;color:#fff">${m.title}</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:4px">${m.genre} · ${m.duration} mnt</div>
+          </div>
+        </div>
+        <button onclick="closeMovieModal()" style="position:absolute;top:12px;right:12px;background:rgba(0,0,0,0.65);border:1px solid rgba(255,255,255,0.2);color:#fff;width:34px;height:34px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10"></button>
+
+        <!-- BATASAN USIA & CONTENT ADVISORY (TRANSPARAN UNTUK KELUARGA) -->
+        <div class="p-4 bg-white/[0.02] border-t border-b md:border-b-0 border-white/10">
+          <div class="flex items-center justify-between mb-2">
+            <div class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+              <span></span> <span>CONTENT ADVISORY & SENSOR</span>
+            </div>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded" style="background:${advisory.bg};color:${advisory.color};border:1px solid ${advisory.color}40">
+              ${advisory.badge}
+            </span>
+          </div>
+          <div class="text-[11px] text-gray-300 font-medium mb-3">${advisory.label}</div>
+          <div class="space-y-2">
+            ${advisory.items.map(it => `
+              <div class="advisory-item-row">
+                <div class="flex-1">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-white">${it.tag}</span>
+                    <span class="text-[10px] text-amber-300 font-semibold px-1.5 py-0.2 rounded bg-amber-500/10">${it.level}</span>
+                  </div>
+                  <div class="text-[11px] text-gray-400 mt-0.5">${it.desc}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+
+      <!-- SISI KANAN: SINOPSIS, ULASAN SPOILER SHIELD & AKSI -->
+      <div class="p-5 md:p-6 md:w-7/12 flex flex-col justify-between">
+        <div>
+          ${!isComing ? `
+          <!-- Tab Navigasi Modal: Info Film vs Ulasan Penonton (Hanya untuk film Sedang Tayang) -->
+          <div class="flex border-b border-white/10 mb-4 gap-4">
+            <button class="pb-2 text-xs font-bold text-amber-400 border-b-2 border-amber-400" id="tabBtnInfo" onclick="switchModalTab('info')">
+               Sinopsis & Info
+            </button>
+            <button class="pb-2 text-xs font-bold text-gray-400 hover:text-white" id="tabBtnReviews" onclick="switchModalTab('reviews')">
+               Ulasan (${reviews.length}) & Spoiler Shield
+            </button>
+          </div>
+          ` : `
+          <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
+            <span class="text-xs font-bold uppercase tracking-wider text-amber-400"> INFORMASI FILM SEGERA TAYANG</span>
+            ${m.releaseDate ? `<span class="text-[11px] font-semibold text-sky-400 bg-sky-500/10 px-2.5 py-0.5 rounded-full border border-sky-500/30">Tayang: ${new Date(m.releaseDate).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})}</span>` : ''}
+          </div>
+          `}
+
+          <!-- TAB CONTENT 1: SINOPSIS & KREDIT -->
+          <div id="modalTabInfo">
+            <div style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.7;margin-bottom:16px">${m.synopsis}</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+              <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;flex:1;min-width:110px">
+                <div style="font-size:10px;color:var(--muted);margin-bottom:3px">SUTRADARA</div>
+                <div style="font-size:13px;font-weight:600">${m.director || '–'}</div>
+              </div>
+              <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;flex:2;min-width:140px">
+                <div style="font-size:10px;color:var(--muted);margin-bottom:3px">PEMERAN / AKTOR</div>
+                <div style="font-size:13px;font-weight:600">${m.cast || '–'}</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:18px">
+              <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px 14px;flex:1">
+                <div style="font-size:10px;color:var(--muted)">DURASI & GENRE</div>
+                <div style="font-size:13px;font-weight:700;color:#fff">${m.duration} Menit · <span style="color:var(--gold)">${m.genre}</span></div>
+              </div>
+              ${isComing && m.releaseDate ? `<div style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.25);border-radius:10px;padding:10px 14px;text-align:center;flex:1">
+                <div style="font-size:10px;color:var(--muted)">ESTIMASI RILIS</div>
+                <div style="font-size:13px;font-weight:700;color:#3b82f6">${new Date(m.releaseDate).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})}</div>
+              </div>` : ''}
+              ${!isComing ? `<div style="background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.25);border-radius:10px;padding:10px 14px;text-align:center;flex:1">
+                <div style="font-size:10px;color:var(--muted)">MULAI DARI</div>
+                <div style="font-size:16px;font-weight:700;color:var(--gold)">${LT.formatRp(m.price_base)}</div>
+              </div>` : ''}
+            </div>
+          </div>
+
+          <!-- TAB CONTENT 2: ULASAN SPOILER SHIELD & MEDIA UPLOAD (Hanya untuk Sedang Tayang) -->
+          ${!isComing ? `
+          <div id="modalTabReviews" style="display:none;">
+            <!-- Form Tulis Ulasan -->
+            <div class="bg-white/5 border border-white/10 rounded-xl p-3.5 mb-4">
+              <div class="text-xs font-bold text-white mb-2 flex items-center justify-between">
+                <span> Tulis Komentar / Keseruan Menonton</span>
+                <span class="text-[10px] text-green-400">Anti-Bot & Spam Protected</span>
+              </div>
+              <textarea id="newReviewText" rows="2" class="w-full bg-black/40 border border-white/10 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-amber-400 placeholder-gray-500" placeholder="Bagikan opini kamu tanpa merusak pengalaman orang lain..."></textarea>
+              
+              <!-- Attachment & Spoiler Shield Toggle -->
+              <div class="mt-2.5 flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-3">
+                  <label class="flex items-center gap-1.5 cursor-pointer text-[11px] text-amber-300 bg-amber-400/10 px-2 py-1 rounded border border-amber-400/20">
+                    <input type="checkbox" id="checkIsSpoiler" class="accent-amber-400 rounded">
+                    <span> Mengandung Spoiler</span>
+                  </label>
+                  <label class="cursor-pointer text-[11px] text-gray-300 hover:text-white flex items-center gap-1 bg-white/5 px-2 py-1 rounded border border-white/10">
+                    <span> Lampirkan Foto/Video</span>
+                    <input type="file" id="reviewMediaFile" accept="image/*,video/*" class="hidden" onchange="previewMediaUpload(this)">
+                  </label>
+                </div>
+                <button class="btn btn-primary btn-sm px-3.5 py-1 text-xs" onclick="submitReview('${m.id}')">Kirim Ulasan</button>
+              </div>
+              <div id="mediaUploadPreviewWrap" class="mt-2 hidden">
+                <span class="text-[10px] text-green-400" id="mediaUploadStatus">File terlampir siap diunggah!</span>
+              </div>
+            </div>
+
+            <!-- List Ulasan Terproteksi -->
+            <div class="space-y-3 max-h-56 overflow-y-auto pr-1">
+              ${reviews.map(r => `
+                <div class="bg-black/30 border border-white/5 rounded-xl p-3">
+                  <div class="flex items-center justify-between mb-1.5">
+                    <div class="flex items-center gap-2">
+                      <span class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs">${r.userAvatar || ''}</span>
+                      <span class="text-xs font-bold text-white">${r.userName}</span>
+                      <span class="text-[10px] text-amber-400">${''.repeat(r.rating || 5)}</span>
+                    </div>
+                    <span class="text-[10px] text-gray-400">${r.date}</span>
+                  </div>
+
+                  ${r.isSpoiler ? `
+                    <div class="spoiler-shield-box" id="spoilerBox_${r.id}" onclick="revealSpoiler('${r.id}')">
+                      <div class="text-[11px] font-bold text-red-400 mb-1 flex items-center gap-1">
+                        <span> SPOILER SHIELD PROTECTION</span>
+                        <span class="text-[9px] text-gray-400">(Klik untuk membuka bocoran cerita)</span>
+                      </div>
+                      <div class="text-xs text-gray-300 spoiler-blur-text">${r.text}</div>
+                    </div>
+                  ` : `
+                    <div class="text-xs text-gray-300 leading-relaxed">${r.text}</div>
+                  `}
+
+                  ${r.mediaUrl ? `
+                    <div class="mt-2">
+                      <img src="${r.mediaUrl}" alt="Keseruan Penonton" class="review-media-preview" onerror="this.style.display='none'">
+                    </div>
+                  ` : ''}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          ` : ''}
+        </div>
+
+        <!-- Tombol Aksi / Penutup Modal -->
+        <div class="pt-4 border-t border-white/10 mt-2">
+          ${isComing
+            ? `<button class="btn btn-outline btn-full py-3 text-sm font-semibold border-white/20 text-white hover:bg-white/10" onclick="closeMovieModal()">Tutup Rincian Film</button>`
+            : `<button class="btn btn-primary btn-full py-3.5 text-sm font-bold" onclick="handleBookingClick('${m.id}')"> Pilih Jadwal & Beli Tiket</button>`
+          }
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('movieModal').classList.add('open');
+}
+
+function switchModalTab(tab) {
+  const tabInfo = document.getElementById('modalTabInfo');
+  const tabReviews = document.getElementById('modalTabReviews');
+  const btnInfo = document.getElementById('tabBtnInfo');
+  const btnReviews = document.getElementById('tabBtnReviews');
+
+  if (tab === 'reviews') {
+    tabInfo.style.display = 'none';
+    tabReviews.style.display = 'block';
+    btnInfo.className = 'pb-2 text-xs font-bold text-gray-400 hover:text-white';
+    btnReviews.className = 'pb-2 text-xs font-bold text-amber-400 border-b-2 border-amber-400';
+  } else {
+    tabInfo.style.display = 'block';
+    tabReviews.style.display = 'none';
+    btnInfo.className = 'pb-2 text-xs font-bold text-amber-400 border-b-2 border-amber-400';
+    btnReviews.className = 'pb-2 text-xs font-bold text-gray-400 hover:text-white';
+  }
+}
+
+function revealSpoiler(revId) {
+  const el = document.getElementById(`spoilerBox_${revId}`);
+  if (el) el.classList.toggle('revealed');
+}
+
+let tempMediaData = '';
+function previewMediaUpload(input) {
+  if (input.files && input.files[0]) {
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      tempMediaData = e.target.result;
+      const wrap = document.getElementById('mediaUploadPreviewWrap');
+      const status = document.getElementById('mediaUploadStatus');
+      if (wrap && status) {
+        wrap.classList.remove('hidden');
+        status.textContent = ` ${file.name} (${Math.round(file.size/1024)} KB) siap dilampirkan!`;
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+function submitReview(movieId) {
+  const input = document.getElementById('newReviewText');
+  const text = (input ? input.value : '').trim();
+  if (!text) {
+    LT.toast('Silakan tulis ulasan atau komentar terlebih dahulu!', 'warning');
+    return;
+  }
+  const isSpoiler = document.getElementById('checkIsSpoiler')?.checked || false;
+  const cu = LT.getCurrentUser();
+
+  const newReview = {
+    id: 'rev_' + Date.now(),
+    userName: cu?.name || 'Sobat Nonton',
+    userAvatar: cu?.avatar || '',
+    rating: 5,
+    date: 'Baru saja',
+    text,
+    isSpoiler,
+    mediaUrl: tempMediaData || '',
+    mediaType: tempMediaData ? 'image' : '',
+    likes: 1
+  };
+
+  LT.addReview(movieId, newReview);
+  tempMediaData = '';
+  LT.toast(isSpoiler ? 'Ulasan aman dengan Spoiler Shield berhasil dikirim! ' : 'Ulasan Anda berhasil dipublikasikan! ', 'success');
+  showMovieDetail(movieId);
+  switchModalTab('reviews');
+}
+
+function closeMovieModal() {
+  const modal = document.getElementById('movieModal');
+  if (modal) modal.classList.remove('open');
+}
+
+// ── Age Rating Warning Check (17+ / 21+) ──
+let pendingBookingMovieId = null;
+
+function handleBookingClick(movieId) {
+  let allMovies = (typeof LT !== 'undefined' && typeof LT.getAllMovies === 'function') ? LT.getAllMovies() : [];
+  let m = allMovies.find(x => x.id === movieId);
+  
+  if (!m) {
+    try {
+      const storedNowPlaying = JSON.parse(localStorage.getItem('layartix_now_playing') || '[]');
+      m = storedNowPlaying.find(x => x.id === movieId);
+    } catch(e) {}
+  }
+  
+  if (!m) {
+    console.error('Film tidak ditemukan untuk ID:', movieId);
+    return;
+  }
+
+  const isRestricted = ['D17', '17+', 'D21', '21+'].includes(m.rating);
+  if (isRestricted) {
+    pendingBookingMovieId = movieId;
+    closeMovieModal();
+    openAgeWarningModal(m);
+  } else {
+    proceedToBooking(movieId);
+  }
+}
+
+function openAgeWarningModal(movie) {
+  const modal = document.getElementById('ageWarningModal');
+  if (!modal) {
+    proceedToBooking(movie.id);
+    return;
+  }
+  const ratingText = ['D21', '21+'].includes(movie.rating) ? '21 TAHUN KE ATAS (21+)' : '17 TAHUN KE ATAS (17+)';
+  document.getElementById('ageModalRatingBadge').textContent = movie.rating;
+  document.getElementById('ageModalMovieTitle').textContent = movie.title;
+  document.getElementById('ageModalRatingDesc').textContent = ratingText;
+  modal.classList.add('open');
+}
+
+function closeAgeWarningModal() {
+  const modal = document.getElementById('ageWarningModal');
+  if (modal) modal.classList.remove('open');
+  pendingBookingMovieId = null;
+}
+
+function confirmAgeWarning() {
+  if (pendingBookingMovieId) {
+    const id = pendingBookingMovieId;
+    closeAgeWarningModal();
+    proceedToBooking(id);
+  }
+}
+
+function proceedToBooking(movieId) {
+  let allMovies = (typeof LT !== 'undefined' && typeof LT.getAllMovies === 'function') ? LT.getAllMovies() : [];
+  let m = allMovies.find(x => x.id === movieId);
+  if (!m) {
+    try {
+      const storedNowPlaying = JSON.parse(localStorage.getItem('layartix_now_playing') || '[]');
+      m = storedNowPlaying.find(x => x.id === movieId);
+    } catch(e) {}
+  }
+  LT.setSession({
+    movieId,
+    movieTitle: m?.title || '',
+    movieRating: m?.rating || 'SU',
+    poster: m?.poster || '',
+    price_base: m?.price_base || 65000
+  });
+  closeMovieModal();
+  window.location.href = 'bioskop_jam.html';
+}
+
+// Close detail on backdrop
+const movieModalEl = document.getElementById('movieModal');
+if (movieModalEl) {
+  movieModalEl.addEventListener('click', e => {
+    if (e.target.id === 'movieModal') closeMovieModal();
+  });
+}
+
+// ── City Modal Controller ──
+function openCityModal() {
+  renderCityGrid(LT.cities);
+  const modal = document.getElementById('cityModal');
+  if (modal) modal.classList.add('open');
+  const search = document.getElementById('citySearch');
+  if (search) {
+    search.value = '';
+    setTimeout(() => search.focus(), 300);
+  }
+}
+
+function closeCityModal() {
+  const modal = document.getElementById('cityModal');
+  if (modal) modal.classList.remove('open');
+}
+
+function filterCities(q) {
+  const filtered = LT.cities.filter(c => c.toLowerCase().includes(q.toLowerCase()));
+  renderCityGrid(filtered);
+}
+
+function renderCityGrid(cities) {
+  const saved = LT.getSelectedCity();
+  const grid = document.getElementById('cityGrid');
+  if (!grid) return;
+  grid.innerHTML = cities.map(c => `
+    <button class="city-btn ${c === saved ? 'selected' : ''}" onclick="selectCity('${c}')">
+      <span></span>
+      <span>${c}</span>
+    </button>
+  `).join('');
+}
+
+function selectCity(city) {
+  LT.setSelectedCity(city);
+  const nameEl = document.getElementById('cityName');
+  if (nameEl) nameEl.textContent = city;
+  closeCityModal();
+  LT.toast('Kota aktif diubah ke ' + city, 'success');
+  renderMovieLists();
+}
+
+const cityModalEl = document.getElementById('cityModal');
+if (cityModalEl) {
+  cityModalEl.addEventListener('click', e => {
+    if (e.target.id === 'cityModal') closeCityModal();
+  });
+}

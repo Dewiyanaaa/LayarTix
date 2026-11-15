@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LayarTix Tiket & Kenangan – LayarTix</title>
+  <link rel="stylesheet" href="../css/tiket.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    body {
+      align-items: flex-start;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-frame">
+    <!-- HEADER -->
+    <header class="app-header">
+      <div class="header-container">
+        <div style="display:flex;align-items:center;gap:16px">
+          <div class="header-logo" onclick="window.location.href='beranda.html'">LAYARTIX</div>
+          <nav class="desktop-nav">
+          <a href="beranda.html" class="desktop-nav-link ">LayarTix Beranda</a>
+          <a href="fnb.html" class="desktop-nav-link ">LayarTix Kantin F&amp;B</a>
+          <a href="tiket.html" class="desktop-nav-link active">LayarTix Tiket &amp; Kenangan</a>
+          <a href="parkir.html" class="desktop-nav-link ">LayarTix Info Parkir</a>
+          <a href="akun.html" class="desktop-nav-link ">Akun</a>
+        </nav>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:10px">
+          <a id="adminHeaderLink" href="../../admin/html/dashboard.html"
+            style="display:none" class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-all">
+             Admin
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-content page-enter">
+      <!-- Page Title -->
+      <div style="padding:16px 16px 0">
+        <h1 style="font-size:18px;font-weight:700;color:var(--text)">LayarTix Tiket &amp; Kenangan</h1>
+        <p style="font-size:12px;color:var(--muted)">Kelola e-ticket aktif, lacak pengantaran F&amp;B, dan buka kembali jurnal kenangan nonton.</p>
+      </div>
+
+      <!-- New ticket notification -->
+      <div id="newTicketBanner"
+        style="display:none;margin:16px 16px 0;padding:14px 16px;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.25);border-radius:14px;">
+        <div style="font-size:14px;font-weight:700;color:#22c55e;margin-bottom:4px"> Pembayaran Berhasil!</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.6)" id="newTicketInfo"></div>
+      </div>
+
+      <!-- Tabs -->
+      <div style="padding:16px 16px 12px">
+        <div class="tabs">
+          <button class="tab active" id="tabActive" onclick="switchTab('active',this)"> Aktif & Mendatang</button>
+          <button class="tab" id="tabHistory" onclick="switchTab('history',this)"> Riwayat</button>
+        </div>
+      </div>
+
+      <!-- Active tickets -->
+      <div id="activeSection">
+        <div id="active-tickets-container" class="md:grid md:grid-cols-2 md:gap-6 md:px-4"></div>
+        <div id="activeList" style="display:none"></div>
+      </div>
+
+      <!-- History tickets -->
+      <div id="historySection" style="display:none">
+        <div id="historyList" class="md:grid md:grid-cols-2 md:gap-6 md:px-4"></div>
+      </div>
+
+      <div style="height:16px"></div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+      <a class="nav-tab " href="beranda.html">
+        <div class="nav-icon-wrap"></div>
+        <div class="nav-label">LayarTix Beranda</div>
+      </a>
+      <a class="nav-tab " href="fnb.html">
+        <div class="nav-icon-wrap"></div>
+        <div class="nav-label">LayarTix Kantin F&amp;B</div>
+      </a>
+      <a class="nav-tab active" href="tiket.html">
+        <div class="nav-icon-wrap"></div>
+        <div class="nav-label">LayarTix Tiket &amp; Kenangan</div>
+      </a>
+      <a class="nav-tab " href="parkir.html">
+        <div class="nav-icon-wrap"></div>
+        <div class="nav-label">LayarTix Info Parkir</div>
+      </a>
+      <a class="nav-tab " href="akun.html">
+        <div class="nav-icon-wrap"></div>
+        <div class="nav-label">Akun</div>
+      </a>
+    </nav>
+  </div>
+
+  <!-- FULLSCREEN E-TICKET UTUH MODAL (Klasik Admit One Sisi Biru & Krem) -->
+  <div class="fullscreen-ticket-modal" id="fullscreenTicketModal">
+    <button class="fullscreen-close-btn" onclick="closeFullscreenTicket()" title="Tutup Layar Penuh">&times;</button>
+    <div class="fullscreen-ticket-card-container" id="fullscreenCardTarget"></div>
+    <div class="fullscreen-controls-bar">
+      <button class="btn btn-outline btn-sm" id="btnFsMaxBright" onclick="toggleFullscreenBrightness(true)" style="font-size:12px;padding:8px 16px">
+        Tingkatkan Kecerahan Layar (100%)
+      </button>
+      <button class="btn btn-outline btn-sm" id="btnFsNormBright" onclick="toggleFullscreenBrightness(false)" style="font-size:12px;padding:8px 16px;display:none">
+        Kecerahan Normal
+      </button>
+    </div>
+  </div>
+
+  <!-- QR MODAL (Cadangan Ringkas) -->
+  <div class="modal-overlay center" id="qrModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title"> QR Code Tiket</div>
+        <button class="modal-close" onclick="closeQrModal()"></button>
+      </div>
+      <div class="modal-body" style="text-align:center">
+        <div id="qrDisplay"
+          style="display:inline-block;padding:14px;background:#fff;border-radius:12px;margin-bottom:12px"></div>
+        <div
+          style="background:rgba(255,215,0,0.1);border:1px dashed var(--gold);border-radius:10px;padding:8px 12px;margin-bottom:12px">
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px">Kode Booking
+            Cadangan (Offline)</div>
+          <div id="qrBookingId"
+            style="font-size:18px;font-weight:800;color:var(--gold);font-family:monospace;letter-spacing:2px"></div>
+        </div>
+        <div id="qrMovieInfo" style="font-size:14px;font-weight:700;margin-bottom:4px"></div>
+        <div id="qrCinemaInfo" style="font-size:12px;color:var(--muted);margin-bottom:12px"></div>
+        <div style="display:flex;justify-content:center;gap:8px;margin-bottom:12px">
+          <button class="btn btn-outline btn-sm" id="btnMaxBright" onclick="toggleBrightness(true)"
+            style="font-size:11px;padding:6px 12px">
+             Tingkatkan Kecerahan Layar (100%)
+          </button>
+          <button class="btn btn-outline btn-sm" id="btnNormalBright" onclick="toggleBrightness(false)"
+            style="font-size:11px;padding:6px 12px;display:none">
+             Kecerahan Normal
+          </button>
+        </div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.4)">Tunjukkan QR atau sebutkan kode booking cadangan kepada
+          petugas studio jika offline.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CANCEL CONFIRM MODAL -->
+  <div class="modal-overlay center" id="cancelModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title"> Batalkan Tiket</div>
+        <button class="modal-close" onclick="closeCancelModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div style="text-align:center;margin-bottom:20px">
+          <div style="font-size:48px;margin-bottom:12px"></div>
+          <div style="font-size:15px;font-weight:700;margin-bottom:8px" id="cancelMovieName"></div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.6">
+            Apakah Anda yakin ingin membatalkan tiket ini?<br>
+            <span style="color:#22c55e;font-weight:600">Refund 40% = <span id="cancelRefundAmt"></span></span>
+            akan dikembalikan langsung ke rekening bank atau e-wallet pembayaran asal Anda dalam 1x24 jam.
+          </div>
+        </div>
+        <div
+          style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.15);border-radius:12px;padding:12px;font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:16px">
+           Pembatalan bersifat permanen. 60% harga tiket tidak dapat dikembalikan sesuai kebijakan LayarTix.
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-outline" style="flex:1;padding:12px" onclick="closeCancelModal()">Batal</button>
+          <button class="btn btn-danger" style="flex:1;padding:12px;border-radius:12px" onclick="confirmCancel()">Ya,
+            Batalkan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JOURNAL MODAL -->
+  <div class="modal-overlay" id="journalModal">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-header">
+        <div class="modal-title"> Jurnal Kenangan</div>
+        <button class="modal-close" onclick="closeJournalModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div id="journalMovieInfo"
+          style="margin-bottom:16px;padding:12px;background:rgba(255,255,255,0.03);border-radius:12px;font-size:13px;color:var(--muted)">
+        </div>
+
+        <div style="margin-bottom:14px">
+          <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:500">Rating Film</div>
+          <div class="stars-wrap" id="starRating"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Catatan Pribadi</label>
+          <textarea class="form-input" id="journalText" rows="3"
+            placeholder="Ceritakan pengalaman menonton film ini..."
+            style="resize:none;border-radius:12px;padding:12px"></textarea>
+        </div>
+
+        <!-- Unggah Foto Kenangan Bioskop -->
+        <div class="form-group" style="margin-bottom:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <label class="form-label" style="margin-bottom:0">Foto Kenangan Menonton</label>
+            <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('journalPhotoInput').click()" style="padding:4px 10px;font-size:11px;border-color:var(--gold);color:var(--gold);display:inline-flex;align-items:center;gap:4px;border-radius:8px">
+               Upload Foto
+            </button>
+          </div>
+          <div id="journalDropZone" style="border:2px dashed rgba(255,255,255,0.18);border-radius:12px;padding:14px;text-align:center;background:rgba(255,255,255,0.02);cursor:pointer;transition:all 0.2s"
+               onclick="document.getElementById('journalPhotoInput').click()">
+            <input type="file" id="journalPhotoInput" accept="image/*" style="display:none" onchange="handleJournalPhotoUpload(event)" />
+            <div id="journalUploadPrompt">
+              <div style="font-size:12px;font-weight:600;color:var(--gold);margin-bottom:3px">Pilih / Seret Foto Kenangan</div>
+              <div style="font-size:10px;color:var(--muted)">Format JPG, PNG, WEBP (Selfie bioskop, teman nonton, tiket fisik)</div>
+            </div>
+            <div id="journalPhotoPreviewWrap" style="display:none;position:relative;margin-top:6px">
+              <img id="journalPhotoPreview" src="" alt="Foto Kenangan" style="max-height:160px;width:100%;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,0.2)" />
+              <button type="button" onclick="removeJournalPhoto(event)" style="position:absolute;top:6px;right:6px;background:rgba(239,68,68,0.85);color:#fff;border:none;border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700;cursor:pointer">Hapus Foto</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <input type="checkbox" id="journalPrivate" checked style="accent-color:var(--red);width:16px;height:16px" />
+          <label for="journalPrivate" style="font-size:13px;color:var(--muted);cursor:pointer"> Simpan sebagai
+            privat</label>
+        </div>
+
+        <button class="btn btn-primary btn-full" onclick="saveJournal()" style="padding:14px">
+           Simpan Jurnal Kenangan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../data.js"></script>
+  <script src="../js/tiket.js"></script>
+</body>
+
+</html>

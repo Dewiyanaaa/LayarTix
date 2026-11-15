@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard Admin – LayarTix</title>
+  <link rel="stylesheet" href="../css/dashboard.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.6.0/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+<div class="admin-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon"></div>
+      <div>
+        <div class="sidebar-logo-text">LAYARTIX</div>
+        <div class="sidebar-role">Admin Panel</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-item active" onclick="showSection('dashboard')" id="nav-dashboard">
+        <span class="nav-icon"></span> Dashboard
+      </div>
+      <div class="nav-item" onclick="showSection('film')" id="nav-film">
+        <span class="nav-icon"></span> Kelola Film
+      </div>
+      <div class="nav-item" onclick="showSection('jadwal')" id="nav-jadwal">
+        <span class="nav-icon"></span> Jadwal Tayang
+      </div>
+      <div class="nav-item" onclick="showSection('transaksi')" id="nav-transaksi">
+        <span class="nav-icon"></span> Transaksi
+      </div>
+      <div class="nav-item" onclick="showSection('refund')" id="nav-refund">
+        <span class="nav-icon"></span> Manajemen Refund
+      </div>
+      <div class="nav-item" onclick="window.location.href='laporan.html'" id="nav-laporan">
+        <span class="nav-icon"></span> Laporan & PDF
+      </div>
+      <div class="nav-item" onclick="window.location.href='../../customer/html/beranda.html'" style="color:var(--gold);margin-top:12px;border:1px dashed rgba(255,215,0,0.3)">
+        <span class="nav-icon"></span> Ke Sisi Customer
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:10px;padding:0 4px;">
+        <div id="adminName" style="font-weight:600;color:var(--text)"></div>
+        <div>Administrator</div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">
+         Keluar
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-content">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div style="display:flex;align-items:center">
+        <button class="hamburger" onclick="toggleSidebar()"></button>
+        <div>
+          <div class="topbar-title" id="pageTitle">Dashboard</div>
+          <div class="topbar-sub" id="pageDate"></div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <a href="../../customer/html/beranda.html" class="admin-badge" style="text-decoration:none;cursor:pointer;background:rgba(230,57,70,0.15);border-color:rgba(230,57,70,0.3);color:#fff">
+           Tampilan Customer
+        </a>
+        <div class="admin-badge">Admin Mode</div>
+        <div id="timeDisplay" style="font-size:13px;color:var(--muted)" class="hidden sm:block"></div>
+      </div>
+    </div>
+
+    <!-- CONTENT AREA -->
+    <div class="content-area">
+
+      <!-- ══ DASHBOARD SECTION ══ -->
+      <div id="section-dashboard">
+        <!-- Stats -->
+        <div class="stats-grid" id="statsGrid"></div>
+
+        <!-- Charts Row -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;" class="responsive-2col">
+          <!-- Revenue Chart -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"> Tren Pendapatan (7 Hari)</div>
+            </div>
+            <div class="card-body">
+              <canvas id="revenueChart" height="200" style="width:100%"></canvas>
+            </div>
+          </div>
+          <!-- Genre Chart -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"> Film Terpopuler</div>
+            </div>
+            <div class="card-body" id="popularMovies"></div>
+          </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title"> Transaksi Terbaru</div>
+            <button class="btn btn-outline btn-sm" onclick="showSection('transaksi')">Lihat Semua</button>
+          </div>
+          <div class="card-body" style="padding:0">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID Booking</th>
+                    <th>Customer</th>
+                    <th>Film</th>
+                    <th>Kursi</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Waktu</th>
+                  </tr>
+                </thead>
+                <tbody id="recentBookings"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ FILM SECTION ══ -->
+      <div id="section-film" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+          <div>
+            <div style="font-size:18px;font-weight:600;"> Kelola Film</div>
+            <div style="font-size:13px;color:var(--muted);">Tambah, edit, dan kelola katalog film</div>
+          </div>
+          <button class="btn btn-primary" onclick="openAddFilmModal()">+ Tambah Film</button>
+        </div>
+        <div class="card">
+          <div class="card-body" style="padding:0">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Poster</th>
+                    <th>Judul Film</th>
+                    <th>Genre</th>
+                    <th>Rating</th>
+                    <th>Durasi</th>
+                    <th>Status</th>
+                    <th>Harga Dasar</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="filmTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ JADWAL SECTION ══ -->
+      <div id="section-jadwal" style="display:none">
+        <div style="margin-bottom:20px;">
+          <div style="font-size:18px;font-weight:600;"> Jadwal Tayang</div>
+          <div style="font-size:13px;color:var(--muted);">Kelola jadwal dan harga tiket</div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+              <select class="form-input" id="filterCinema" style="width:auto;min-width:200px;" onchange="renderJadwal()">
+                <option value="">Semua Bioskop</option>
+              </select>
+              <select class="form-input" id="filterMovie" style="width:auto;min-width:200px;" onchange="renderJadwal()">
+                <option value="">Semua Film</option>
+              </select>
+            </div>
+          </div>
+          <div class="card-body" style="padding:0">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Film</th>
+                    <th>Bioskop</th>
+                    <th>Kota</th>
+                    <th>Jam Tayang</th>
+                    <th>Harga Regular</th>
+                    <th>Harga Premium</th>
+                    <th>Harga IMAX</th>
+                  </tr>
+                </thead>
+                <tbody id="jadwalTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ TRANSAKSI SECTION ══ -->
+      <div id="section-transaksi" style="display:none">
+        <div style="margin-bottom:20px;">
+          <div style="font-size:18px;font-weight:600;"> Semua Transaksi</div>
+          <div style="font-size:13px;color:var(--muted);">Riwayat seluruh transaksi pembelian tiket</div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <input class="form-input" id="searchBooking" placeholder=" Cari ID, nama, atau film..." style="width:280px;" oninput="renderTransaksi()"/>
+            <select class="form-input" id="filterStatus" style="width:auto;" onchange="renderTransaksi()">
+              <option value="">Semua Status</option>
+              <option value="active">Aktif</option>
+              <option value="used">Selesai</option>
+              <option value="cancelled">Dibatalkan</option>
+            </select>
+          </div>
+          <div class="card-body" style="padding:0">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID Booking</th>
+                    <th>Customer</th>
+                    <th>Film</th>
+                    <th>Bioskop</th>
+                    <th>Tanggal & Jam</th>
+                    <th>Kursi</th>
+                    <th>F&B</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="transaksiTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ REFUND SECTION ══ -->
+      <div id="section-refund" style="display:none">
+        <div style="margin-bottom:20px;">
+          <div style="font-size:18px;font-weight:600;"> Manajemen Refund</div>
+          <div style="font-size:13px;color:var(--muted);">Tiket yang telah dibatalkan dan refund 40%</div>
+        </div>
+        <div class="stats-grid" id="refundStats" style="grid-template-columns:repeat(3,1fr);"></div>
+        <div class="card">
+          <div class="card-body" style="padding:0">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID Booking</th>
+                    <th>Customer</th>
+                    <th>Film</th>
+                    <th>Harga Tiket</th>
+                    <th>Refund 40%</th>
+                    <th>Tanggal Batal</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="refundTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content-area -->
+  </div><!-- /main-content -->
+</div><!-- /admin-layout -->
+
+<!-- ADD FILM MODAL -->
+<div class="modal-overlay" id="filmModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="filmModalTitle"> Tambah Film Baru</div>
+      <button class="modal-close" onclick="closeFilmModal()"></button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div class="form-group" style="grid-column:1/-1;">
+          <label class="form-label">Judul Film *</label>
+          <input class="form-input" id="fm_title" placeholder="Judul film..." />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Genre</label>
+          <input class="form-input" id="fm_genre" placeholder="Aksi, Horor, dll." />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Rating</label>
+          <select class="form-input" id="fm_rating">
+            <option value="SU">SU (Semua Umur)</option>
+            <option value="D13">D13 (13+)</option>
+            <option value="D17">D17 (17+)</option>
+            <option value="D21">D21 (21+)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Durasi (menit)</label>
+          <input class="form-input" id="fm_duration" type="number" placeholder="120" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Harga Dasar (Rp)</label>
+          <input class="form-input" id="fm_price" type="number" placeholder="65000" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-input" id="fm_status">
+            <option value="now_playing">Sedang Tayang</option>
+            <option value="coming_soon">Akan Datang</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bahasa</label>
+          <input class="form-input" id="fm_lang" placeholder="Bahasa Indonesia" />
+        </div>
+        <div class="form-group" style="grid-column:1/-1;">
+          <label class="form-label">Sutradara</label>
+          <input class="form-input" id="fm_director" placeholder="Nama sutradara" />
+        </div>
+        <div class="form-group" style="grid-column:1/-1;">
+          <label class="form-label">Pemeran</label>
+          <input class="form-input" id="fm_cast" placeholder="Aktor 1, Aktor 2, ..." />
+        </div>
+        <div class="form-group" style="grid-column:1/-1;">
+          <label class="form-label">Sinopsis</label>
+          <textarea class="form-input" id="fm_synopsis" rows="3" placeholder="Sinopsis film..."></textarea>
+        </div>
+        <div class="form-group" style="grid-column:1/-1;">
+          <label class="form-label">URL Poster (opsional)</label>
+          <input class="form-input" id="fm_poster" placeholder="https://..." />
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeFilmModal()">Batal</button>
+      <button class="btn btn-primary" onclick="saveFilm()"> Simpan Film</button>
+    </div>
+  </div>
+</div>
+
+<script src="../../data.js"></script>
+<script>
+  // ── Auth check ──
+  const adminUser = LT.requireAuth('admin');
+  if (adminUser) document.getElementById('adminName').textContent = adminUser.name;
+
+  // ── Time display ──
+  function updateTime() {
+    const now = new Date();
+    const opts = { weekday:'long', year:'numeric', month:'long', day:'numeric' };
+    document.getElementById('pageDate').textContent = now.toLocaleDateString('id-ID', opts);
+    document.getElementById('timeDisplay').textContent = now.toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
+  }
+  updateTime();
+  setInterval(updateTime, 60000);
+
+  // ── Section navigation ──
+  const sections = ['dashboard','film','jadwal','transaksi','refund'];
+  function showSection(name) {
+    sections.forEach(s => {
+      document.getElementById('section-'+s).style.display = s === name ? '' : 'none';
+      const nav = document.getElementById('nav-'+s);
+      if (nav) nav.classList.toggle('active', s === name);
+    });
+    const titles = {
+      dashboard: 'Dashboard', film: 'Kelola Film', jadwal: 'Jadwal Tayang',
+      transaksi: 'Transaksi', refund: 'Manajemen Refund'
+    };
+    document.getElementById('pageTitle').textContent = titles[name] || name;
+    if (name === 'transaksi') renderTransaksi();
+    if (name === 'jadwal') renderJadwal();
+    if (name === 'refund') renderRefund();
+    if (name === 'film') renderFilmTable();
+  }
+
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+  }
+
+  function doLogout() {
+    LT.logout();
+    window.location.href = '../html/login.html';
+  }
+
+  // ── Compute stats ──
+  function getStats() {
+    const bookings = LT.getBookings();
+    const fnbOrders = LT.getFnbOrders();
+    const active = bookings.filter(b => b.status === 'active');
+    const used = bookings.filter(b => b.status === 'used');
+    const cancelled = bookings.filter(b => b.status === 'cancelled');
+
+    const grossRevenue = bookings.filter(b => b.status !== 'cancelled')
+      .reduce((s, b) => s + (b.grandTotal || 0), 0);
+    const totalRefund = cancelled.reduce((s, b) => s + (b.refundAmount || 0), 0);
+    const fnbRevenue = bookings.reduce((s, b) => s + (b.totalFnb || 0), 0)
+      + fnbOrders.reduce((s, o) => s + (o.total || 0), 0);
+
+    return {
+      totalTickets: bookings.length,
+      activeTickets: active.length,
+      grossRevenue,
+      totalRefund,
+      fnbRevenue,
+      cancelled: cancelled.length
+    };
+  }
+
+  // ── Render Dashboard ──
+  function renderDashboard() {
+    const s = getStats();
+    document.getElementById('statsGrid').innerHTML = `
+      <div class="stat-card" style="--accent:rgba(230,57,70,0.1)">
+        <div class="stat-icon"></div>
+        <div class="stat-label">Total Tiket Terjual</div>
+        <div class="stat-value">${s.totalTickets}</div>
+        <div class="stat-change"> ${s.activeTickets} aktif</div>
+      </div>
+      <div class="stat-card" style="--accent:rgba(255,215,0,0.1)">
+        <div class="stat-icon"></div>
+        <div class="stat-label">Pendapatan Kotor</div>
+        <div class="stat-value" style="font-size:18px">${LT.formatRp(s.grossRevenue)}</div>
+        <div class="stat-change"> Total transaksi</div>
+      </div>
+      <div class="stat-card" style="--accent:rgba(239,68,68,0.08)">
+        <div class="stat-icon"></div>
+        <div class="stat-label">Total Refund (40%)</div>
+        <div class="stat-value" style="font-size:18px;color:#ef4444">${LT.formatRp(s.totalRefund)}</div>
+        <div class="stat-change" style="color:#ef4444">${s.cancelled} tiket dibatalkan</div>
+      </div>
+      <div class="stat-card" style="--accent:rgba(34,197,94,0.08)">
+        <div class="stat-icon"></div>
+        <div class="stat-label">Pendapatan F&B</div>
+        <div class="stat-value" style="font-size:18px;color:#22c55e">${LT.formatRp(s.fnbRevenue)}</div>
+        <div class="stat-change" style="color:#22c55e">Tiket + Kantin</div>
+      </div>
+    `;
+
+    // Recent bookings (last 8)
+    const bookings = LT.getBookings().slice(0, 8);
+    const users = LT.getUsers();
+    const tbody = document.getElementById('recentBookings');
+    if (!bookings.length) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:30px">Belum ada transaksi</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = bookings.map(b => {
+      const u = users.find(u => u.id === b.userId) || { name: 'Unknown' };
+      const statusMap = { active:'badge-green', used:'badge-blue', cancelled:'badge-red' };
+      const statusLabel = { active:'Aktif', used:'Selesai', cancelled:'Dibatalkan' };
+      const date = b.paidAt ? new Date(b.paidAt).toLocaleString('id-ID',{dateStyle:'short',timeStyle:'short'}) : '-';
+      return `<tr>
+        <td><code style="font-size:11px;color:var(--gold)">${b.id}</code></td>
+        <td>${u.name}</td>
+        <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${b.movieTitle}">${b.movieTitle}</td>
+        <td>${(b.seats||[]).join(', ')}</td>
+        <td style="font-weight:600">${LT.formatRp(b.grandTotal)}</td>
+        <td><span class="badge ${statusMap[b.status]||'badge-gray'}">${statusLabel[b.status]||b.status}</span></td>
+        <td style="font-size:12px;color:var(--muted)">${date}</td>
+      </tr>`;
+    }).join('');
+
+    // Popular movies
+    renderPopularMovies(bookings);
+
+    // Revenue chart (simple bars)
+    renderRevenueChart();
+  }
+
+  function renderPopularMovies(bookings) {
+    const counts = {};
+    bookings.forEach(b => {
+      counts[b.movieTitle] = (counts[b.movieTitle] || 0) + (b.seats?.length || 1);
+    });
+    const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    const max = sorted[0]?.[1] || 1;
+    const colors = ['#e63946','#ffd700','#f4a261','#22c55e','#3b82f6'];
+    document.getElementById('popularMovies').innerHTML = sorted.length ? sorted.map(([title,count],i) => `
+      <div style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;">
+          <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%">${title}</span>
+          <span style="font-weight:600;color:${colors[i]}">${count} kursi</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.08);border-radius:4px;height:6px;overflow:hidden">
+          <div style="height:100%;width:${(count/max*100).toFixed(0)}%;background:${colors[i]};border-radius:4px;transition:width 0.5s"></div>
+        </div>
+      </div>
+    `).join('') : '<div style="color:var(--muted);text-align:center;padding:20px">Belum ada data</div>';
+  }
+
+  function renderRevenueChart() {
+    const canvas = document.getElementById('revenueChart');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.offsetWidth || 400;
+    const H = 200;
+    canvas.width = W; canvas.height = H;
+
+    // Generate mock 7-day data
+    const bookings = LT.getBookings();
+    const days = [];
+    const now = new Date();
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      const dayBookings = bookings.filter(b => (b.paidAt||'').startsWith(dateStr));
+      const rev = dayBookings.reduce((s,b)=>s+(b.grandTotal||0),0);
+      days.push({ label: d.toLocaleDateString('id-ID',{weekday:'short'}), rev });
+    }
+
+    const maxRev = Math.max(...days.map(d=>d.rev), 1);
+    const pad = { left:40, right:16, top:16, bottom:30 };
+    const chartW = W - pad.left - pad.right;
+    const chartH = H - pad.top - pad.bottom;
+    const barW = chartW / days.length * 0.6;
+    const gap = chartW / days.length;
+
+    ctx.clearRect(0, 0, W, H);
+
+    // Grid lines
+    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+      const y = pad.top + chartH - (i/4) * chartH;
+      ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(W - pad.right, y); ctx.stroke();
+      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.font = '10px Inter';
+      ctx.fillText(LT.formatRp(maxRev*(i/4)).replace('Rp ',''), 2, y+3);
+    }
+
+    // Bars
+    days.forEach((d, i) => {
+      const barH = (d.rev / maxRev) * chartH;
+      const x = pad.left + i * gap + gap/2 - barW/2;
+      const y = pad.top + chartH - barH;
+
+      const grad = ctx.createLinearGradient(0, y, 0, pad.top + chartH);
+      grad.addColorStop(0, '#e63946');
+      grad.addColorStop(1, 'rgba(230,57,70,0.2)');
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.roundRect(x, y, barW, barH, 4);
+      ctx.fill();
+
+      // Label
+      ctx.fillStyle = 'rgba(255,255,255,0.5)';
+      ctx.font = '10px Inter';
+      ctx.textAlign = 'center';
+      ctx.fillText(d.label, x + barW/2, H - 6);
+    });
+  }
+
+  // ── Render Film Table ──
+  function renderFilmTable() {
+    const movies = LT.getAllMovies();
+    const tbody = document.getElementById('filmTableBody');
+    if (!movies.length) {
+      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:30px">Belum ada film di katalog</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = movies.map(m => {
+      const rb = LT.getRatingBadge(m.rating);
+      const statusBadge = m.status === 'now_playing'
+        ? '<span class="badge badge-green">Sedang Tayang</span>'
+        : '<span class="badge badge-yellow">Akan Datang</span>';
+      return `<tr>
+        <td><img src="${m.poster}" alt="" style="width:36px;height:52px;object-fit:cover;border-radius:4px;" onerror="this.src='https://picsum.photos/seed/${m.id}/36/52'"></td>
+        <td style="font-weight:600;max-width:160px">${m.title}</td>
+        <td style="font-size:12px;color:var(--muted)">${m.genre}</td>
+        <td><span class="badge" style="background:${rb.bg};color:${rb.color}">${rb.label}</span></td>
+        <td>${m.duration} mnt</td>
+        <td>${statusBadge}</td>
+        <td style="font-weight:600;color:var(--gold)">${LT.formatRp(m.price_base)}</td>
+        <td style="white-space:nowrap">
+          <button class="btn btn-outline btn-sm" onclick="editFilm('${m.id}')" title="Edit Film"></button>
+          <button class="btn btn-sm" style="background:rgba(255,215,0,0.12);color:var(--gold);border:1px solid rgba(255,215,0,0.3);" onclick="toggleStatus('${m.id}')" title="Ubah Status Tayang"></button>
+          <button class="btn btn-sm" style="background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.3);" onclick="deleteFilm('${m.id}')" title="Hapus Film"></button>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ── Render Jadwal ──
+  function renderJadwal() {
+    const tbody = document.getElementById('jadwalTableBody');
+    const movies = LT.getNowPlaying();
+    const cinemas = LT.cinemas;
+    const filterC = document.getElementById('filterCinema').value;
+    const filterM = document.getElementById('filterMovie').value;
+
+    // Fill filter dropdowns
+    const cinemaFilter = document.getElementById('filterCinema');
+    if (cinemaFilter.options.length <= 1) {
+      cinemas.forEach(c => {
+        const o = document.createElement('option');
+        o.value = c.id; o.textContent = c.name;
+        cinemaFilter.appendChild(o);
+      });
+    }
+    const movieFilter = document.getElementById('filterMovie');
+    movieFilter.innerHTML = '<option value="">Semua Film</option>';
+    movies.forEach(m => {
+      const o = document.createElement('option');
+      o.value = m.id; o.textContent = m.title;
+      movieFilter.appendChild(o);
+    });
+
+    const rows = [];
+    movies.forEach(m => {
+      if (filterM && m.id !== filterM) return;
+      cinemas.forEach(c => {
+        if (filterC && c.id !== filterC) return;
+        const basePrice = m.price_base;
+        const pm = c.priceMultiplier || { Regular:1, Premium:1.4, IMAX:1.8 };
+        rows.push(`<tr>
+          <td style="font-weight:500">${m.title}</td>
+          <td>${c.name}</td>
+          <td style="font-size:12px;color:var(--muted)">${c.city}</td>
+          <td style="font-size:12px">${LT.times.join(' · ')}</td>
+          <td>${LT.formatRp(Math.round(basePrice * pm.Regular))}</td>
+          <td>${LT.formatRp(Math.round(basePrice * pm.Premium))}</td>
+          <td>${c.facilities.includes('IMAX') ? LT.formatRp(Math.round(basePrice * pm.IMAX)) : '<span style="color:var(--muted)">–</span>'}</td>
+        </tr>`);
+      });
+    });
+
+    tbody.innerHTML = rows.length ? rows.join('') : `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:30px">Tidak ada jadwal</td></tr>`;
+  }
+
+  // ── Render Transaksi ──
+  function renderTransaksi() {
+    const q = (document.getElementById('searchBooking')?.value || '').toLowerCase();
+    const statusF = document.getElementById('filterStatus')?.value || '';
+    const users = LT.getUsers();
+    let bookings = LT.getBookings();
+    if (statusF) bookings = bookings.filter(b => b.status === statusF);
+    if (q) bookings = bookings.filter(b =>
+      b.id.toLowerCase().includes(q) ||
+      b.movieTitle?.toLowerCase().includes(q) ||
+      (users.find(u=>u.id===b.userId)?.name||'').toLowerCase().includes(q)
+    );
+
+    const tbody = document.getElementById('transaksiTableBody');
+    if (!bookings.length) {
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:30px">Tidak ada data transaksi</td></tr>`;
+      return;
+    }
+    const statusMap = { active:'badge-green', used:'badge-blue', cancelled:'badge-red' };
+    const statusLabel = { active:'Aktif', used:'Selesai', cancelled:'Dibatalkan' };
+    tbody.innerHTML = bookings.map(b => {
+      const u = users.find(u=>u.id===b.userId)||{name:'–'};
+      const date = b.date || (b.paidAt?b.paidAt.split('T')[0]:'–');
+      return `<tr>
+        <td><code style="font-size:11px;color:var(--gold)">${b.id}</code></td>
+        <td>${u.name}</td>
+        <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${b.movieTitle}</td>
+        <td style="font-size:12px">${b.cinemaName||'–'}</td>
+        <td style="font-size:12px">${date} ${b.time||''}</td>
+        <td>${(b.seats||[]).join(', ')}</td>
+        <td>${b.totalFnb?LT.formatRp(b.totalFnb):'–'}</td>
+        <td style="font-weight:600">${LT.formatRp(b.grandTotal)}</td>
+        <td><span class="badge ${statusMap[b.status]||'badge-gray'}">${statusLabel[b.status]||b.status}</span></td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ── Render Refund ──
+  function renderRefund() {
+    const cancelled = LT.getBookings().filter(b => b.status === 'cancelled');
+    const users = LT.getUsers();
+    const totalRefund = cancelled.reduce((s,b)=>s+(b.refundAmount||0),0);
+    const totalOrig = cancelled.reduce((s,b)=>s+(b.totalTicket||0),0);
+
+    document.getElementById('refundStats').innerHTML = `
+      <div class="stat-card"><div class="stat-icon"></div><div class="stat-label">Total Pembatalan</div><div class="stat-value">${cancelled.length}</div></div>
+      <div class="stat-card"><div class="stat-icon"></div><div class="stat-label">Total Refund (40%)</div><div class="stat-value" style="font-size:18px;color:#ef4444">${LT.formatRp(totalRefund)}</div></div>
+      <div class="stat-card"><div class="stat-icon"></div><div class="stat-label">Harga Tiket Asal</div><div class="stat-value" style="font-size:18px">${LT.formatRp(totalOrig)}</div></div>
+    `;
+
+    const tbody = document.getElementById('refundTableBody');
+    if (!cancelled.length) {
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:30px">Belum ada pembatalan tiket</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = cancelled.map(b => {
+      const u = users.find(u=>u.id===b.userId)||{name:'–'};
+      const cancelDate = b.cancelledAt ? new Date(b.cancelledAt).toLocaleString('id-ID',{dateStyle:'short',timeStyle:'short'}) : '–';
+      return `<tr>
+        <td><code style="font-size:11px;color:var(--gold)">${b.id}</code></td>
+        <td>${u.name}</td>
+        <td>${b.movieTitle}</td>
+        <td>${LT.formatRp(b.totalTicket)}</td>
+        <td style="font-weight:600;color:#22c55e">${LT.formatRp(b.refundAmount||0)}</td>
+        <td style="font-size:12px;color:var(--muted)">${cancelDate}</td>
+        <td><span class="badge badge-green"> Dikembalikan</span></td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ── Film Modal ──
+  let editFilmId = null;
+  function openAddFilmModal() {
+    editFilmId = null;
+    document.getElementById('filmModalTitle').textContent = ' Tambah Film Baru';
+    ['title','genre','director','cast','synopsis','poster','lang'].forEach(f => {
+      document.getElementById('fm_'+f).value = '';
+    });
+    document.getElementById('fm_duration').value = '';
+    document.getElementById('fm_price').value = '';
+    document.getElementById('filmModal').classList.add('open');
+  }
+
+  function editFilm(id) {
+    const all = LT.getAllMovies();
+    const m = all.find(m => m.id === id);
+    if (!m) return;
+    editFilmId = id;
+    document.getElementById('filmModalTitle').textContent = 'Edit Film';
+    document.getElementById('fm_title').value = m.title;
+    document.getElementById('fm_genre').value = m.genre;
+    document.getElementById('fm_rating').value = m.rating;
+    document.getElementById('fm_duration').value = m.duration;
+    document.getElementById('fm_price').value = m.price_base;
+    document.getElementById('fm_status').value = m.status;
+    document.getElementById('fm_director').value = m.director||'';
+    document.getElementById('fm_cast').value = m.cast||'';
+    document.getElementById('fm_synopsis').value = m.synopsis||'';
+    document.getElementById('fm_poster').value = m.poster||'';
+    document.getElementById('fm_lang').value = m.language||'';
+    document.getElementById('filmModal').classList.add('open');
+  }
+
+  function closeFilmModal() {
+    document.getElementById('filmModal').classList.remove('open');
+  }
+
+  function saveFilm() {
+    const title = document.getElementById('fm_title').value.trim();
+    if (!title) { LT.toast('Judul film wajib diisi!','error'); return; }
+    const film = {
+      id: editFilmId || ('m_' + Date.now()),
+      title,
+      genre: document.getElementById('fm_genre').value || 'Aksi',
+      rating: document.getElementById('fm_rating').value || 'D13',
+      duration: parseInt(document.getElementById('fm_duration').value) || 120,
+      price_base: parseInt(document.getElementById('fm_price').value) || 65000,
+      status: document.getElementById('fm_status').value || 'now_playing',
+      director: document.getElementById('fm_director').value || 'Sutradara',
+      cast: document.getElementById('fm_cast').value || 'Pemeran',
+      synopsis: document.getElementById('fm_synopsis').value || 'Sinopsis film...',
+      poster: document.getElementById('fm_poster').value || `https://picsum.photos/seed/${title.replace(/\s/g,'')}/400/600`,
+      language: document.getElementById('fm_lang').value || 'Bahasa Indonesia',
+      releaseDate: new Date().toISOString().split('T')[0]
+    };
+
+    // Save directly to localStorage via LT.saveMovie
+    LT.saveMovie(film);
+    closeFilmModal();
+    renderFilmTable();
+    LT.toast('Data film berhasil disimpan ke sistem! ','success');
+  }
+
+  function toggleStatus(id) {
+    const updated = LT.toggleMovieStatus(id);
+    if (updated) {
+      renderFilmTable();
+      const statusLabel = updated.status === 'now_playing' ? 'Sedang Tayang' : 'Akan Datang';
+      LT.toast(`Status "${updated.title}" diubah ke ${statusLabel} `, 'success');
+    }
+  }
+
+  function deleteFilm(id) {
+    if (confirm('Apakah Anda yakin ingin menghapus film ini dari katalog?')) {
+      LT.deleteMovie(id);
+      renderFilmTable();
+      LT.toast('Film berhasil dihapus dari katalog', 'info');
+    }
+  }
+
+  // Close modal on backdrop click
+  document.getElementById('filmModal').addEventListener('click', e=>{
+    if(e.target.id==='filmModal') closeFilmModal();
+  });
+
+  // Init
+  renderDashboard();
+  window.addEventListener('resize', ()=>{
+    if(document.getElementById('section-dashboard').style.display!=='none') renderRevenueChart();
+  });
+</script>
+</body>
+</html>
+

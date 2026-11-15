@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LayarTix Info Parkir – LayarTix</title>
+  <link rel="stylesheet" href="../css/beranda.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { align-items: flex-start; }
+    .parking-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px 18px;
+      margin-bottom: 16px;
+      transition: all 0.2s;
+    }
+    .parking-card:hover {
+      border-color: rgba(255,255,255,0.18);
+    }
+  </style>
+</head>
+<body>
+<div class="app-frame">
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-container">
+      <div style="display:flex;align-items:center;gap:20px">
+        <div class="header-logo" onclick="window.location.href='beranda.html'">LAYARTIX</div>
+        <!-- Desktop Nav -->
+        <nav class="desktop-nav">
+          <a href="beranda.html" class="desktop-nav-link">LayarTix Beranda</a>
+          <a href="fnb.html" class="desktop-nav-link">LayarTix Kantin F&amp;B</a>
+          <a href="tiket.html" class="desktop-nav-link">LayarTix Tiket &amp; Kenangan</a>
+          <a href="parkir.html" class="desktop-nav-link active">LayarTix Info Parkir</a>
+          <a href="akun.html" class="desktop-nav-link">Akun</a>
+        </nav>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:14px">
+        <button class="header-city" onclick="openCityModal()" id="cityBtn" title="Pilih Kota Bioskop">
+          <span class="header-city-name font-semibold" id="cityName">Makassar</span>
+          <span class="text-[10px] opacity-60">▼</span>
+        </button>
+        <div class="header-avatar" id="userAvatar" onclick="window.location.href='akun.html'" title="Profil Akun"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="page-content page-enter" style="padding-bottom:120px">
+    <div class="p-4 md:p-6 max-w-4xl mx-auto">
+      <div class="mb-6">
+        <h1 class="text-xl md:text-2xl font-extrabold text-white mb-1">LayarTix Info Parkir Real-Time</h1>
+        <p class="text-xs md:text-sm text-gray-400">Status ketersediaan sensor parkir mobil dan motor di seluruh mal bioskop kota aktif.</p>
+      </div>
+
+      <!-- Live Cinema Parking Cards Container -->
+      <div id="parkingList"></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV (MOBILE) -->
+  <div class="bottom-nav-wrap">
+    <nav class="bottom-nav">
+      <a class="nav-tab" href="beranda.html">
+        <div class="nav-icon-wrap"></div>
+        <div class="nav-label">LayarTix Beranda</div>
+      </a>
+      <a class="nav-tab" href="fnb.html">
+        <div class="nav-icon-wrap"></div>
+        <div class="nav-label">LayarTix Kantin F&amp;B</div>
+      </a>
+      <a class="nav-tab" href="tiket.html">
+        <div class="nav-icon-wrap"></div>
+        <div class="nav-label">LayarTix Tiket &amp; Kenangan</div>
+      </a>
+      <a class="nav-tab active" href="parkir.html">
+        <div class="nav-icon-wrap"></div>
+        <div class="nav-label">LayarTix Info Parkir</div>
+      </a>
+      <a class="nav-tab" href="akun.html">
+        <div class="nav-icon-wrap"></div>
+        <div class="nav-label">Akun</div>
+      </a>
+    </nav>
+  </div>
+</div>
+
+<script src="../../data.js"></script>
+<script>
+  const user = LT.requireAuth('customer');
+  const city = LT.getSelectedCity() || 'Makassar';
+  const cityNameEl = document.getElementById('cityName');
+  if (cityNameEl) cityNameEl.textContent = city;
+
+  function renderParkingCards() {
+    const listEl = document.getElementById('parkingList');
+    if (!listEl) return;
+    const cinemas = LT.getCinemasForCity ? LT.getCinemasForCity(city) : LT.cinemas.filter(c => c.city.toLowerCase().includes(city.toLowerCase()));
+    
+    listEl.innerHTML = cinemas.map(c => {
+      const parking = LT.getCinemaParkingSlots(c);
+      return `
+        <div class="parking-card">
+          <div class="flex items-start justify-between mb-3 border-b border-white/10 pb-3">
+            <div>
+              <div class="text-base font-bold text-white">${c.name}</div>
+              <div class="text-xs text-gray-400">${c.mall}, ${c.city}</div>
+            </div>
+            <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[10px] font-bold">
+              <span>●</span> Live Sensor
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <!-- Mobil -->
+            <div class="bg-blue-950/20 border border-blue-500/25 rounded-xl p-3">
+              <div class="flex items-center justify-between text-xs font-bold text-blue-400 mb-2">
+                <span>PARKIR MOBIL</span>
+                <span class="text-white bg-blue-500/20 px-2 py-0.5 rounded">Sisa ${parking.totalCarAvailable} Slot</span>
+              </div>
+              <div class="space-y-1.5">
+                ${parking.car.map(z => `
+                  <div class="flex items-center justify-between text-[11px] text-gray-300">
+                    <span class="truncate pr-2">${z.area}</span>
+                    <span class="font-semibold text-right" style="color:${z.status.color}">${z.status.label}</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- Motor -->
+            <div class="bg-emerald-950/20 border border-emerald-500/25 rounded-xl p-3">
+              <div class="flex items-center justify-between text-xs font-bold text-emerald-400 mb-2">
+                <span>PARKIR MOTOR</span>
+                <span class="text-white bg-emerald-500/20 px-2 py-0.5 rounded">Sisa ${parking.totalMotorAvailable} Slot</span>
+              </div>
+              <div class="space-y-1.5">
+                ${parking.motor.map(z => `
+                  <div class="flex items-center justify-between text-[11px] text-gray-300">
+                    <span class="truncate pr-2">${z.area}</span>
+                    <span class="font-semibold text-right" style="color:${z.status.color}">${z.status.label}</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  renderParkingCards();
+</script>
+</body>
+</html>
+

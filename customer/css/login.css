@@ -1,0 +1,369 @@
+/* ==========================================================================
+   LayarTix — Clean Centered Customer Login Styles
+   Theme: Luxury Dark Cinematic (#07090e) with Movie Collage Poster Backdrop
+   Strictly Zero Emoji. Pure Typography, SVG Vectors, Focused Glassmorphism.
+   ========================================================================== */
+
+:root {
+  --bg-main: #07090e;
+  --bg-card: rgba(13, 16, 23, 0.88);
+  --border-subtle: rgba(255, 255, 255, 0.1);
+  --border-focus: rgba(255, 215, 0, 0.45);
+  --gold-primary: #ffd700;
+  --rose-gold: #f59e0b;
+  --crimson-start: #e63946;
+  --crimson-end: #b91c1c;
+  --text-main: #f8fafc;
+  --text-muted: rgba(255, 255, 255, 0.55);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Background Atmosphere & Movie Collage Poster Backdrop with Dim Cinema Overlay */
+.auth-ambient {
+  position: fixed;
+  inset: 0;
+  background-image: 
+    linear-gradient(135deg, rgba(7, 9, 14, 0.9) 0%, rgba(10, 13, 20, 0.95) 50%, rgba(7, 9, 14, 0.96) 100%),
+    radial-gradient(circle at 50% 20%, rgba(230, 57, 70, 0.18) 0%, transparent 60%),
+    radial-gradient(circle at 50% 80%, rgba(255, 215, 0, 0.12) 0%, transparent 60%),
+    url('../assets/login-bg.jpg');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  pointer-events: none;
+  z-index: 0;
+  filter: saturate(1.1);
+}
+
+/* Centered Form Wrapper */
+.auth-centered-wrapper {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+/* Centered Elegant Glassmorphism Card */
+.auth-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border-subtle);
+  border-radius: 24px;
+  padding: 40px 32px;
+  box-shadow: 
+    0 32px 64px -16px rgba(0, 0, 0, 0.85),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+/* Header Branding */
+.auth-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.brand-title {
+  font-family: 'Cinzel', serif;
+  font-weight: 900;
+  font-size: 34px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #ffffff 0%, #ffeaa7 30%, #ffd700 65%, #e63946 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  line-height: 1.1;
+}
+
+.page-title {
+  font-size: 19px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-top: 10px;
+  letter-spacing: 0.01em;
+}
+
+/* Nav Tabs: Masuk / Daftar */
+.auth-nav-tabs {
+  display: flex;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 24px;
+}
+
+.auth-tab-btn {
+  flex: 1;
+  text-align: center;
+  padding: 10px 14px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  border: none;
+  background: transparent;
+  transition: all 0.25s ease;
+}
+
+.auth-tab-btn.active {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.auth-tab-btn:hover:not(.active) {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* Method Toggle: Email / Nomor Telepon */
+.method-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.method-btn {
+  flex: 1;
+  padding: 9px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.method-btn.active {
+  background: rgba(230, 57, 70, 0.12);
+  border-color: rgba(230, 57, 70, 0.4);
+  color: #fca5a5;
+  font-weight: 600;
+}
+
+/* Form Groups & Inputs */
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 8px;
+  letter-spacing: 0.03em;
+}
+
+.input-container {
+  position: relative;
+  width: 100%;
+}
+
+.form-input {
+  width: 100%;
+  padding: 13px 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: #ffffff;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.25s ease;
+}
+
+.form-input:focus {
+  border-color: var(--border-focus);
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.12);
+}
+
+.form-input::placeholder {
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 13px;
+}
+
+/* Password Input with Action SVG */
+.input-with-action .form-input {
+  padding-right: 46px;
+}
+
+.eye-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  color: rgba(255, 255, 255, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.eye-btn:hover {
+  color: #ffffff;
+}
+
+.eye-icon {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Password Strength Indicator */
+.strength-track {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.strength-bar {
+  height: 100%;
+  width: 0%;
+  border-radius: 3px;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.strength-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* Links & Checkbox */
+.forgot-link-wrap {
+  text-align: right;
+  margin-top: -6px;
+  margin-bottom: 20px;
+}
+
+.forgot-link {
+  font-size: 12px;
+  color: var(--gold-primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.forgot-link:hover {
+  text-decoration: underline;
+  color: #ffeaa7;
+}
+
+.terms-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.terms-wrap input[type="checkbox"] {
+  margin-top: 3px;
+  accent-color: var(--crimson-start);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.terms-text {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.terms-text span {
+  color: var(--gold-primary);
+}
+
+/* Primary Submit Button */
+.btn-submit-auth {
+  width: 100%;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, var(--crimson-start) 0%, var(--crimson-end) 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(230, 57, 70, 0.35);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-submit-auth:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(230, 57, 70, 0.5);
+  filter: brightness(1.08);
+}
+
+.btn-submit-auth:active {
+  transform: translateY(0);
+}
+
+/* Error Notification Box */
+.auth-error {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-size: 12px;
+  color: #f87171;
+  margin-bottom: 18px;
+  display: none;
+  line-height: 1.4;
+}
+
+/* Footer Switch to Admin (Separated & Disguised, Zero Emoji) */
+.auth-footer {
+  text-align: center;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.admin-switch-link {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.38);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.admin-switch-link:hover {
+  color: rgba(255, 255, 255, 0.7);
+}

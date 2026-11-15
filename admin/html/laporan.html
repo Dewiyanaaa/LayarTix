@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Laporan – LayarTix Admin</title>
+  <link rel="stylesheet" href="../css/laporan.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.6.0/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+<div class="admin-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon"></div>
+      <div>
+        <div class="sidebar-logo-text">LAYARTIX</div>
+        <div class="sidebar-role">Admin Panel</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item" onclick="window.location.href='dashboard.html'"><span class="nav-icon"></span> Dashboard</div>
+      <div class="nav-item" onclick="window.location.href='dashboard.html'"><span class="nav-icon"></span> Kelola Film</div>
+      <div class="nav-item" onclick="window.location.href='dashboard.html'"><span class="nav-icon"></span> Jadwal Tayang</div>
+      <div class="nav-item" onclick="window.location.href='dashboard.html'"><span class="nav-icon"></span> Transaksi</div>
+      <div class="nav-item" onclick="window.location.href='dashboard.html'"><span class="nav-icon"></span> Manajemen Refund</div>
+      <div class="nav-item active"><span class="nav-icon"></span> Laporan & PDF</div>
+      <div class="nav-item" onclick="window.location.href='../../customer/html/beranda.html'" style="color:var(--gold);margin-top:12px;border:1px dashed rgba(255,215,0,0.3)">
+        <span class="nav-icon"></span> Ke Sisi Customer
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="doLogout()"> Keluar</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main-content">
+    <div class="topbar">
+      <div style="display:flex;align-items:center">
+        <button class="hamburger" onclick="document.getElementById('sidebar').classList.toggle('open')"></button>
+        <div>
+          <div class="topbar-title"> Laporan & Ekspor PDF</div>
+          <div class="topbar-sub" id="genDate"></div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <a href="../../customer/html/beranda.html" class="admin-badge" style="text-decoration:none;cursor:pointer;background:rgba(230,57,70,0.15);border-color:rgba(230,57,70,0.3);color:#fff">
+           Tampilan Customer
+        </a>
+        <div class="admin-badge">Admin Mode</div>
+      </div>
+    </div>
+
+    <div class="content-area">
+
+      <!-- Report type tabs -->
+      <div class="report-tabs">
+        <button class="report-tab active" onclick="switchReport('tiket',this)"> Penjualan Tiket</button>
+        <button class="report-tab" onclick="switchReport('refund',this)"> Laporan Refund</button>
+        <button class="report-tab" onclick="switchReport('fnb',this)"> Laporan F&B</button>
+        <button class="report-tab" onclick="switchReport('customer',this)"> Data Customer</button>
+      </div>
+
+      <!-- Filter row -->
+      <div class="filter-row">
+        <div class="form-group">
+          <label class="form-label">Dari Tanggal</label>
+          <input type="date" class="form-input" id="filterFrom" onchange="renderReport()"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Sampai Tanggal</label>
+          <input type="date" class="form-input" id="filterTo" onchange="renderReport()"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-input" id="filterStatus" onchange="renderReport()">
+            <option value="">Semua</option>
+            <option value="active">Aktif</option>
+            <option value="used">Selesai</option>
+            <option value="cancelled">Dibatalkan</option>
+          </select>
+        </div>
+        <div class="form-group" style="justify-content:flex-end;display:flex;align-items:flex-end;">
+          <button class="btn btn-outline" onclick="resetFilter()"> Reset</button>
+        </div>
+        <div class="form-group" style="display:flex;align-items:flex-end;">
+          <button class="pdf-btn" onclick="downloadPDF()">
+             Unduh Laporan (PDF)
+          </button>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div class="summary-row" id="summaryRow"></div>
+
+      <!-- Report Card -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title" id="reportTitle"> Laporan Penjualan Tiket</div>
+          <div style="font-size:13px;color:var(--muted)" id="reportCount"></div>
+        </div>
+        <div class="card-body" style="padding:0">
+          <div class="table-wrap">
+            <table id="reportTable">
+              <thead id="reportThead"></thead>
+              <tbody id="reportTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="../../data.js"></script>
+<script>
+  LT.requireAuth('admin');
+
+  // Set date defaults
+  const now = new Date();
+  const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+  document.getElementById('filterFrom').value = firstDay.toISOString().split('T')[0];
+  document.getElementById('filterTo').value = now.toISOString().split('T')[0];
+  document.getElementById('genDate').textContent = 'Digenerate: ' + now.toLocaleString('id-ID');
+
+  let currentReport = 'tiket';
+
+  function switchReport(type, btn) {
+    currentReport = type;
+    document.querySelectorAll('.report-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    renderReport();
+  }
+
+  function resetFilter() {
+    document.getElementById('filterFrom').value = firstDay.toISOString().split('T')[0];
+    document.getElementById('filterTo').value = now.toISOString().split('T')[0];
+    document.getElementById('filterStatus').value = '';
+    renderReport();
+  }
+
+  function getFilteredBookings() {
+    const from = document.getElementById('filterFrom').value;
+    const to = document.getElementById('filterTo').value;
+    const status = document.getElementById('filterStatus').value;
+    let bookings = LT.getBookings();
+    if (from) bookings = bookings.filter(b => (b.paidAt||b.date||'') >= from);
+    if (to) bookings = bookings.filter(b => (b.paidAt||b.date||'') <= to + 'T23:59:59');
+    if (status) bookings = bookings.filter(b => b.status === status);
+    return bookings;
+  }
+
+  function renderReport() {
+    const users = LT.getUsers();
+    const bookings = getFilteredBookings();
+    const fnbOrders = LT.getFnbOrders();
+    const thead = document.getElementById('reportThead');
+    const tbody = document.getElementById('reportTbody');
+    const summary = document.getElementById('summaryRow');
+    const title = document.getElementById('reportTitle');
+    const count = document.getElementById('reportCount');
+
+    if (currentReport === 'tiket') {
+      title.textContent = ' Laporan Penjualan Tiket';
+      count.textContent = `${bookings.length} transaksi`;
+      const totalRev = bookings.filter(b=>b.status!=='cancelled').reduce((s,b)=>s+(b.totalTicket||0),0);
+      const totalGrand = bookings.filter(b=>b.status!=='cancelled').reduce((s,b)=>s+(b.grandTotal||0),0);
+      const totalSeats = bookings.reduce((s,b)=>s+(b.seats?.length||0),0);
+      summary.innerHTML = `
+        <div class="summary-box"><div class="summary-label">Total Tiket</div><div class="summary-val">${bookings.length}</div></div>
+        <div class="summary-box"><div class="summary-label">Total Kursi</div><div class="summary-val">${totalSeats}</div></div>
+        <div class="summary-box"><div class="summary-label">Pendapatan Tiket</div><div class="summary-val" style="font-size:16px;color:#22c55e">${LT.formatRp(totalRev)}</div></div>
+        <div class="summary-box"><div class="summary-label">Total (dgn F&B)</div><div class="summary-val" style="font-size:16px;color:var(--gold)">${LT.formatRp(totalGrand)}</div></div>
+      `;
+      thead.innerHTML = `<tr><th>#</th><th>ID Booking</th><th>Customer</th><th>Film</th><th>Bioskop</th><th>Tanggal</th><th>Jam</th><th>Kursi</th><th>Harga Tiket</th><th>F&B</th><th>Pajak</th><th>Total</th><th>Status</th></tr>`;
+      const statusLabel = { active:'Aktif', used:'Selesai', cancelled:'Dibatalkan' };
+      const statusColor = { active:'#22c55e', used:'#3b82f6', cancelled:'#ef4444' };
+      tbody.innerHTML = bookings.length ? bookings.map((b,i) => {
+        const u = users.find(u=>u.id===b.userId)||{name:'–'};
+        return `<tr>
+          <td style="color:var(--muted)">${i+1}</td>
+          <td><code style="font-size:11px;color:var(--gold)">${b.id}</code></td>
+          <td>${u.name}</td>
+          <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${b.movieTitle}</td>
+          <td style="font-size:12px">${b.cinemaName||'–'}</td>
+          <td style="font-size:12px">${b.date||'–'}</td>
+          <td>${b.time||'–'}</td>
+          <td>${(b.seats||[]).join(', ')}</td>
+          <td>${LT.formatRp(b.totalTicket||0)}</td>
+          <td>${b.totalFnb?LT.formatRp(b.totalFnb):'–'}</td>
+          <td>${LT.formatRp(b.tax||0)}</td>
+          <td style="font-weight:600">${LT.formatRp(b.grandTotal||0)}</td>
+          <td style="color:${statusColor[b.status]||'gray'};font-weight:600">${statusLabel[b.status]||b.status}</td>
+        </tr>`;
+      }).join('') : emptyRow(13);
+
+    } else if (currentReport === 'refund') {
+      title.textContent = ' Laporan Refund';
+      const cancelled = bookings.filter(b => b.status === 'cancelled');
+      count.textContent = `${cancelled.length} pembatalan`;
+      const totalOrig = cancelled.reduce((s,b)=>s+(b.totalTicket||0),0);
+      const totalRefund = cancelled.reduce((s,b)=>s+(b.refundAmount||0),0);
+      const lostRev = totalOrig - totalRefund;
+      summary.innerHTML = `
+        <div class="summary-box"><div class="summary-label">Total Pembatalan</div><div class="summary-val" style="color:#ef4444">${cancelled.length}</div></div>
+        <div class="summary-box"><div class="summary-label">Harga Tiket Asal</div><div class="summary-val" style="font-size:16px">${LT.formatRp(totalOrig)}</div></div>
+        <div class="summary-box"><div class="summary-label">Refund (40%)</div><div class="summary-val" style="font-size:16px;color:#22c55e">${LT.formatRp(totalRefund)}</div></div>
+        <div class="summary-box"><div class="summary-label">Pendapatan Bersih</div><div class="summary-val" style="font-size:16px;color:var(--gold)">${LT.formatRp(lostRev)}</div></div>
+      `;
+      thead.innerHTML = `<tr><th>#</th><th>ID Booking</th><th>Customer</th><th>Film</th><th>Harga Tiket</th><th>Refund 40%</th><th>Pendapatan Bersih</th><th>Tanggal Batal</th></tr>`;
+      tbody.innerHTML = cancelled.length ? cancelled.map((b,i) => {
+        const u = users.find(u=>u.id===b.userId)||{name:'–'};
+        const refund = b.refundAmount || Math.round((b.totalTicket||0)*0.4);
+        return `<tr>
+          <td style="color:var(--muted)">${i+1}</td>
+          <td><code style="font-size:11px;color:var(--gold)">${b.id}</code></td>
+          <td>${u.name}</td>
+          <td>${b.movieTitle}</td>
+          <td>${LT.formatRp(b.totalTicket||0)}</td>
+          <td style="color:#22c55e;font-weight:600">${LT.formatRp(refund)}</td>
+          <td style="color:var(--gold);font-weight:600">${LT.formatRp((b.totalTicket||0)-refund)}</td>
+          <td style="font-size:12px;color:var(--muted)">${b.cancelledAt?new Date(b.cancelledAt).toLocaleString('id-ID',{dateStyle:'short',timeStyle:'short'}):'–'}</td>
+        </tr>`;
+      }).join('') : emptyRow(8);
+
+    } else if (currentReport === 'fnb') {
+      title.textContent = ' Laporan F&B';
+      const allFnb = fnbOrders;
+      count.textContent = `${allFnb.length} pesanan kantin`;
+      const fnbFromTickets = bookings.filter(b=>b.totalFnb>0);
+      const totalFnbRev = allFnb.reduce((s,o)=>s+(o.total||0),0) + fnbFromTickets.reduce((s,b)=>s+(b.totalFnb||0),0);
+      const totalItems = allFnb.reduce((s,o)=>s+(o.items?.reduce((a,it)=>a+(it.qty||1),0)||0),0);
+      summary.innerHTML = `
+        <div class="summary-box"><div class="summary-label">Pesanan Kantin</div><div class="summary-val">${allFnb.length}</div></div>
+        <div class="summary-box"><div class="summary-label">F&B Bundling Tiket</div><div class="summary-val">${fnbFromTickets.length}</div></div>
+        <div class="summary-box"><div class="summary-label">Total Item</div><div class="summary-val">${totalItems}</div></div>
+        <div class="summary-box"><div class="summary-label">Total Pendapatan F&B</div><div class="summary-val" style="font-size:16px;color:#22c55e">${LT.formatRp(totalFnbRev)}</div></div>
+      `;
+      thead.innerHTML = `<tr><th>#</th><th>ID Order</th><th>Customer</th><th>Items</th><th>Total</th><th>Waktu Pesan</th><th>Jenis</th></tr>`;
+      const rows = [];
+      allFnb.forEach((o,i) => {
+        const u = users.find(u=>u.id===o.userId)||{name:'–'};
+        const items = (o.items||[]).map(it=>`${it.name} x${it.qty||1}`).join(', ');
+        rows.push(`<tr>
+          <td style="color:var(--muted)">${i+1}</td>
+          <td><code style="font-size:11px;color:var(--gold)">${o.id}</code></td>
+          <td>${u.name||o.userId}</td>
+          <td style="font-size:12px;max-width:200px">${items}</td>
+          <td style="font-weight:600;color:#22c55e">${LT.formatRp(o.total||0)}</td>
+          <td style="font-size:12px;color:var(--muted)">${o.orderedAt?new Date(o.orderedAt).toLocaleString('id-ID',{dateStyle:'short',timeStyle:'short'}):'–'}</td>
+          <td><span class="badge badge-blue">Kantin</span></td>
+        </tr>`);
+      });
+      fnbFromTickets.forEach((b,i) => {
+        const u = users.find(u=>u.id===b.userId)||{name:'–'};
+        const items = (b.fnbItems||[]).map(it=>`${it.name} x${it.qty||1}`).join(', ');
+        rows.push(`<tr>
+          <td style="color:var(--muted)">${allFnb.length+i+1}</td>
+          <td><code style="font-size:11px;color:var(--gold2)">${b.id}</code></td>
+          <td>${u.name}</td>
+          <td style="font-size:12px;max-width:200px">${items}</td>
+          <td style="font-weight:600;color:#22c55e">${LT.formatRp(b.totalFnb||0)}</td>
+          <td style="font-size:12px;color:var(--muted)">${b.paidAt?new Date(b.paidAt).toLocaleString('id-ID',{dateStyle:'short',timeStyle:'short'}):'–'}</td>
+          <td><span class="badge badge-yellow">Bundling</span></td>
+        </tr>`);
+      });
+      tbody.innerHTML = rows.length ? rows.join('') : emptyRow(7);
+
+    } else if (currentReport === 'customer') {
+      title.textContent = ' Data Customer';
+      const customers = users.filter(u => u.role === 'customer');
+      count.textContent = `${customers.length} customer terdaftar`;
+      const allBookings = LT.getBookings();
+      summary.innerHTML = `
+        <div class="summary-box"><div class="summary-label">Total Customer</div><div class="summary-val">${customers.length}</div></div>
+        <div class="summary-box"><div class="summary-label">Total Transaksi</div><div class="summary-val">${allBookings.length}</div></div>
+        <div class="summary-box"><div class="summary-label">Rata-rata Transaksi/Customer</div><div class="summary-val">${customers.length?(allBookings.length/customers.length).toFixed(1):0}</div></div>
+      `;
+      thead.innerHTML = `<tr><th>#</th><th>Nama</th><th>Email</th><th>Telepon</th><th>Metode Bayar Favorit</th><th>Transaksi</th><th>Bergabung</th></tr>`;
+      tbody.innerHTML = customers.length ? customers.map((u,i) => {
+        const userBookings = allBookings.filter(b=>b.userId===u.id);
+        return `<tr>
+          <td style="color:var(--muted)">${i+1}</td>
+          <td style="font-weight:500">${u.name}</td>
+          <td>${u.email||'–'}</td>
+          <td>${u.phone||'–'}</td>
+          <td style="color:var(--gold);font-weight:600">QRIS / Split Bill</td>
+          <td style="text-align:center">${userBookings.length}</td>
+          <td style="font-size:12px;color:var(--muted)">${u.createdAt?new Date(u.createdAt).toLocaleDateString('id-ID'):'–'}</td>
+        </tr>`;
+      }).join('') : emptyRow(7);
+    }
+  }
+
+  function emptyRow(cols) {
+    return `<tr><td colspan="${cols}" style="text-align:center;color:var(--muted);padding:40px">Tidak ada data dalam rentang tanggal ini</td></tr>`;
+  }
+
+  // ── PDF Download ──
+  function downloadPDF() {
+    const { jsPDF } = window.jspdf;
+    if (!jsPDF) { alert('jsPDF belum dimuat'); return; }
+
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+    const from = document.getElementById('filterFrom').value;
+    const to = document.getElementById('filterTo').value;
+
+    // Header
+    doc.setFillColor(10, 10, 15);
+    doc.rect(0, 0, 297, 297, 'F');
+
+    doc.setTextColor(255, 215, 0);
+    doc.setFontSize(22);
+    doc.setFont('helvetica', 'bold');
+    doc.text('LAYARTIX', 14, 18);
+
+    doc.setFontSize(13);
+    doc.setTextColor(255, 255, 255);
+    const titles = { tiket:'Laporan Penjualan Tiket', refund:'Laporan Refund', fnb:'Laporan F&B', customer:'Data Customer' };
+    doc.text(titles[currentReport] || 'Laporan', 14, 27);
+
+    doc.setFontSize(9);
+    doc.setTextColor(150, 150, 150);
+    doc.text(`Periode: ${from} s/d ${to}`, 14, 34);
+    doc.text(`Digenerate: ${new Date().toLocaleString('id-ID')}`, 14, 39);
+    doc.text('Administrator: ' + (LT.getCurrentUser()?.name || '–'), 14, 44);
+
+    // Line
+    doc.setDrawColor(230, 57, 70);
+    doc.setLineWidth(0.5);
+    doc.line(14, 47, 283, 47);
+
+    // Build table data
+    const bookings = getFilteredBookings();
+    const users = LT.getUsers();
+    const statusLabel = { active:'Aktif', used:'Selesai', cancelled:'Dibatalkan' };
+
+    let head = [], body = [];
+
+    if (currentReport === 'tiket') {
+      head = [['No','ID Booking','Customer','Film','Bioskop','Tanggal','Jam','Kursi','Tiket','F&B','Total','Status']];
+      body = bookings.map((b,i) => {
+        const u = users.find(u=>u.id===b.userId)||{name:'–'};
+        return [i+1, b.id, u.name, b.movieTitle, b.cinemaName||'–', b.date||'–', b.time||'–', (b.seats||[]).join(','), LT.formatRp(b.totalTicket||0), b.totalFnb?LT.formatRp(b.totalFnb):'–', LT.formatRp(b.grandTotal||0), statusLabel[b.status]||b.status];
+      });
+    } else if (currentReport === 'refund') {
+      const cancelled = bookings.filter(b=>b.status==='cancelled');
+      head = [['No','ID Booking','Customer','Film','Harga Tiket','Refund (40%)','Sisa','Tanggal Batal']];
+      body = cancelled.map((b,i) => {
+        const u = users.find(u=>u.id===b.userId)||{name:'–'};
+        const refund = b.refundAmount||Math.round((b.totalTicket||0)*0.4);
+        return [i+1, b.id, u.name, b.movieTitle, LT.formatRp(b.totalTicket||0), LT.formatRp(refund), LT.formatRp((b.totalTicket||0)-refund), b.cancelledAt?new Date(b.cancelledAt).toLocaleDateString('id-ID'):'–'];
+      });
+    } else if (currentReport === 'fnb') {
+      const fnbOrders = LT.getFnbOrders();
+      head = [['No','ID','Customer','Items','Total','Waktu','Jenis']];
+      body = fnbOrders.map((o,i) => {
+        const u = users.find(u=>u.id===o.userId)||{name:'–'};
+        return [i+1, o.id, u.name||o.userId, (o.items||[]).map(it=>`${it.name} x${it.qty||1}`).join(', '), LT.formatRp(o.total||0), o.orderedAt?new Date(o.orderedAt).toLocaleDateString('id-ID'):'–', 'Kantin'];
+      });
+    } else if (currentReport === 'customer') {
+      const customers = users.filter(u=>u.role==='customer');
+      head = [['No','Nama','Email','Telepon','Metode Bayar Favorit','Transaksi','Bergabung']];
+      const allB = LT.getBookings();
+      body = customers.map((u,i) => {
+        const cnt = allB.filter(b=>b.userId===u.id).length;
+        return [i+1, u.name, u.email||'–', u.phone||'–', 'QRIS / Split Bill', cnt, u.createdAt?new Date(u.createdAt).toLocaleDateString('id-ID'):'–'];
+      });
+    }
+
+    doc.autoTable({
+      startY: 52,
+      head,
+      body: body.length ? body : [['Tidak ada data dalam periode ini']],
+      theme: 'grid',
+      headStyles: {
+        fillColor: [26, 26, 46],
+        textColor: [255, 215, 0],
+        fontStyle: 'bold',
+        fontSize: 8
+      },
+      bodyStyles: {
+        fillColor: [12, 12, 20],
+        textColor: [220, 220, 220],
+        fontSize: 7.5
+      },
+      alternateRowStyles: { fillColor: [18, 18, 28] },
+      gridLineColor: [40, 40, 60],
+      margin: { left: 14, right: 14 }
+    });
+
+    // Footer
+    const finalY = doc.lastAutoTable.finalY + 8;
+    doc.setFontSize(8);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Laporan ini digenerate otomatis oleh sistem LayarTix | ${new Date().toLocaleString('id-ID')}`, 14, finalY);
+
+    const filename = `LayarTix-${titles[currentReport]?.replace(/\s/g,'-')}-${from}-${to}.pdf`;
+    doc.save(filename);
+    LT.toast('Laporan PDF berhasil diunduh!', 'success');
+  }
+
+  function doLogout() {
+    LT.logout();
+    window.location.href = '../html/login.html';
+  }
+
+  // Init
+  renderReport();
+</script>
+</body>
+</html>
+

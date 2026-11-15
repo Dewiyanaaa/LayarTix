@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard Admin – LayarTix 2026</title>
+  <link rel="stylesheet" href="../css/beranda.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+  <style>
+    .admin-panel { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .stats { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 30px; }
+    .stat-card { flex: 1 1 200px; background: var(--card); padding: 16px; border-radius: 12px; text-align: center; }
+    .stat-card h3 { margin: 0; font-size: 1.2rem; color: var(--muted); }
+    .stat-card p { margin: 8px 0 0; font-size: 1.6rem; font-weight: 600; color: #fff; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { padding: 8px 12px; border: 1px solid var(--border); text-align: left; }
+    th { background: var(--bg); color: var(--gold); }
+    .download-btn { margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+  <div class="app-frame">
+    <!-- HEADER -->
+    <header class="app-header">
+      <div class="header-container">
+        <div class="header-logo" onclick="window.location.href='beranda.html'">LAYARTIX ADMIN</div>
+      </div>
+    </header>
+
+    <div class="page-content page-enter">
+      <div class="admin-panel" id="adminReport">
+        <h1>Dashboard Admin – LayarTix 2026</h1>
+        <button class="btn btn-primary download-btn" onclick="downloadPdf()">Download Laporan PDF</button>
+        <div class="stats">
+          <select id="cityFilter" class="bg-gray-800 text-white p-2 rounded mr-2">
+            <option value="All">All</option>
+          </select>
+          <div class="stat-card"><h3>Total Pendapatan</h3><p id="totalRevenue">-</p></div>
+          <div class="stat-card"><h3>Total Tiket Terjual</h3><p id="totalTickets">-</p></div>
+          <div class="stat-card"><h3>Film Aktif</h3><p id="activeMovies">-</p></div>
+        </div>
+        <h2>Daftar Film Aktif</h2>
+        <ul id="movieList"></ul>
+        <h2>Transaksi Tiket</h2>
+        <table id="transactionTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Status</th>
+              <th>Nama Pemesan</th>
+              <th>Judul Film</th>
+              <th>Kursi</th>
+              <th>Bioskop</th>
+              <th>Waktu</th>
+              <th>Harga</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <h2>Rekapitulasi per Kota &amp; Bioskop</h2>
+        <table id="citySummaryTable">
+          <thead>
+            <tr>
+              <th>Kota</th>
+              <th>Bioskop</th>
+              <th>Total Tiket</th>
+              <th>Revenue</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <script src="../../data.js"></script>
+    <script src="../js/admin.js"></script>
+  </div>
+</body>
+</html>

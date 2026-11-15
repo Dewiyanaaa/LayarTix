@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#07090e" />
+  <meta name="description" content="LayarTix – Aplikasi Pemesanan Tiket Bioskop Berbasis Mobile & Sinema Masa Depan Indonesia" />
+  <title>LayarTix — Bioskop Dalam Genggaman Anda</title>
+
+  <!-- Google Fonts: Poppins & Cinzel Luxury -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Modular Splash Screen Stylesheet -->
+  <link rel="stylesheet" href="customer/css/splash.css" />
+</head>
+<body>
+
+  <!-- Cinematic Atmosphere Lens Flare Container -->
+  <div class="splash-wrapper" id="splashWrapper">
+    <div class="ambient-glow" aria-hidden="true"></div>
+
+    <main class="splash-content">
+      <!-- Luxury Text Brand -->
+      <div class="brand-title-wrap">
+        <h1 class="brand-title">LayarTix</h1>
+      </div>
+
+      <!-- Category Pill -->
+      <div class="brand-category">
+        <span>The Cinema Experience</span>
+      </div>
+
+      <!-- Subtitle with wide letter spacing -->
+      <p class="brand-subtitle">
+        Sinema Masa Depan Indonesia
+      </p>
+
+      <!-- 6-Second Precision Loading Indicator -->
+      <div class="timer-container" aria-live="polite">
+        <div class="progress-track">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <div class="status-indicator">
+          <div class="dots-pulse">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <span style="letter-spacing: 0.2em; font-size: 10px; text-transform: uppercase;">Memuat Pengalaman Sinema</span>
+          <span id="countdownTimer" style="font-weight: 600; color: #ffd700;">6s</span>
+        </div>
+      </div>
+
+      <!-- Thumb-friendly Skip Control -->
+      <button class="skip-btn" id="skipSplashBtn" type="button" title="Lewati Animasi Pembuka">
+        Lewati &rarr;
+      </button>
+    </main>
+  </div>
+
+  <!-- Shared Data/Auth Logic -->
+  <script src="data.js"></script>
+  <!-- Splash Screen Interactive JavaScript Logic -->
+  <script src="customer/js/splash.js"></script>
+
+</body>
+</html>

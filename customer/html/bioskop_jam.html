@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pilih Bioskop – LayarTix</title>
+  <link rel="stylesheet" href="../css/beranda.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .cinema-card {
+      margin: 0 16px 14px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: all 0.2s;
+    }
+
+    .cinema-card:hover {
+      border-color: rgba(255, 255, 255, 0.18);
+      transform: translateY(-2px);
+    }
+
+    @media (min-width: 768px) {
+      .cinema-card {
+        margin: 0;
+      }
+    }
+
+    .cinema-header {
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .cinema-name {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .cinema-mall {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .cinema-facilities {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .facility-tag {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+      background: rgba(59, 130, 246, 0.15);
+      color: #3b82f6;
+    }
+
+    .cinema-times {
+      padding: 12px 16px;
+    }
+
+    .times-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+
+    .time-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .time-pill {
+      padding: 9px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.2s;
+    }
+
+    .time-pill:hover {
+      background: rgba(230, 57, 70, 0.12);
+      border-color: rgba(230, 57, 70, 0.3);
+      color: var(--red);
+    }
+
+    .time-pill.selected {
+      background: var(--red);
+      border-color: var(--red);
+      color: #fff;
+    }
+
+    .time-pill.almost-full {
+      border-color: rgba(245, 158, 11, 0.4);
+      color: #f59e0b;
+    }
+
+    .date-tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 0 16px;
+      scrollbar-width: none;
+      margin-bottom: 16px;
+    }
+
+    .date-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .date-tab {
+      flex-shrink: 0;
+      padding: 8px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: center;
+      min-width: 60px;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.2s;
+    }
+
+    .date-tab.active {
+      background: rgba(230, 57, 70, 0.12);
+      border-color: rgba(230, 57, 70, 0.3);
+      color: var(--red);
+    }
+
+    .date-day {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .date-mon {
+      font-size: 10px;
+    }
+
+    .seat-type-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 0 16px;
+      margin-bottom: 16px;
+    }
+
+    .seat-type-tab {
+      padding: 8px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.2s;
+    }
+
+    .seat-type-tab.active {
+      background: rgba(255, 215, 0, 0.1);
+      border-color: rgba(255, 215, 0, 0.25);
+      color: var(--gold);
+    }
+
+    /* Age warning */
+    .age-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .age-modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .age-modal {
+      background: var(--dark2);
+      border-radius: 24px;
+      padding: 32px 28px;
+      max-width: 380px;
+      width: 100%;
+      text-align: center;
+      border: 2px solid;
+      animation: modalPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes modalPop {
+      from {
+        transform: scale(0.7);
+        opacity: 0
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1
+      }
+    }
+
+    .age-icon {
+      font-size: 72px;
+      margin-bottom: 12px;
+      animation: pulse 1.5s ease infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        transform: scale(1)
+      }
+
+      50% {
+        transform: scale(1.08)
+      }
+    }
+
+    .age-badge {
+      font-size: 48px;
+      font-weight: 900;
+      font-family: 'Cinzel', serif;
+      margin-bottom: 8px;
+    }
+
+    .age-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .age-text {
+      font-size: 13px;
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+
+    .age-actions {
+      display: flex;
+      gap: 10px;
+      flex-direction: column;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-frame">
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-container">
+      <div style="display:flex;align-items:center;gap:16px">
+        <div class="header-logo" onclick="window.location.href='beranda.html'">LAYARTIX</div>
+        <button class="back-btn" onclick="history.back()" title="Kembali" aria-label="Kembali">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+        </button>
+        <div>
+          <div style="font-size:16px;font-weight:700" id="movieTitleHeader">Pilih Bioskop</div>
+          <div style="font-size:11px;color:var(--muted)" id="movieRatingHeader"></div>
+        </div>
+        <nav class="desktop-nav" style="margin-left:14px">
+          <a href="beranda.html" class="desktop-nav-link ">LayarTix Beranda</a>
+          <a href="fnb.html" class="desktop-nav-link ">LayarTix Kantin F&amp;B</a>
+          <a href="tiket.html" class="desktop-nav-link ">LayarTix Tiket &amp; Kenangan</a>
+          <a href="parkir.html" class="desktop-nav-link ">LayarTix Info Parkir</a>
+          <a href="akun.html" class="desktop-nav-link ">Akun</a>
+        </nav>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:10px">
+        <a id="adminHeaderLink" href="../../admin/html/dashboard.html" style="display:none"
+          class="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-all">
+           Admin
+        </a>
+      </div>
+    </div>
+  </header>
+
+    <div class="page-content page-enter">
+
+      <!-- Movie mini info -->
+      <div
+        style="padding:16px;background:rgba(255,255,255,0.03);border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:center"
+        id="movieMiniInfo">
+      </div>
+
+      <!-- City badge -->
+      <div style="padding:12px 16px;display:flex;align-items:center;gap:8px">
+        <span style="font-size:12px;color:var(--muted)"> Menampilkan bioskop di</span>
+        <button onclick="window.location.href='beranda.html'"
+          style="font-size:12px;font-weight:700;color:var(--gold);background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.2);border-radius:8px;padding:4px 10px;cursor:pointer;font-family:'Inter',sans-serif"
+          id="cityDisplay">Pilih Kota</button>
+      </div>
+
+      <!-- Date selector -->
+      <div class="date-tabs" id="dateTabs"></div>
+
+      <!-- Seat type -->
+      <div class="seat-type-tabs">
+        <button class="seat-type-tab active" id="st-Regular" onclick="setSeatType('Regular',this)"> Regular</button>
+        <button class="seat-type-tab" id="st-Premium" onclick="setSeatType('Premium',this)"> Premium</button>
+        <button class="seat-type-tab" id="st-IMAX" onclick="setSeatType('IMAX',this)"> IMAX</button>
+      </div>
+
+      <!-- Cinemas list -->
+      <div id="cinemasList" class="md:grid md:grid-cols-2 md:gap-5 md:px-4"></div>
+
+      <div style="height:16px"></div>
+    </div>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+      <a class="nav-tab " href="beranda.html">
+        <div class="nav-icon-wrap"></div>
+        <div class="nav-label">LayarTix Beranda</div>
+      </a>
+      <a class="nav-tab " href="fnb.html">
+        <div class="nav-icon-wrap"></div>
+        <div class="nav-label">LayarTix Kantin F&amp;B</div>
+      </a>
+      <a class="nav-tab " href="tiket.html">
+        <div class="nav-icon-wrap"></div>
+        <div class="nav-label">LayarTix Tiket &amp; Kenangan</div>
+      </a>
+      <a class="nav-tab " href="parkir.html">
+        <div class="nav-icon-wrap"></div>
+        <div class="nav-label">LayarTix Info Parkir</div>
+      </a>
+      <a class="nav-tab " href="akun.html">
+        <div class="nav-icon-wrap"></div>
+        <div class="nav-label">Akun</div>
+      </a>
+    </nav>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <a class="nav-tab" href="beranda.html"><div class="nav-icon-wrap"></div><div class="nav-label">Beranda</div></a>
+    <a class="nav-tab" href="fnb.html"><div class="nav-icon-wrap"></div><div class="nav-label">Kantin F&amp;B</div></a>
+    <a class="nav-tab" href="tiket.html"><div class="nav-icon-wrap"></div><div class="nav-label">Tiket &amp; Kenangan</div></a>
+    <a class="nav-tab" href="akun.html"><div class="nav-icon-wrap"></div><div class="nav-label">Akun</div></a>
+  </nav>
+</div>
+
+<!-- AGE WARNING MODAL -->
+<div class="age-modal-overlay" id="ageModal">
+  <div class="age-modal" id="ageModalBox">
+    <div class="age-icon"></div>
+    <div class="age-badge" id="ageBadge">17+</div>
+    <div class="age-title" id="ageTitle">BATAS USIA 17+</div>
+    <div class="age-text" id="ageText">Film ini hanya untuk penonton berusia 17 tahun ke atas.</div>
+    <div class="age-actions">
+      <button class="btn btn-primary" style="padding:14px;font-size:15px;border-radius:14px;width:100%" onclick="confirmAge()">
+         Saya Memenuhi Syarat – Lanjutkan
+      </button>
+      <button class="btn btn-outline" style="padding:12px;font-size:14px;border-radius:14px;width:100%" onclick="closeAgeModal()">
+        Kembali
+      </button>
+    </div>
+  </div>
+
+  <script src="../../data.js"></script>
+  <script src="../js/bioskop_jam.js"></script>
+</body>
+
+</html>

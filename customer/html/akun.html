@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Akun Profil – LayarTix</title>
+  <link rel="stylesheet" href="../css/beranda.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { align-items: flex-start; }
+    .profile-header {
+      padding: 24px 16px 20px;
+      background: linear-gradient(180deg, rgba(230,57,70,0.12) 0%, rgba(10,10,15,0) 100%);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .profile-avatar-large {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(230,57,70,0.3), rgba(255,215,0,0.2));
+      border: 2px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    }
+    .wallet-card-gold {
+      margin: 0 16px 16px;
+      background: linear-gradient(135deg, #1f1b2e 0%, #161626 50%, #221a15 100%);
+      border: 1px solid rgba(255,215,0,0.3);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4), 0 0 15px rgba(255,215,0,0.08);
+      position: relative;
+      overflow: hidden;
+    }
+    .wallet-card-gold::after {
+      content: 'LayarTix';
+      position: absolute;
+      right: -10px;
+      bottom: -15px;
+      font-family: 'Cinzel', serif;
+      font-size: 42px;
+      font-weight: 900;
+      color: rgba(255,215,0,0.06);
+      pointer-events: none;
+    }
+    .topup-chip {
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    .topup-chip:hover, .topup-chip.selected {
+      background: rgba(255,215,0,0.15);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+    .menu-item-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background 0.2s;
+      font-size: 14px;
+    }
+    .menu-item-row:hover { background: rgba(255,255,255,0.06); }
+    .menu-item-row:first-child { border-radius: 14px 14px 0 0; }
+    .menu-item-row:last-child { border-bottom: none; border-radius: 0 0 14px 14px; }
+    .menu-icon { font-size: 18px; margin-right: 12px; }
+  </style>
+</head>
+<body>
+<div class="app-frame">
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-container">
+      <div style="display:flex;align-items:center;gap:16px">
+        <div class="header-logo" onclick="window.location.href='beranda.html'">LAYARTIX</div>
+        <nav class="desktop-nav">
+          <a href="beranda.html" class="desktop-nav-link ">LayarTix Beranda</a>
+          <a href="fnb.html" class="desktop-nav-link ">LayarTix Kantin F&amp;B</a>
+          <a href="tiket.html" class="desktop-nav-link ">LayarTix Tiket &amp; Kenangan</a>
+          <a href="parkir.html" class="desktop-nav-link ">LayarTix Info Parkir</a>
+          <a href="akun.html" class="desktop-nav-link active">Akun</a>
+        </nav>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:10px">
+
+      </div>
+    </div>
+  </header>
+
+  <div class="page-content page-enter">
+
+    <div class="md:grid md:grid-cols-12 md:gap-8 md:items-start md:px-4">
+
+      <!-- LEFT COLUMN (Profile & Payment Info) -->
+      <div class="md:col-span-5 space-y-4">
+        <!-- PROFILE HEADER -->
+        <div class="profile-header md:rounded-2xl md:border md:border-white/10 md:bg-white/5">
+          <div class="profile-avatar-large" id="avatarLarge"></div>
+          <div style="flex:1">
+            <div style="font-size:18px;font-weight:700" id="profileName">Nama Pengguna</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px" id="profileContact">user@email.com</div>
+            <div style="margin-top:8px;display:flex;gap:6px;align-items:center">
+              <span class="badge badge-gold"> Gold Member</span>
+              <span class="badge badge-green" id="roleBadge">Customer</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- PAYMENT METHODS CARD (Reguler & Split Bill) -->
+        <div class="wallet-card-gold md:m-0" style="background:linear-gradient(135deg,#151522 0%,#1a1a2e 100%);border-color:rgba(255,215,0,0.25)">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+            <div>
+              <div style="font-size:11px;color:rgba(255,215,0,0.8);font-weight:600;letter-spacing:0.1em;text-transform:uppercase">Metode Pembayaran</div>
+              <div style="font-size:16px;font-weight:700;color:#fff;display:flex;align-items:center;gap:6px;margin-top:2px">
+                <span> Pembayaran Reguler & QRIS</span>
+              </div>
+            </div>
+            <span class="badge badge-green" style="font-size:11px">Aktif & Siap</span>
+          </div>
+
+          <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div style="background:rgba(255,255,255,0.05);padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.08)">
+              <div style="font-size:11px;color:var(--muted)">QRIS Standar</div>
+              <div style="font-size:13px;font-weight:700;color:#fff;margin-top:2px">BCA / Mandiri / E-Wallet</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.05);padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.08)">
+              <div style="font-size:11px;color:var(--muted)">Fitur Patungan</div>
+              <div style="font-size:13px;font-weight:700;color:var(--gold);margin-top:2px">1 QR Split Bill</div>
+            </div>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);font-size:11px;color:rgba(255,255,255,0.6)">
+            <div> Refund 40% langsung kembali ke rekening/e-wallet asal</div>
+            <div style="color:var(--gold);font-weight:600">Proses 1x24 Jam</div>
+          </div>
+        </div>
+
+        <!-- ROLE SWITCHER QUICK TESTER (Requirement PRD #2) -->
+        <div class="md:m-0" style="margin:0 16px 16px;padding:14px;background:rgba(230,57,70,0.08);border:1px solid rgba(230,57,70,0.25);border-radius:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#fff"> Pengujian Role (Switcher)</div>
+              <div style="font-size:11px;color:var(--muted)">Ganti ke Admin untuk menguji Dashboard & Laporan PDF</div>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="switchToAdmin()" style="border-color:rgba(255,215,0,0.4);color:var(--gold)">
+               Ke Admin
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN (Settings & Preferences) -->
+      <div class="md:col-span-7 space-y-4 mt-4 md:mt-0">
+        <!-- PREFERENCES & SETTINGS -->
+        <div class="md:m-0" style="margin:0 16px 16px">
+          <div style="font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px;padding-left:4px">PENGATURAN & AKUN</div>
+          <div style="border:1px solid var(--border);border-radius:14px;overflow:hidden">
+            <div class="menu-item-row" onclick="editProfile()">
+              <div style="display:flex;align-items:center">
+                <span class="menu-icon"></span>
+                <div>
+                  <div style="font-weight:600">Edit Profil & Biodata</div>
+                  <div style="font-size:11px;color:var(--muted)">Ubah nama, nomor telepon, dan email</div>
+                </div>
+              </div>
+              <span style="color:var(--muted)">›</span>
+            </div>
+
+            <div class="menu-item-row" onclick="window.location.href='beranda.html'">
+              <div style="display:flex;align-items:center">
+                <span class="menu-icon"></span>
+                <div>
+                  <div style="font-weight:600">Kota Favorit Bioskop</div>
+                  <div style="font-size:11px;color:var(--muted)" id="prefCity">Semua Kota</div>
+                </div>
+              </div>
+              <span style="color:var(--muted)">›</span>
+            </div>
+
+            <div class="menu-item-row" onclick="window.location.href='tiket.html'">
+              <div style="display:flex;align-items:center">
+                <span class="menu-icon"></span>
+                <div>
+                  <div style="font-weight:600">Jurnal Kenangan Pribadi</div>
+                  <div style="font-size:11px;color:var(--muted)">Koleksi rating & catatan nonton privat</div>
+                </div>
+              </div>
+              <span style="color:var(--muted)">›</span>
+            </div>
+
+            <div class="menu-item-row" onclick="LT.toast('Kebijakan Pembatalan: Anda berhak mendapatkan pengembalian 40% dari harga tiket yang langsung ditransfer kembali ke rekening bank atau e-wallet asal pembayaran.','info',5000)">
+              <div style="display:flex;align-items:center">
+                <span class="menu-icon"></span>
+                <div>
+                  <div style="font-weight:600">Kebijakan Refund 40%</div>
+                  <div style="font-size:11px;color:var(--muted)">Syarat pembatalan tiket bioskop</div>
+                </div>
+              </div>
+              <span style="color:var(--muted)">›</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- LOGOUT BUTTON -->
+        <div class="md:p-0" style="padding:0 16px 24px">
+          <button class="btn btn-danger btn-full" onclick="doLogout()" style="padding:14px;border-radius:14px">
+             Keluar dari Akun (Logout)
+          </button>
+          <div style="text-align:center;font-size:11px;color:rgba(255,255,255,0.25);margin-top:12px">
+            LayarTix v1.0.0 · Sistem Bioskop Digital Terintegrasi
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="height:16px"></div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+      <a class="nav-tab " href="beranda.html">
+        <div class="nav-icon-wrap"></div>
+        <div class="nav-label">LayarTix Beranda</div>
+      </a>
+      <a class="nav-tab " href="fnb.html">
+        <div class="nav-icon-wrap"></div>
+        <div class="nav-label">LayarTix Kantin F&amp;B</div>
+      </a>
+      <a class="nav-tab " href="tiket.html">
+        <div class="nav-icon-wrap"></div>
+        <div class="nav-label">LayarTix Tiket &amp; Kenangan</div>
+      </a>
+      <a class="nav-tab " href="parkir.html">
+        <div class="nav-icon-wrap"></div>
+        <div class="nav-label">LayarTix Info Parkir</div>
+      </a>
+      <a class="nav-tab active" href="akun.html">
+        <div class="nav-icon-wrap"></div>
+        <div class="nav-label">Akun</div>
+      </a>
+    </nav>
+</div>
+
+<!-- EDIT PROFILE MODAL -->
+<div class="modal-overlay center" id="editProfileModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title"> Edit Profil</div>
+      <button class="modal-close" onclick="closeEditProfileModal()"></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Nama Lengkap</label>
+        <input type="text" id="editName" class="form-input"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" id="editEmail" class="form-input"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nomor Telepon</label>
+        <input type="tel" id="editPhone" class="form-input"/>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="saveProfile()" style="padding:14px;border-radius:12px">
+        Simpan Perubahan
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="../../data.js"></script>
+<script src="../js/akun.js"></script>
+</body>
+</html>
+

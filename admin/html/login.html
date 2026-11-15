@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Login – LayarTix</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../css/login.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* ── SPLASH SCREEN OPENING ── */
+    #splashOverlay {
+      position: fixed; inset: 0;
+      background: #000;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 99999;
+      overflow: hidden;
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    #splashOverlay.fade-out {
+      opacity: 0;
+      transform: scale(1.05);
+      pointer-events: none;
+    }
+    .splash-stars {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at center, #0f1026 0%, #000 100%);
+    }
+    .splash-star {
+      position: absolute; background: #fff; border-radius: 50%;
+      animation: splashTwinkle var(--d, 3s) ease-in-out infinite;
+    }
+    @keyframes splashTwinkle {
+      0%,100% { opacity: 0.15; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.5); }
+    }
+    .splash-strip {
+      position: absolute; left: 0; right: 0; height: 44px;
+      background: #111; display: flex; align-items: center; overflow: hidden;
+    }
+    .splash-strip.top { top: 0; }
+    .splash-strip.bottom { bottom: 0; }
+    .splash-holes { display: flex; animation: scrollStrip 2s linear infinite; }
+    .splash-hole {
+      width: 26px; height: 18px; background: #000; border: 2px solid #333;
+      border-radius: 3px; margin: 0 6px; flex-shrink: 0;
+    }
+    .splash-frame {
+      width: 52px; height: 44px; border-left: 2px solid #333;
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      font-size: 14px; color: #444;
+    }
+    @keyframes scrollStrip { from { transform: translateX(0); } to { transform: translateX(-84px); } }
+    .splash-beam {
+      position: absolute; top: 44px; left: 50%; transform: translateX(-50%);
+      width: 0; height: 0; border-left: 110px solid transparent; border-right: 110px solid transparent;
+      border-top: 360px solid rgba(255, 220, 100, 0.07); pointer-events: none;
+      animation: beamGlow 3s ease-in-out infinite; filter: blur(16px);
+    }
+    @keyframes beamGlow { 0%,100% { opacity: 0.35; } 50% { opacity: 1; } }
+    .splash-logo-wrap {
+      position: relative; z-index: 10; display: flex; flex-direction: column;
+      align-items: center; gap: 16px;
+    }
+    .splash-logo-icon {
+      font-size: 64px; animation: splashPop 0.8s cubic-bezier(0.34,1.56,0.64,1) 0.3s both;
+      filter: drop-shadow(0 0 24px rgba(255,215,0,0.7));
+    }
+    @keyframes splashPop { from { opacity:0; transform: scale(0.3) rotate(-15deg); } to { opacity:1; transform: scale(1) rotate(0deg); } }
+    .splash-logo-text {
+      font-family: 'Cinzel', serif; font-weight: 900;
+      font-size: clamp(40px, 8vw, 80px); letter-spacing: 0.18em;
+      background: linear-gradient(135deg, #fff 0%, #ffd700 40%, #f4a261 60%, #e63946 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      display: flex; filter: drop-shadow(0 0 30px rgba(255,215,0,0.5));
+    }
+    .splash-letter {
+      display: inline-block; opacity: 0; transform: translateY(30px) scale(0.85);
+      animation: letterShow 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    }
+    @keyframes letterShow { to { opacity: 1; transform: translateY(0) scale(1); } }
+    .splash-tagline {
+      font-weight: 300; font-size: clamp(11px, 2vw, 15px); letter-spacing: 0.35em;
+      color: rgba(255,255,255,0.6); text-transform: uppercase; opacity: 0;
+      animation: splashFadeIn 1s ease 2s forwards;
+    }
+    @keyframes splashFadeIn { from { opacity:0; transform: translateY(15px); } to { opacity:1; transform: translateY(0); } }
+    .splash-progress-wrap {
+      position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%);
+      width: min(360px, 80vw); z-index: 10;
+    }
+    .splash-progress-label {
+      font-size: 11px; color: rgba(255,255,255,0.4); text-align: center;
+      margin-bottom: 8px; letter-spacing: 0.25em; font-family: 'Inter', sans-serif;
+    }
+    .splash-progress-track {
+      height: 3px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden;
+    }
+    .splash-progress-bar {
+      height: 100%; background: linear-gradient(90deg, #e63946, #ffd700);
+      border-radius: 2px; width: 0%; animation: splashLoad 5.5s ease-in-out 0.4s forwards;
+      box-shadow: 0 0 12px #ffd700;
+    }
+    @keyframes splashLoad {
+      0% { width: 0%; } 25% { width: 22%; } 60% { width: 65%; } 85% { width: 88%; } 100% { width: 100%; }
+    }
+    .splash-skip-btn {
+      position: absolute; top: 50px; right: 24px;
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.18);
+      color: rgba(255,255,255,0.7); font-size: 12px; padding: 7px 16px;
+      border-radius: 20px; cursor: pointer; z-index: 20; transition: all 0.3s;
+      font-family: 'Inter', sans-serif; opacity: 0; animation: splashFadeIn 1s ease 1.5s forwards;
+    }
+    .splash-skip-btn:hover {
+      background: rgba(255,255,255,0.2); color: #fff; transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     SPLASH SCREEN OPENING (6s)
+══════════════════════════════════════════════ -->
+<div id="splashOverlay">
+  <div class="splash-stars" id="splashStars"></div>
+  <div class="splash-strip top"><div class="splash-holes" id="topStrip"></div></div>
+  <div class="splash-strip bottom"><div class="splash-holes" id="bottomStrip"></div></div>
+  <div class="splash-beam"></div>
+
+  <div class="splash-logo-wrap">
+    <div class="splash-logo-icon"></div>
+    <div class="splash-logo-text" id="splashLetters"></div>
+    <div class="splash-tagline">Sistem Manajemen Bioskop · Panel Administrator</div>
+  </div>
+
+  <div class="splash-progress-wrap">
+    <div class="splash-progress-label">MEMUAT PANEL ADMINISTRATOR...</div>
+    <div class="splash-progress-track"><div class="splash-progress-bar"></div></div>
+  </div>
+
+  <button class="splash-skip-btn" onclick="finishSplash()">Lewati ›</button>
+</div>
+
+<div class="bg-art"></div>
+
+<!-- Animated particles -->
+<div id="particles" style="position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden"></div>
+
+<!-- Form login admin: disembunyikan selama animasi 6 detik berlangsung -->
+<div id="loginCard" class="login-card" style="display:none; opacity:0; transform:translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease;">
+  <div class="login-logo">
+    <div class="logo-icon"></div>
+    <div class="logo-name">LAYARTIX</div>
+  </div>
+
+  <div style="text-align:center;margin-bottom:24px;">
+    <div class="admin-badge">Panel Administrator</div>
+    <div class="login-title">Masuk sebagai Admin</div>
+    <div class="login-sub">Kelola operasional bioskop LayarTix</div>
+  </div>
+
+  <div class="error-msg" id="errorMsg"> &nbsp;<span id="errorText">Email atau password salah.</span></div>
+
+  <div class="form-group">
+    <label class="form-label">Email Admin</label>
+    <div class="input-wrap">
+      <input type="email" class="form-input" id="emailInput"
+             placeholder="admin@layartix.com" value="admin@layartix.com"/>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Password</label>
+    <div class="input-wrap">
+      <input type="password" class="form-input" id="passInput"
+             placeholder="••••••••" value="admin123" id="passInput"/>
+      <button class="eye-btn" onclick="togglePass()" id="eyeBtn"></button>
+    </div>
+  </div>
+
+  <button class="btn-login" onclick="doLogin()">
+    Masuk ke Dashboard Admin
+  </button>
+
+  <div style="text-align:center;margin-top:20px;">
+    <a href="../../customer/html/login.html" style="font-size:12px;color:rgba(255,255,255,0.4);text-decoration:none;">
+      Beralih ke Halaman Customer
+    </a>
+  </div>
+</div>
+
+<script src="../../data.js"></script>
+<script>
+  // ── Splash Screen Logic (Tepat 6 detik) ──
+  let splashFinished = false;
+  function finishSplash() {
+    if (splashFinished) return;
+    splashFinished = true;
+    const overlay = document.getElementById('splashOverlay');
+    const card = document.getElementById('loginCard');
+    if (overlay) {
+      overlay.classList.add('fade-out');
+      setTimeout(() => {
+        overlay.style.display = 'none';
+        if (card) {
+          card.style.display = 'block';
+          requestAnimationFrame(() => {
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+          });
+        }
+      }, 600);
+    } else if (card) {
+      card.style.display = 'block';
+      card.style.opacity = '1';
+      card.style.transform = 'translateY(0)';
+    }
+  }
+
+  // Animate letters
+  const splashWord = 'LAYARTIX';
+  const lettersContainer = document.getElementById('splashLetters');
+  if (lettersContainer) {
+    splashWord.split('').forEach((ch, i) => {
+      const s = document.createElement('span');
+      s.className = 'splash-letter';
+      s.textContent = ch;
+      s.style.animationDelay = `${0.7 + i * 0.1}s`;
+      lettersContainer.appendChild(s);
+    });
+  }
+
+  // Stars
+  const sc = document.getElementById('splashStars');
+  if (sc) {
+    for (let i = 0; i < 90; i++) {
+      const star = document.createElement('div');
+      star.className = 'splash-star';
+      const sz = Math.random() * 2.2 + 0.6;
+      star.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;width:${sz}px;height:${sz}px;--d:${(Math.random()*4+2).toFixed(1)}s;animation-delay:${(Math.random()*4).toFixed(1)}s;`;
+      sc.appendChild(star);
+    }
+  }
+
+  // Film strips
+  function buildFilmStrip(id, count) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    let html = '';
+    const f = ['','','','','',''];
+    for (let i = 0; i < count; i++) {
+      if (i % 3 === 0) html += `<div class="splash-hole"></div>`;
+      html += `<div class="splash-frame">${f[i % 6]}</div>`;
+    }
+    el.innerHTML = html + html;
+  }
+  buildFilmStrip('topStrip', 16);
+  buildFilmStrip('bottomStrip', 16);
+
+  // Tepat pada detik ke-6, animasi memudar dan form login muncul
+  setTimeout(finishSplash, 6000);
+
+  function loginQuickAdmin() {
+    const users = LT.getUsers();
+    const adminUser = users.find(u => u.role === 'admin') || {
+      id: 'u_admin_1',
+      name: 'Admin Utama',
+      email: 'admin@layartix.com',
+      role: 'admin'
+    };
+    LT.setCurrentUser(adminUser);
+    window.location.href = 'dashboard.html';
+  }
+  // Particles
+  const pc = document.getElementById('particles');
+  for(let i=0;i<30;i++){
+    const p=document.createElement('div');
+    const sz=Math.random()*3+1;
+    p.style.cssText=`position:absolute;border-radius:50%;background:rgba(255,215,0,0.3);
+      width:${sz}px;height:${sz}px;
+      left:${Math.random()*100}%;top:${Math.random()*100}%;
+      animation:float ${(Math.random()*8+4).toFixed(1)}s ease-in-out infinite;
+      animation-delay:${(Math.random()*4).toFixed(1)}s;`;
+    pc.appendChild(p);
+  }
+  const style=document.createElement('style');
+  style.textContent=`@keyframes float{0%,100%{transform:translateY(0) rotate(0deg);opacity:0.3;}50%{transform:translateY(-30px) rotate(180deg);opacity:0.8;}}`;
+  document.head.appendChild(style);
+
+  function togglePass(){
+    const inp=document.getElementById('passInput');
+    const btn=document.getElementById('eyeBtn');
+    if(inp.type==='password'){inp.type='text';btn.textContent='';}
+    else{inp.type='password';btn.textContent='';}
+  }
+
+  function doLogin(){
+    const email=document.getElementById('emailInput').value.trim();
+    const pass=document.getElementById('passInput').value;
+    const errBox=document.getElementById('errorMsg');
+    const errText=document.getElementById('errorText');
+
+    if(!email||!pass){
+      errText.textContent='Mohon isi email dan password.';
+      errBox.style.display='block'; return;
+    }
+
+    const users=LT.getUsers();
+    const user=users.find(u=>u.email===email && u.password===pass && u.role==='admin');
+
+    if(!user){
+      errText.textContent='Email atau password admin tidak valid.';
+      errBox.style.display='block'; return;
+    }
+
+    LT.setCurrentUser(user);
+    window.location.href = 'dashboard.html';
+  }
+
+  // Enter key
+  document.addEventListener('keydown', e=>{
+    if(e.key==='Enter') doLogin();
+  });
+</script>
+</body>
+</html>
+
