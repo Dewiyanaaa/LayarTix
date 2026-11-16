@@ -472,9 +472,12 @@
     window.location.href = '../../customer/html/login.html';
   }
 
-  // ── Compute stats ──
+  // ── Compute stats (Scoped) ──
   function getStats() {
-    const bookings = LT.getBookings();
+    let bookings = LT.getBookings();
+    if (scope.isBranchAdmin && scope.branchId) {
+      bookings = bookings.filter(b => b.cinemaId === scope.branchId || (b.cinemaName && b.cinemaName.includes(scope.branchName)));
+    }
     const fnbOrders = LT.getFnbOrders();
     const active = bookings.filter(b => b.status === 'active');
     const used = bookings.filter(b => b.status === 'used');
@@ -484,7 +487,7 @@
       .reduce((s, b) => s + (b.grandTotal || 0), 0);
     const totalRefund = cancelled.reduce((s, b) => s + (b.refundAmount || 0), 0);
     const fnbRevenue = bookings.reduce((s, b) => s + (b.totalFnb || 0), 0)
-      + fnbOrders.reduce((s, o) => s + (o.total || 0), 0);
+      + (scope.isBranchAdmin ? 0 : fnbOrders.reduce((s, o) => s + (o.total || 0), 0));
 
     return {
       totalTickets: bookings.length,
@@ -526,8 +529,12 @@
       </div>
     `;
 
-    // Recent bookings (last 8)
-    const bookings = LT.getBookings().slice(0, 8);
+    // Recent bookings (last 8, scoped)
+    let allBookings = LT.getBookings();
+    if (scope.isBranchAdmin && scope.branchId) {
+      allBookings = allBookings.filter(b => b.cinemaId === scope.branchId || (b.cinemaName && b.cinemaName.includes(scope.branchName)));
+    }
+    const bookings = allBookings.slice(0, 8);
     const users = LT.getUsers();
     const tbody = document.getElementById('recentBookings');
     if (!bookings.length) {
@@ -713,6 +720,7 @@
     movies.forEach(m => {
       if (filterM && m.id !== filterM) return;
       cinemas.forEach(c => {
+        if (scope.isBranchAdmin && scope.branchId && c.id !== scope.branchId) return;
         if (filterC && c.id !== filterC) return;
         const basePrice = m.price_base;
         const pm = c.priceMultiplier || { Regular:1, Premium:1.4, IMAX:1.8 };
@@ -737,6 +745,9 @@
     const statusF = document.getElementById('filterStatus')?.value || '';
     const users = LT.getUsers();
     let bookings = LT.getBookings();
+    if (scope.isBranchAdmin && scope.branchId) {
+      bookings = bookings.filter(b => b.cinemaId === scope.branchId || (b.cinemaName && b.cinemaName.includes(scope.branchName)));
+    }
     if (statusF) bookings = bookings.filter(b => b.status === statusF);
     if (q) bookings = bookings.filter(b =>
       b.id.toLowerCase().includes(q) ||
@@ -770,7 +781,11 @@
 
   // ── Render Refund ──
   function renderRefund() {
-    const cancelled = LT.getBookings().filter(b => b.status === 'cancelled');
+    let allBookings = LT.getBookings();
+    if (scope.isBranchAdmin && scope.branchId) {
+      allBookings = allBookings.filter(b => b.cinemaId === scope.branchId || (b.cinemaName && b.cinemaName.includes(scope.branchName)));
+    }
+    const cancelled = allBookings.filter(b => b.status === 'cancelled');
     const users = LT.getUsers();
     const totalRefund = cancelled.reduce((s,b)=>s+(b.refundAmount||0),0);
     const totalOrig = cancelled.reduce((s,b)=>s+(b.totalTicket||0),0);
@@ -815,11 +830,38 @@
     }
     const reader = new FileReader();
     reader.onload = function(e) {
-      currentUploadedPosterBase64 = e.target.result;
-      updatePosterPreview(currentUploadedPosterBase64);
-      const posterInput = document.getElementById('fm_poster');
-      if (posterInput) posterInput.value = '';
-      LT.toast('File poster gambar berhasil dimuat!', 'success', 1500);
+      const rawDataUrl = e.target.result;
+      const img = new Image();
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        const maxW = 380;
+        const maxH = 560;
+        let w = img.width;
+        let h = img.height;
+        if (w > maxW || h > maxH) {
+          const ratio = Math.min(maxW / w, maxH / h);
+          w = Math.round(w * ratio);
+          h = Math.round(h * ratio);
+        }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        try {
+          currentUploadedPosterBase64 = canvas.toDataURL('image/jpeg', 0.8);
+        } catch(err) {
+          currentUploadedPosterBase64 = rawDataUrl;
+        }
+        updatePosterPreview(currentUploadedPosterBase64);
+        const posterInput = document.getElementById('fm_poster');
+        if (posterInput) posterInput.value = '';
+        LT.toast('Poster berhasil dikompres & dimuat aman!', 'success', 1500);
+      };
+      img.onerror = function() {
+        currentUploadedPosterBase64 = rawDataUrl;
+        updatePosterPreview(rawDataUrl);
+      };
+      img.src = rawDataUrl;
     };
     reader.readAsDataURL(file);
   }
@@ -963,8 +1005,14 @@
       releaseDate: document.getElementById('fm_releaseDate').value || new Date().toISOString().split('T')[0]
     };
 
-    // Save to localStorage single source of truth
-    LT.saveMovie(film);
+    // Save to localStorage single source of truth with safety
+    try {
+      LT.saveMovie(film);
+    } catch(e) {
+      console.warn('Quota error, saving with fallback poster', e);
+      film.poster = `https://picsum.photos/seed/${title.replace(/\s/g, '')}/400/600`;
+      LT.saveMovie(film);
+    }
 
     // Notifikasi sinkronisasi instan ke sisi Customer tanpa reload
     localStorage.setItem('layartix_admin_update', Date.now().toString());
