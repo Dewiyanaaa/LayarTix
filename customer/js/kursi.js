@@ -1,4 +1,4 @@
-// kursi.js — Seat Picker Logic for LayarTix
+﻿// kursi.js — Seat Picker Logic for LayarTix
 'use strict';
 
 const user = LT.requireAuth('customer');
@@ -18,10 +18,10 @@ try {
 } catch (e) {}
 const movie = allMovies.find(m => m.id === session.movieId);
 const activePoster = session.poster || movie?.poster || '';
-document.getElementById('seatMovieTitle').textContent = movie?.title || 'Pilih Kursi';
-document.getElementById('seatCinemaInfo').textContent = `${session.cinemaName} · ${session.date} ${session.time}`;
-document.getElementById('seatPriceDisplay').textContent = LT.formatRp(session.seatPrice || 65000);
-document.getElementById('seatTypeLabel').textContent = session.seatType || 'Regular';
+const seatMovieTitleEl = document.getElementById('seatMovieTitle');
+if (seatMovieTitleEl) seatMovieTitleEl.textContent = movie?.title || 'Pilih Kursi';
+const seatCinemaInfoEl = document.getElementById('seatCinemaInfo');
+if (seatCinemaInfoEl) seatCinemaInfoEl.textContent = `${session.cinemaName} · ${session.date} ${session.time}`;
 
 const posterEl = document.getElementById('screenPosterBg');
 if (posterEl) {
@@ -34,7 +34,12 @@ if (screenMovieInfoEl) screenMovieInfoEl.textContent = `${movie?.title || 'Film'
 
 const rows = ['A','B','C','D','E','F','G'];
 const seatsPerRow = 10;
-const seatPrice = session.seatPrice || 65000;
+const seatPrice = Number(session.seatPrice) || Number(session.ticketPrice) || Number(movie?.price_base) || 65000;
+
+const seatPriceDisplayEl = document.getElementById('seatPriceDisplay');
+if (seatPriceDisplayEl) seatPriceDisplayEl.textContent = LT.formatRp(seatPrice);
+const seatTypeLabelEl = document.getElementById('seatTypeLabel');
+if (seatTypeLabelEl) seatTypeLabelEl.textContent = session.seatType || 'Regular';
 
 // Generate sold seats (20% random, deterministic per session)
 const soldSeats = new Set();
@@ -49,6 +54,21 @@ rows.forEach(r => {
     if (seatHash < 22) soldSeats.add(r + n);
   }
 });
+
+// ── Tandai kursi dari transaksi nyata (same cinema + date + time) ──
+try {
+  const bookings = LT.getBookings ? LT.getBookings() : [];
+  bookings.forEach(b => {
+    if (
+      b.status !== 'cancelled' &&
+      b.cinemaId === session.cinemaId &&
+      b.date    === session.date &&
+      b.time    === session.time
+    ) {
+      (b.seats || []).forEach(s => soldSeats.add(s));
+    }
+  });
+} catch (e) {}
 
 let selectedSeats = [];
 
@@ -209,3 +229,36 @@ function goToFnb() {
 
 buildSeats();
 
+
+// ── Cross-tab sync: kursi baru dipesan di tab lain ──
+window.addEventListener('storage', (e) => {
+  if (e.key === 'layartix_active_tickets' || e.key === 'lt_bookings') {
+    // Reload sold seats dari transaksi terbaru lalu rebuild grid
+    soldSeats.clear();
+    const seed2 = session.cinemaId + session.time;
+    let hash2 = 0;
+    for (let c of seed2) hash2 = ((hash2 << 5) - hash2) + c.charCodeAt(0);
+    hash2 = Math.abs(hash2);
+    const rows2 = ['A','B','C','D','E','F','G'];
+    rows2.forEach(r => {
+      for (let n = 1; n <= 10; n++) {
+        const seatHash = (hash2 * (r.charCodeAt(0) + n * 7)) % 100;
+        if (seatHash < 22) soldSeats.add(r + n);
+      }
+    });
+    try {
+      const bookings2 = LT.getBookings ? LT.getBookings() : [];
+      bookings2.forEach(b => {
+        if (
+          b.status !== 'cancelled' &&
+          b.cinemaId === session.cinemaId &&
+          b.date    === session.date &&
+          b.time    === session.time
+        ) {
+          (b.seats || []).forEach(s => soldSeats.add(s));
+        }
+      });
+    } catch (e2) {}
+    buildSeats();
+  }
+});

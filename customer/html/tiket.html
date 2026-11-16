@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LayarTix Tiket & Kenangan – LayarTix</title>
+  <title>Tiket Anda – LayarTix</title>
   <link rel="stylesheet" href="../css/tiket.css" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -25,7 +25,7 @@
           <nav class="desktop-nav">
           <a href="beranda.html" class="desktop-nav-link ">LayarTix Beranda</a>
           <a href="fnb.html" class="desktop-nav-link ">LayarTix Kantin F&amp;B</a>
-          <a href="tiket.html" class="desktop-nav-link active">LayarTix Tiket &amp; Kenangan</a>
+          <a href="tiket.html" class="desktop-nav-link active">Tiket Anda</a>
           <a href="parkir.html" class="desktop-nav-link ">LayarTix Info Parkir</a>
           <a href="akun.html" class="desktop-nav-link ">Akun</a>
         </nav>
@@ -43,8 +43,8 @@
     <div class="page-content page-enter">
       <!-- Page Title -->
       <div style="padding:16px 16px 0">
-        <h1 style="font-size:18px;font-weight:700;color:var(--text)">LayarTix Tiket &amp; Kenangan</h1>
-        <p style="font-size:12px;color:var(--muted)">Kelola e-ticket aktif, lacak pengantaran F&amp;B, dan buka kembali jurnal kenangan nonton.</p>
+        <h1 style="font-size:18px;font-weight:700;color:var(--text)">LayarTix Tiket &amp; Riwayat Nonton</h1>
+        <p style="font-size:12px;color:var(--muted)">Kelola e-ticket aktif, lacak pengantaran F&amp;B, dan lihat riwayat tiket bioskop Anda.</p>
       </div>
 
       <!-- New ticket notification -->
@@ -78,25 +78,53 @@
 
     <!-- BOTTOM NAV -->
     <nav class="bottom-nav">
-      <a class="nav-tab " href="beranda.html">
-        <div class="nav-icon-wrap"></div>
-        <div class="nav-label">LayarTix Beranda</div>
+      <a class="nav-tab " href="beranda.html" title="Beranda">
+        <div class="nav-icon-wrap">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        </div>
       </a>
-      <a class="nav-tab " href="fnb.html">
-        <div class="nav-icon-wrap"></div>
-        <div class="nav-label">LayarTix Kantin F&amp;B</div>
+      <a class="nav-tab " href="fnb.html" title="Kantin F&B">
+        <div class="nav-icon-wrap">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+            <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+            <line x1="6" y1="1" x2="6" y2="4"></line>
+            <line x1="10" y1="1" x2="10" y2="4"></line>
+            <line x1="14" y1="1" x2="14" y2="4"></line>
+          </svg>
+        </div>
       </a>
-      <a class="nav-tab active" href="tiket.html">
-        <div class="nav-icon-wrap"></div>
-        <div class="nav-label">LayarTix Tiket &amp; Kenangan</div>
+      <a class="nav-tab active" href="tiket.html" title="Tiket & Riwayat">
+        <div class="nav-icon-wrap">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+            <path d="M13 12h.01"></path>
+            <path d="M2 10a2 2 0 0 0 0 4"></path>
+            <path d="M22 10a2 2 0 0 1 0 4"></path>
+          </svg>
+        </div>
       </a>
-      <a class="nav-tab " href="parkir.html">
-        <div class="nav-icon-wrap"></div>
-        <div class="nav-label">LayarTix Info Parkir</div>
+      <a class="nav-tab " href="parkir.html" title="Info Parkir">
+        <div class="nav-icon-wrap">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+            <path d="M9 16V8h4a2 2 0 0 1 0 4H9"></path>
+          </svg>
+        </div>
       </a>
-      <a class="nav-tab " href="akun.html">
-        <div class="nav-icon-wrap"></div>
-        <div class="nav-label">Akun</div>
+      <a class="nav-tab " href="akun.html" title="Profil Akun">
+        <div class="nav-icon-wrap">
+          <div class="nav-tab-avatar-wrap">
+            <img class="user-avatar-img" src="" alt="Avatar" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;" />
+            <svg class="user-avatar-svg w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+        </div>
       </a>
     </nav>
   </div>
@@ -176,66 +204,6 @@
           <button class="btn btn-danger" style="flex:1;padding:12px;border-radius:12px" onclick="confirmCancel()">Ya,
             Batalkan</button>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- JOURNAL MODAL -->
-  <div class="modal-overlay" id="journalModal">
-    <div class="modal">
-      <div class="modal-handle"></div>
-      <div class="modal-header">
-        <div class="modal-title"> Jurnal Kenangan</div>
-        <button class="modal-close" onclick="closeJournalModal()"></button>
-      </div>
-      <div class="modal-body">
-        <div id="journalMovieInfo"
-          style="margin-bottom:16px;padding:12px;background:rgba(255,255,255,0.03);border-radius:12px;font-size:13px;color:var(--muted)">
-        </div>
-
-        <div style="margin-bottom:14px">
-          <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-weight:500">Rating Film</div>
-          <div class="stars-wrap" id="starRating"></div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Catatan Pribadi</label>
-          <textarea class="form-input" id="journalText" rows="3"
-            placeholder="Ceritakan pengalaman menonton film ini..."
-            style="resize:none;border-radius:12px;padding:12px"></textarea>
-        </div>
-
-        <!-- Unggah Foto Kenangan Bioskop -->
-        <div class="form-group" style="margin-bottom:14px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-            <label class="form-label" style="margin-bottom:0">Foto Kenangan Menonton</label>
-            <button type="button" class="btn btn-outline btn-sm" onclick="document.getElementById('journalPhotoInput').click()" style="padding:4px 10px;font-size:11px;border-color:var(--gold);color:var(--gold);display:inline-flex;align-items:center;gap:4px;border-radius:8px">
-               Upload Foto
-            </button>
-          </div>
-          <div id="journalDropZone" style="border:2px dashed rgba(255,255,255,0.18);border-radius:12px;padding:14px;text-align:center;background:rgba(255,255,255,0.02);cursor:pointer;transition:all 0.2s"
-               onclick="document.getElementById('journalPhotoInput').click()">
-            <input type="file" id="journalPhotoInput" accept="image/*" style="display:none" onchange="handleJournalPhotoUpload(event)" />
-            <div id="journalUploadPrompt">
-              <div style="font-size:12px;font-weight:600;color:var(--gold);margin-bottom:3px">Pilih / Seret Foto Kenangan</div>
-              <div style="font-size:10px;color:var(--muted)">Format JPG, PNG, WEBP (Selfie bioskop, teman nonton, tiket fisik)</div>
-            </div>
-            <div id="journalPhotoPreviewWrap" style="display:none;position:relative;margin-top:6px">
-              <img id="journalPhotoPreview" src="" alt="Foto Kenangan" style="max-height:160px;width:100%;object-fit:cover;border-radius:8px;border:1px solid rgba(255,255,255,0.2)" />
-              <button type="button" onclick="removeJournalPhoto(event)" style="position:absolute;top:6px;right:6px;background:rgba(239,68,68,0.85);color:#fff;border:none;border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700;cursor:pointer">Hapus Foto</button>
-            </div>
-          </div>
-        </div>
-
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-          <input type="checkbox" id="journalPrivate" checked style="accent-color:var(--red);width:16px;height:16px" />
-          <label for="journalPrivate" style="font-size:13px;color:var(--muted);cursor:pointer"> Simpan sebagai
-            privat</label>
-        </div>
-
-        <button class="btn btn-primary btn-full" onclick="saveJournal()" style="padding:14px">
-           Simpan Jurnal Kenangan
-        </button>
       </div>
     </div>
   </div>

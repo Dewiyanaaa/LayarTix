@@ -41,18 +41,6 @@ function autoExpirePassedTickets() {
           b.status = 'used';
           b.expiredAt = now.toISOString();
           changed = true;
-          // Buat draft jurnal otomatis jika belum ada
-          const existingJ = LT.getJournalForBooking(b.id);
-          if (!existingJ) {
-            LT.saveJournal({
-              bookingId: b.id,
-              userId: b.userId,
-              rating: 5,
-              text: `Menonton ${b.movieTitle} di ${b.cinemaName}. Pengalaman sinema yang luar biasa!`,
-              private: false,
-              savedAt: now.toISOString()
-            });
-          }
         }
       }
     }
@@ -158,7 +146,7 @@ if (typeof Notification !== 'undefined' && Notification.permission === 'default'
   Notification.requestPermission();
 }
 
-// tiket.js — My Tickets, Journal & Cancellation Logic for LayarTix
+// tiket.js — My Tickets & Cancellation Logic for LayarTix
 'use strict';
 
 const user = LT.requireAuth('customer');
@@ -179,9 +167,6 @@ if (session.bookingId && session.booking) {
 }
 
 let cancelBookingId = null;
-let journalBookingId = null;
-let currentJournalPhoto = null;
-let selectedRating = 0;
 
 function switchTab(tab, btn) {
   document.getElementById('activeSection').style.display = tab === 'active' ? '' : 'none';
@@ -396,9 +381,6 @@ function getResolvedPoster(b) {
 }
 
 function ticketCardHTML(b) {
-  const journal = (typeof LT !== 'undefined' && typeof LT.getJournalForBooking === 'function')
-    ? LT.getJournalForBooking(b.id)
-    : null;
   const statusClass = { active: 'status-active', used: 'status-used', cancelled: 'status-cancelled' }[b.status] || 'status-active';
   const statusLabel = { active: 'AKTIF', used: 'SELESAI', cancelled: 'DIBATALKAN' }[b.status] || 'AKTIF';
   const refund40 = Math.round(((b.totalTicket || b.grandTotal) || 0) * 0.4);
@@ -532,32 +514,14 @@ function ticketCardHTML(b) {
           </button>
         ` : ''}
         ${b.status === 'used' ? `
-          ${journal
-            ? `<button class="btn btn-outline btn-sm" onclick="openJournalModal('${b.id}',true)"> Lihat Jurnal Kenangan</button>`
-            : `<button class="btn btn-gold btn-sm" onclick="openJournalModal('${b.id}',false)"> Tulis Jurnal Kenangan</button>`
-          }
+          <div style="font-size:12px;color:#22c55e;font-weight:600;display:flex;align-items:center;gap:6px">
+            Tiket Telah Selesai Digunakan (${b.date || 'Tanggal Nonton Terlampir'})
+          </div>
         ` : ''}
         ${b.status === 'cancelled' ? `
           <div style="font-size:12px;color:var(--muted)">Refund ${LT.formatRp(b.refundAmount || refund40)} → Rekening/E-Wallet Asal (Flexi-Ticket)</div>
         ` : ''}
       </div>
-
-      ${journal && b.status === 'used' ? `
-      <div class="journal-entry" style="margin-top:12px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <div class="journal-rating">${''.repeat(journal.rating)}</div>
-          <span style="font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(255,215,0,0.1);color:var(--gold);border:1px solid rgba(255,215,0,0.2)">Jurnal Kenangan</span>
-        </div>
-        <div class="journal-text">"${journal.text}"</div>
-        ${journal.photo ? `
-          <div class="journal-photo-box">
-            <img class="journal-photo-img" src="${journal.photo}" alt="Foto Kenangan Bioskop" />
-          </div>
-        ` : ''}
-        <div class="journal-date" style="margin-top:6px">
-          ${b.movieTitle} · ${b.cinemaName} · ${new Date(journal.savedAt).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-        </div>
-      </div>` : ''}
     </div>
   </div>`;
 }
@@ -759,159 +723,6 @@ function confirmCancel() {
 
   closeCancelModal();
   LT.toast(`Tiket dibatalkan. Refund ${LT.formatRp(refund)} diproses ke rekening/e-wallet asal (1x24 jam) `, 'success', 4000);
-  renderBookings();
-}
-
-// Journal Modal
-function openJournalModal(bookingId, viewOnly) {
-  journalBookingId = bookingId;
-  const bookings = LT.getUserBookings(user.id);
-  const b = bookings.find(b => b.id === bookingId);
-  if (!b) return;
-
-  const existing = LT.getJournalForBooking(bookingId);
-  document.getElementById('journalMovieInfo').innerHTML = `<strong>${b.movieTitle}</strong> · ${b.cinemaName} · ${b.date}`;
-
-  selectedRating = existing?.rating || 0;
-  renderStars();
-
-  document.getElementById('journalText').value = existing?.text || '';
-  document.getElementById('journalPrivate').checked = existing?.private !== false;
-
-  currentJournalPhoto = existing?.photo || null;
-  const previewWrap = document.getElementById('journalPhotoPreviewWrap');
-  const previewImg = document.getElementById('journalPhotoPreview');
-  const uploadPrompt = document.getElementById('journalUploadPrompt');
-
-  if (currentJournalPhoto) {
-    if (previewImg) previewImg.src = currentJournalPhoto;
-    if (previewWrap) previewWrap.style.display = 'block';
-    if (uploadPrompt) uploadPrompt.style.display = 'none';
-  } else {
-    if (previewImg) previewImg.src = '';
-    if (previewWrap) previewWrap.style.display = 'none';
-    if (uploadPrompt) uploadPrompt.style.display = 'block';
-  }
-
-  if (viewOnly && existing) {
-    document.getElementById('journalText').disabled = true;
-    const dropZone = document.getElementById('journalDropZone');
-    if (dropZone) dropZone.style.pointerEvents = 'none';
-  } else {
-    document.getElementById('journalText').disabled = false;
-    const dropZone = document.getElementById('journalDropZone');
-    if (dropZone) dropZone.style.pointerEvents = 'auto';
-  }
-
-  document.getElementById('journalModal').classList.add('open');
-}
-
-function handleJournalPhotoUpload(event) {
-  const file = event.target.files && event.target.files[0];
-  if (!file) return;
-
-  if (!file.type.startsWith('image/')) {
-    LT.toast('Silakan pilih file foto gambar (JPG, PNG, WEBP)!', 'warning');
-    return;
-  }
-
-  // Compress / scale image to base64 so it can be saved in localStorage safely
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const img = new Image();
-    img.onload = function() {
-      const canvas = document.createElement('canvas');
-      const maxDim = 800;
-      let width = img.width;
-      let height = img.height;
-
-      if (width > height) {
-        if (width > maxDim) {
-          height = Math.round((height * maxDim) / width);
-          width = maxDim;
-        }
-      } else {
-        if (height > maxDim) {
-          width = Math.round((width * maxDim) / height);
-          height = maxDim;
-        }
-      }
-
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, width, height);
-
-      const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.75);
-      currentJournalPhoto = compressedDataUrl;
-
-      const previewWrap = document.getElementById('journalPhotoPreviewWrap');
-      const previewImg = document.getElementById('journalPhotoPreview');
-      const uploadPrompt = document.getElementById('journalUploadPrompt');
-
-      if (previewImg) previewImg.src = currentJournalPhoto;
-      if (previewWrap) previewWrap.style.display = 'block';
-      if (uploadPrompt) uploadPrompt.style.display = 'none';
-      LT.toast('Foto kenangan berhasil dipilih!', 'success');
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-
-function removeJournalPhoto(e) {
-  if (e) e.stopPropagation();
-  currentJournalPhoto = null;
-  const photoInput = document.getElementById('journalPhotoInput');
-  if (photoInput) photoInput.value = '';
-  const previewWrap = document.getElementById('journalPhotoPreviewWrap');
-  const uploadPrompt = document.getElementById('journalUploadPrompt');
-  if (previewWrap) previewWrap.style.display = 'none';
-  if (uploadPrompt) uploadPrompt.style.display = 'block';
-}
-
-function closeJournalModal() {
-  document.getElementById('journalModal').classList.remove('open');
-  journalBookingId = null;
-  currentJournalPhoto = null;
-  const photoInput = document.getElementById('journalPhotoInput');
-  if (photoInput) photoInput.value = '';
-}
-
-document.getElementById('journalModal').addEventListener('click', e => {
-  if (e.target.id === 'journalModal') closeJournalModal();
-});
-
-function renderStars() {
-  document.getElementById('starRating').innerHTML = [1, 2, 3, 4, 5].map(n =>
-    `<button class="star-btn ${n <= selectedRating ? 'active' : ''}" onclick="setRating(${n})"
-           style="filter:${n <= selectedRating ? 'none' : 'grayscale(1)'}"></button>`
-  ).join('');
-}
-
-function setRating(n) {
-  selectedRating = n;
-  renderStars();
-}
-
-function saveJournal() {
-  if (!journalBookingId) return;
-  const text = document.getElementById('journalText').value.trim();
-  if (!text) { LT.toast('Tulis catatan dulu ya!', 'warning'); return; }
-  if (!selectedRating) { LT.toast('Berikan rating filmnya!', 'warning'); return; }
-
-  LT.saveJournal({
-    bookingId: journalBookingId,
-    userId: user.id,
-    rating: selectedRating,
-    text,
-    photo: currentJournalPhoto || '',
-    private: document.getElementById('journalPrivate').checked,
-    savedAt: new Date().toISOString()
-  });
-
-  closeJournalModal();
-  LT.toast('Jurnal kenangan tersimpan', 'success');
   renderBookings();
 }
 

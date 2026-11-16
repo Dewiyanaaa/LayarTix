@@ -8,10 +8,123 @@ function renderUserData() {
   if (!currentUser) return;
   document.getElementById('profileName').textContent = currentUser.name || 'Pengguna LayarTix';
   document.getElementById('profileContact').textContent = currentUser.email || currentUser.phone || '–';
-  document.getElementById('avatarLarge').textContent = currentUser.avatar || '';
+
+  // Render Foto Profil (localStorage check layartix_user_avatar)
+  const savedAvatar = localStorage.getItem('layartix_user_avatar');
+  const imgEl = document.getElementById('profileAvatarImg');
+  const fallbackEl = document.getElementById('profileAvatarFallback');
+  const btnRemove = document.getElementById('btnRemoveAvatar');
+
+  if (savedAvatar) {
+    if (imgEl) {
+      imgEl.src = savedAvatar;
+      imgEl.style.display = 'block';
+    }
+    if (fallbackEl) fallbackEl.style.display = 'none';
+    if (btnRemove) btnRemove.style.display = 'inline-block';
+  } else {
+    if (imgEl) {
+      imgEl.src = '';
+      imgEl.style.display = 'none';
+    }
+    if (fallbackEl) {
+      fallbackEl.style.display = 'inline-block';
+      fallbackEl.textContent = currentUser.avatar || '👤';
+    }
+    if (btnRemove) btnRemove.style.display = 'none';
+  }
 
   const city = LT.load('selected_city') || 'Belum dipilih';
   document.getElementById('prefCity').textContent = 'Kota aktif: ' + city;
+
+  if (typeof syncAllUserAvatars === 'function') {
+    syncAllUserAvatars();
+  }
+}
+
+// ── Profile Photo Upload & Remove Handler ──
+function triggerProfileUpload() {
+  const input = document.getElementById('profileImageInput');
+  if (input) input.click();
+}
+
+function handleProfilePhotoUpload(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  if (!file.type.startsWith('image/')) {
+    LT.toast('Silakan pilih file gambar yang valid', 'warning');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    const base64Data = e.target.result;
+    try {
+      localStorage.setItem('layartix_user_avatar', base64Data);
+
+      // Sinkronkan juga ke sesi akun aktif agar konsisten
+      const cu = LT.getCurrentUser();
+      if (cu) {
+        cu.customAvatar = base64Data;
+        LT.setCurrentUser(cu);
+      }
+
+      // Reaktif update DOM tanpa reload
+      const imgEl = document.getElementById('profileAvatarImg');
+      const fallbackEl = document.getElementById('profileAvatarFallback');
+      const btnRemove = document.getElementById('btnRemoveAvatar');
+
+      if (imgEl) {
+        imgEl.src = base64Data;
+        imgEl.style.display = 'block';
+      }
+      if (fallbackEl) fallbackEl.style.display = 'none';
+      if (btnRemove) btnRemove.style.display = 'inline-block';
+
+      if (typeof syncAllUserAvatars === 'function') {
+        syncAllUserAvatars();
+      }
+
+      LT.toast('Foto profil berhasil diperbarui!', 'success');
+    } catch (err) {
+      console.error(err);
+      LT.toast('Ukuran gambar terlalu besar untuk disimpan', 'error');
+    }
+  };
+  reader.readAsDataURL(file);
+  event.target.value = '';
+}
+
+function removeProfilePhoto() {
+  localStorage.removeItem('layartix_user_avatar');
+
+  const cu = LT.getCurrentUser();
+  if (cu) {
+    delete cu.customAvatar;
+    LT.setCurrentUser(cu);
+  }
+
+  // Reaktif reset DOM ke avatar default
+  const imgEl = document.getElementById('profileAvatarImg');
+  const fallbackEl = document.getElementById('profileAvatarFallback');
+  const btnRemove = document.getElementById('btnRemoveAvatar');
+
+  if (imgEl) {
+    imgEl.src = '';
+    imgEl.style.display = 'none';
+  }
+  if (fallbackEl) {
+    fallbackEl.style.display = 'inline-block';
+    fallbackEl.textContent = (cu && cu.avatar) || '👤';
+  }
+  if (btnRemove) btnRemove.style.display = 'none';
+
+  if (typeof syncAllUserAvatars === 'function') {
+    syncAllUserAvatars();
+  }
+
+  LT.toast('Foto profil berhasil dihapus, kembali ke default.', 'info');
 }
 
 renderUserData();
@@ -52,11 +165,6 @@ function saveProfile() {
   closeEditProfileModal();
   renderUserData();
   LT.toast('Profil berhasil diperbarui!', 'success');
-}
-
-// ── Role Switcher ──
-function switchToAdmin() {
-  window.location.href = '../../admin/html/dashboard.html';
 }
 
 function doLogout() {

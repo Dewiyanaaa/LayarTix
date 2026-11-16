@@ -135,20 +135,10 @@
     <div class="header-container">
       <div style="display:flex;align-items:center;gap:16px">
         <div class="header-logo" onclick="window.location.href='beranda.html'">LAYARTIX</div>
-        <button class="back-btn" id="fnbBackBtn" onclick="goBackOrHome()" title="Kembali" aria-label="Kembali" style="display:none">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="19" y1="12" x2="5" y2="12"></line>
-            <polyline points="12 19 5 12 12 5"></polyline>
-          </svg>
-        </button>
-        <div id="headerTitleContainer" style="display:none">
-          <div style="font-size:15px;font-weight:700" id="headerTitle"></div>
-          <div style="font-size:11px;color:var(--muted)" id="headerSubtitle"></div>
-        </div>
         <nav class="desktop-nav">
           <a href="beranda.html" class="desktop-nav-link ">LayarTix Beranda</a>
           <a href="fnb.html" class="desktop-nav-link active">LayarTix Kantin F&amp;B</a>
-          <a href="tiket.html" class="desktop-nav-link ">LayarTix Tiket &amp; Kenangan</a>
+          <a href="tiket.html" class="desktop-nav-link ">Tiket Anda</a>
           <a href="parkir.html" class="desktop-nav-link ">LayarTix Info Parkir</a>
           <a href="akun.html" class="desktop-nav-link ">Akun</a>
         </nav>
@@ -174,51 +164,6 @@
       <span class="badge badge-gold" id="modeBadge">Bundling Nonton</span>
     </div>
 
-    <!-- IN-SEAT DELIVERY SELECTION (DELIVERY TYPE TOGGLE) -->
-    <div id="deliveryTypeSection" style="margin:0 16px 14px;padding:14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px">
-      <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
-        <span>Opsi Pengambilan / Pengantaran:</span>
-        <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:12px;background:rgba(230,57,70,0.15);color:#fca5a5;border:1px solid rgba(230,57,70,0.3)">
-          Layanan Antar Studio Tersedia
-        </span>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-        <button type="button" id="btnDeliveryPickup" class="pay-method-pill active" onclick="setDeliveryType('pickup')" style="text-align:center;padding:10px 8px">
-          <div style="font-size:12px;font-weight:700">Ambil di Counter</div>
-          <div style="font-size:10px;color:var(--muted)">Antre di kasir kantin</div>
-        </button>
-        <button type="button" id="btnDeliveryInSeat" class="pay-method-pill" onclick="setDeliveryType('in_seat')" style="text-align:center;padding:10px 8px">
-          <div style="font-size:12px;font-weight:700;color:var(--gold)">Antar ke Kursi Studio</div>
-          <div style="font-size:10px;color:var(--muted)">Diantar langsung petugas</div>
-        </button>
-      </div>
-
-      <!-- IN-SEAT DETAILS FORM (Hidden by default, shown when In-Seat is selected) -->
-      <div id="inSeatFormBox" style="display:none;background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.25);border-radius:12px;padding:12px;margin-top:10px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-          <div style="font-size:12px;font-weight:700;color:var(--gold);display:flex;align-items:center;gap:6px">
-            <span> Posisi Duduk di Dalam Studio</span>
-          </div>
-          <span id="seatSyncBadge" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;background:rgba(34,197,94,0.15);color:#22c55e;border:1px solid rgba(34,197,94,0.3)">
-            Tersinkronisasi Otomatis
-          </span>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px">
-          <div>
-            <label class="form-label" style="font-size:11px;margin-bottom:4px">Nomor Studio</label>
-            <input type="text" id="deliveryStudio" class="form-input" placeholder="Studio 1" readonly style="padding:8px 12px;font-size:12px;background:rgba(255,255,255,0.08);color:#ffd700;font-weight:700;cursor:not-allowed" />
-          </div>
-          <div>
-            <label class="form-label" style="font-size:11px;margin-bottom:4px">Nomor Kursi</label>
-            <input type="text" id="deliverySeat" class="form-input" placeholder="D4" readonly style="padding:8px 12px;font-size:12px;background:rgba(255,255,255,0.08);color:#ffd700;font-weight:700;cursor:not-allowed" />
-          </div>
-        </div>
-        <div id="seatSyncNotice" style="font-size:11px;color:rgba(255,255,255,0.7);line-height:1.4">
-          Data studio dan nomor kursi terkunci secara otomatis berdasarkan tiket aktif Anda. Makanan akan diantar langsung oleh staf bioskop ke tempat duduk Anda.
-        </div>
-      </div>
-    </div>
-
     <!-- PICKUP CINEMA SELECTION (If standalone) -->
     <div id="cinemaPickRow" style="margin:0 16px 14px">
       <label class="form-label" style="font-size:12px">Pilih Bioskop Pengambilan Makanan:</label>
@@ -228,8 +173,7 @@
 
     <!-- Tabs: Menu Kantin (Pembayaran & QR hanya tampil setelah Lanjut Bayar) -->
     <div class="tabs" style="margin:0 16px 14px;display:none" id="fnbTabsRow">
-      <button class="tab active" id="tabBtnMenu" onclick="switchView('menu')"> Pilih Menu</button>
-      <button class="tab" id="tabBtnCheckout" onclick="switchView('checkout')"> Pembayaran & QR</button>
+      <button class="tab active" id="tabBtnCheckout" style="width:100%;cursor:default" onclick="switchView('checkout')"> Pembayaran & QR</button>
     </div>
 
     <!-- SECTION 1: MENU KANTIN -->
@@ -404,25 +348,53 @@
 
   <!-- BOTTOM NAV -->
   <nav class="bottom-nav">
-      <a class="nav-tab " href="beranda.html">
-        <div class="nav-icon-wrap"></div>
-        <div class="nav-label">LayarTix Beranda</div>
+      <a class="nav-tab " href="beranda.html" title="Beranda">
+        <div class="nav-icon-wrap">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        </div>
       </a>
-      <a class="nav-tab active" href="fnb.html">
-        <div class="nav-icon-wrap"></div>
-        <div class="nav-label">LayarTix Kantin F&amp;B</div>
+      <a class="nav-tab active" href="fnb.html" title="Kantin F&B">
+        <div class="nav-icon-wrap">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+            <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+            <line x1="6" y1="1" x2="6" y2="4"></line>
+            <line x1="10" y1="1" x2="10" y2="4"></line>
+            <line x1="14" y1="1" x2="14" y2="4"></line>
+          </svg>
+        </div>
       </a>
-      <a class="nav-tab " href="tiket.html">
-        <div class="nav-icon-wrap"></div>
-        <div class="nav-label">LayarTix Tiket &amp; Kenangan</div>
+      <a class="nav-tab " href="tiket.html" title="Tiket & Riwayat">
+        <div class="nav-icon-wrap">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+            <path d="M13 12h.01"></path>
+            <path d="M2 10a2 2 0 0 0 0 4"></path>
+            <path d="M22 10a2 2 0 0 1 0 4"></path>
+          </svg>
+        </div>
       </a>
-      <a class="nav-tab " href="parkir.html">
-        <div class="nav-icon-wrap"></div>
-        <div class="nav-label">LayarTix Info Parkir</div>
+      <a class="nav-tab " href="parkir.html" title="Info Parkir">
+        <div class="nav-icon-wrap">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+            <path d="M9 16V8h4a2 2 0 0 1 0 4H9"></path>
+          </svg>
+        </div>
       </a>
-      <a class="nav-tab " href="akun.html">
-        <div class="nav-icon-wrap"></div>
-        <div class="nav-label">Akun</div>
+      <a class="nav-tab " href="akun.html" title="Profil Akun">
+        <div class="nav-icon-wrap">
+          <div class="nav-tab-avatar-wrap">
+            <img class="user-avatar-img" src="" alt="Avatar" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;" />
+            <svg class="user-avatar-svg w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+        </div>
       </a>
     </nav>
 </div>

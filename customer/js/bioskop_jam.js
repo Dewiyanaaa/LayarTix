@@ -1,4 +1,4 @@
-/**
+﻿/**
  * LayarTix Customer Bioskop & Jam Tayang Controller
  * customer/js/bioskop_jam.js
  */
@@ -153,7 +153,17 @@ function renderCinemas() {
     const availTimes = hasType ? LT.times : [];
 
     const pm = c.priceMultiplier || { Regular: 1, Premium: 1.4, IMAX: 1.8 };
-    const price = Math.round(movie.price_base * (pm[selectedSeatType] || 1));
+    const basePrice = Number(movie.price_base) || Number(session.price_base) || 65000;
+    let price = Math.round(basePrice * (Number(pm[selectedSeatType]) || 1));
+    if (movie && movie.prices) {
+      if (selectedSeatType === 'Regular' && movie.prices.regular) {
+        price = Number(movie.prices.regular);
+      } else if ((selectedSeatType === 'Premiere' || selectedSeatType === 'Premium') && movie.prices.premiere) {
+        price = Number(movie.prices.premiere);
+      } else if (selectedSeatType === 'IMAX' && movie.prices.imax) {
+        price = Number(movie.prices.imax);
+      }
+    }
     const parking = LT.getCinemaParkingSlots(c);
 
     return `<div class="cinema-card">
@@ -233,8 +243,9 @@ function selectTime(cinemaId, time, date, price) {
       city: city
     };
   }
+  const numericPrice = Number(price) || Number(movie.price_base) || 65000;
   pendingCinema = cinema;
-  pendingTime = { time, date, price };
+  pendingTime = { time, date, price: numericPrice };
 
   // Check age warning
   if (LT.needsAgeWarning(movie.rating)) {
@@ -264,6 +275,7 @@ function closeAgeModal() {
 
 function proceedToSeat() {
   const session = LT.getSession();
+  const ticketPrice = Number(pendingTime.price) || 65000;
   LT.setSession({
     ...session,
     cinemaId: pendingCinema.id,
@@ -273,7 +285,8 @@ function proceedToSeat() {
     date: pendingTime.date,
     time: pendingTime.time,
     seatType: selectedSeatType,
-    seatPrice: pendingTime.price
+    seatPrice: ticketPrice,
+    ticketPrice: ticketPrice
   });
   window.location.href = 'kursi.html';
 }
@@ -281,3 +294,25 @@ function proceedToSeat() {
 buildDateTabs();
 renderCinemas();
 
+
+// ── Cross-tab sync: perubahan film/harga dari Admin ──
+window.addEventListener('storage', (e) => {
+  if (
+    e.key === 'layartix_now_playing' ||
+    e.key === 'layartix_admin_update'
+  ) {
+    // Reload data film terbaru (harga bisa berubah dari Admin)
+    LT.initMovies();
+    allMovies = LT.getAllMovies();
+    try {
+      const npRaw = localStorage.getItem('layartix_now_playing');
+      if (npRaw) {
+        const parsed = JSON.parse(npRaw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          allMovies = [...parsed, ...allMovies.filter(m => !parsed.find(p => p.id === m.id))];
+        }
+      }
+    } catch (ex) {}
+    renderCinemas();
+  }
+});

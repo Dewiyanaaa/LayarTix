@@ -314,6 +314,271 @@ const LT = {
     { id: 'f12', name: 'Combo C – Premium', emoji: '', price: 95000, category: 'Combo', desc: '2 Popcorn Large + 2 Cola Large (hemat 20rb)' }
   ],
 
+
+  // ── F&B MENU — localStorage-backed methods ──────────────────
+  getFnbMenu() {
+    try {
+      const d = localStorage.getItem('layartix_fnb_menu');
+      if (d) {
+        const parsed = JSON.parse(d);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return JSON.parse(JSON.stringify(this.fnbMenu)); // fallback ke default
+  },
+
+  saveFnbMenu(menu) {
+    try {
+      localStorage.setItem('layartix_fnb_menu', JSON.stringify(menu));
+    } catch (e) {}
+  },
+
+  initFnbMenu() {
+    try {
+      const existing = localStorage.getItem('layartix_fnb_menu');
+      const arr = existing ? JSON.parse(existing) : null;
+      if (!Array.isArray(arr) || arr.length === 0) {
+        // Beri default stok 50 pada setiap item
+        const defaultWithStock = this.fnbMenu.map(item => ({
+          ...item,
+          stock: item.stock !== undefined ? item.stock : 50,
+          status: item.status || 'tersedia'
+        }));
+        this.saveFnbMenu(defaultWithStock);
+      }
+    } catch (e) {
+      this.saveFnbMenu(this.fnbMenu);
+    }
+  },
+
+  saveFnbItem(item) {
+    let menu = this.getFnbMenu();
+    const idx = menu.findIndex(x => x.id === item.id);
+    if (idx >= 0) menu[idx] = item;
+    else menu.push(item);
+    this.saveFnbMenu(menu);
+    try { localStorage.setItem('layartix_admin_update', Date.now().toString()); } catch(e) {}
+    return item;
+  },
+
+  deleteFnbItem(id) {
+    let menu = this.getFnbMenu().filter(x => x.id !== id);
+    this.saveFnbMenu(menu);
+    try { localStorage.setItem('layartix_admin_update', Date.now().toString()); } catch(e) {}
+  },
+
+  updateFnbStock(id, newStock, status) {
+    let menu = this.getFnbMenu();
+    const item = menu.find(x => x.id === id);
+    if (item) {
+      item.stock = Math.max(0, Number(newStock) || 0);
+      item.status = status || (item.stock > 0 ? 'tersedia' : 'habis');
+      this.saveFnbMenu(menu);
+      try { localStorage.setItem('layartix_admin_update', Date.now().toString()); } catch(e) {}
+    }
+    return item;
+  },
+
+  // ── CINEMAS / CABANG MULTI-BIOSKOP (LOCALSTORAGE-BACKED) ────
+  getCinemas() {
+    try {
+      const d = localStorage.getItem('layartix_cinemas');
+      if (d) {
+        const parsed = JSON.parse(d);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return JSON.parse(JSON.stringify(this.cinemas));
+  },
+
+  saveCinemas(list) {
+    try {
+      localStorage.setItem('layartix_cinemas', JSON.stringify(list));
+      localStorage.setItem('layartix_admin_update', Date.now().toString());
+    } catch (e) {}
+  },
+
+  addCinema(c) {
+    const list = this.getCinemas();
+    list.push(c);
+    this.saveCinemas(list);
+    return c;
+  },
+
+  updateCinema(c) {
+    let list = this.getCinemas();
+    const idx = list.findIndex(x => x.id === c.id);
+    if (idx >= 0) list[idx] = c;
+    else list.push(c);
+    this.saveCinemas(list);
+    return c;
+  },
+
+  initCinemas() {
+    try {
+      const existing = localStorage.getItem('layartix_cinemas');
+      if (!existing || JSON.parse(existing).length === 0) {
+        this.saveCinemas(this.cinemas);
+      }
+    } catch (e) {
+      this.saveCinemas(this.cinemas);
+    }
+  },
+
+  // ── KODE PROMO & VOUCHER DISKON ─────────────────────────────
+  defaultPromos: [
+    { id: 'p_1', code: 'LAYARHEMAT10', type: 'fixed', value: 10000, minSpend: 50000, quota: 100, used: 14, status: 'active', desc: 'Potongan Rp 10.000 (Min. transaksi Rp 50.000)' },
+    { id: 'p_2', code: 'NONTONSERU20', type: 'percent', value: 20, maxDiscount: 25000, minSpend: 60000, quota: 50, used: 9, status: 'active', desc: 'Diskon 20% maks. Rp 25.000 (Min. Rp 60.000)' },
+    { id: 'p_3', code: 'LAYARTIXVIP', type: 'fixed', value: 25000, minSpend: 100000, quota: 30, used: 5, status: 'active', desc: 'Diskon Spesial VIP Rp 25.000 (Min. Rp 100.000)' }
+  ],
+
+  getPromos() {
+    try {
+      const d = localStorage.getItem('layartix_promos');
+      if (d) {
+        const parsed = JSON.parse(d);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return JSON.parse(JSON.stringify(this.defaultPromos));
+  },
+
+  savePromos(list) {
+    try {
+      localStorage.setItem('layartix_promos', JSON.stringify(list));
+      localStorage.setItem('layartix_admin_update', Date.now().toString());
+    } catch (e) {}
+  },
+
+  savePromo(promo) {
+    let list = this.getPromos();
+    const idx = list.findIndex(p => p.id === promo.id);
+    if (idx >= 0) list[idx] = promo;
+    else list.unshift(promo);
+    this.savePromos(list);
+    return promo;
+  },
+
+  deletePromo(id) {
+    let list = this.getPromos().filter(p => p.id !== id);
+    this.savePromos(list);
+  },
+
+  initPromos() {
+    try {
+      const existing = localStorage.getItem('layartix_promos');
+      if (!existing || JSON.parse(existing).length === 0) {
+        this.savePromos(this.defaultPromos);
+      }
+    } catch (e) {
+      this.savePromos(this.defaultPromos);
+    }
+  },
+
+  applyPromo(code, subtotal) {
+    const promos = this.getPromos();
+    const p = promos.find(x => x.code.toUpperCase() === (code || '').trim().toUpperCase() && x.status === 'active');
+    if (!p) return { success: false, message: 'Kode promo tidak valid atau sudah tidak aktif.' };
+    if (p.quota !== undefined && p.used !== undefined && p.used >= p.quota) {
+      return { success: false, message: 'Kuota penggunaan kode promo ini sudah habis.' };
+    }
+    if (p.minSpend && subtotal < p.minSpend) {
+      return { success: false, message: `Minimal belanja Rp ${p.minSpend.toLocaleString('id-ID')} untuk menggunakan promo ini.` };
+    }
+    let discount = 0;
+    if (p.type === 'fixed') {
+      discount = p.value;
+    } else if (p.type === 'percent') {
+      discount = Math.round((subtotal * p.value) / 100);
+      if (p.maxDiscount) discount = Math.min(discount, p.maxDiscount);
+    }
+    return { success: true, discount, promo: p };
+  },
+
+  usePromo(code) {
+    let promos = this.getPromos();
+    const p = promos.find(x => x.code.toUpperCase() === (code || '').trim().toUpperCase());
+    if (p) {
+      p.used = (p.used || 0) + 1;
+      this.savePromos(promos);
+    }
+  },
+
+  // ── MULTI-CABANG ADMIN SCOPE HELPER ────────────────────────
+  getCurrentAdminScope() {
+    const user = this.getCurrentUser();
+    if (!user || user.role !== 'admin') {
+      return {
+        isSuperAdmin: true,
+        isBranchAdmin: false,
+        branchId: null,
+        branchName: 'Semua Cabang (Super Admin)',
+        city: null,
+        user: null
+      };
+    }
+    const isBranch = !!(user.branchId && user.branchId !== 'all');
+    return {
+      isSuperAdmin: !isBranch,
+      isBranchAdmin: isBranch,
+      branchId: isBranch ? user.branchId : null,
+      branchName: isBranch ? (user.branchName || 'Cabang Bioskop') : 'Semua Cabang',
+      city: isBranch ? (user.city || 'Semua Kota') : 'Semua Kota',
+      user
+    };
+  },
+
+  setAdminBranchScope(branchId, branchName, city) {
+    let user = this.getCurrentUser();
+    if (!user || user.role !== 'admin') {
+      user = { id: 'u_admin', name: 'Administrator', email: 'admin@layartix.com', role: 'admin' };
+    }
+    if (!branchId || branchId === 'all') {
+      user.adminRole = 'super_admin';
+      user.branchId = null;
+      user.branchName = 'Semua Cabang';
+      user.city = null;
+    } else {
+      user.adminRole = 'branch_admin';
+      user.branchId = branchId;
+      user.branchName = branchName;
+      user.city = city;
+    }
+    this.setCurrentUser(user);
+    try { localStorage.setItem('layartix_admin_update', Date.now().toString()); } catch(e) {}
+    return user;
+  },
+
+  // ── SEAT RESET & MONITORING ────────────────────────────────
+  getResetSeats() {
+    try {
+      const d = localStorage.getItem('layartix_reset_seats');
+      return d ? JSON.parse(d) : [];
+    } catch (e) { return []; }
+  },
+
+  resetSeatBooking(cinemaId, date, time, seatId) {
+    let resets = this.getResetSeats();
+    const key = `${cinemaId}_${date}_${time}_${seatId}`;
+    if (!resets.includes(key)) {
+      resets.push(key);
+      localStorage.setItem('layartix_reset_seats', JSON.stringify(resets));
+    }
+    // Hapus juga kursi dari transaksi aktif jika ada
+    let bookings = this.getBookings();
+    let changed = false;
+    bookings.forEach(b => {
+      if (b.cinemaId === cinemaId && b.date === date && b.time === time && Array.isArray(b.seats)) {
+        if (b.seats.includes(seatId)) {
+          b.seats = b.seats.filter(s => s !== seatId);
+          changed = true;
+        }
+      }
+    });
+    if (changed) this.saveBookings(bookings);
+    localStorage.setItem('layartix_admin_update', Date.now().toString());
+    return true;
+  },
   // ── UTILITY FUNCTIONS ───────────────────────────────────────
   formatRp(amount) {
     return 'Rp ' + Number(amount).toLocaleString('id-ID');
@@ -507,25 +772,60 @@ const LT = {
 
   // ── Auth Helpers ────────────────────────────────────────────
   getCurrentUser() {
-    return this.load('current_user');
+    let u = this.load('current_user');
+    if (!u) {
+      try {
+        const raw = localStorage.getItem('layartix_session') || localStorage.getItem('layartix_user');
+        if (raw) u = JSON.parse(raw);
+      } catch (e) {}
+    }
+    return u;
   },
 
   setCurrentUser(user) {
     this.save('current_user', user);
+    try {
+      localStorage.setItem('layartix_user', JSON.stringify(user));
+      const roleStr = user ? (user.adminRole || user.role || 'customer') : 'customer';
+      const sessionObj = {
+        id: user?.id,
+        name: user?.name,
+        username: user?.username || user?.email,
+        email: user?.email,
+        phone: user?.phone,
+        role: roleStr,
+        isAdmin: user?.role === 'admin',
+        branchId: user?.branchId || null,
+        branchName: user?.branchName || (user?.role === 'admin' ? 'Semua Cabang' : null),
+        city: user?.city || null,
+        loggedInAt: new Date().toISOString()
+      };
+      localStorage.setItem('layartix_session', JSON.stringify(sessionObj));
+    } catch (e) {}
+  },
+
+  getSession() {
+    try {
+      const s = localStorage.getItem('layartix_session');
+      return s ? JSON.parse(s) : null;
+    } catch (e) { return null; }
   },
 
   logout() {
     localStorage.removeItem('lt_current_user');
+    localStorage.removeItem('layartix_user');
+    localStorage.removeItem('layartix_session');
   },
 
   requireAuth(role = 'customer') {
     const user = this.getCurrentUser();
     if (!user) {
-      window.location.href = role === 'admin' ? '../../admin/html/login.html' : '../html/login.html';
+      // Direct always to unified login page
+      window.location.href = role === 'admin' ? '../../customer/html/login.html' : 'login.html';
       return null;
     }
     if (role && user.role !== role) {
-      window.location.href = role === 'admin' ? '../../admin/html/login.html' : '../html/login.html';
+      window.location.href = role === 'admin' ? '../../customer/html/login.html' : 'login.html';
       return null;
     }
     return user;
@@ -626,23 +926,6 @@ const LT = {
     const orders = this.getFnbOrders();
     orders.unshift(order);
     this.save('fnb_orders', orders);
-  },
-
-  // ── Journals ────────────────────────────────────────────────
-  getJournals() {
-    return this.load('journals', []);
-  },
-
-  saveJournal(journal) {
-    const journals = this.getJournals();
-    const idx = journals.findIndex(j => j.bookingId === journal.bookingId);
-    if (idx >= 0) journals[idx] = journal;
-    else journals.unshift(journal);
-    this.save('journals', journals);
-  },
-
-  getJournalForBooking(bookingId) {
-    return this.getJournals().find(j => j.bookingId === bookingId) || null;
   },
 
   // ── Movie Reviews with Spoiler Protection & Media Attachment ─────────
@@ -773,21 +1056,33 @@ const LT = {
   // ── Seed Data ───────────────────────────────────────────────
   seedIfEmpty() {
     let users = this.getUsers();
+    // Default system users jika belum ada
+    const defaultSuperAdmin = {
+      id: 'u_admin', name: 'Super Administrator', email: 'admin@layartix.com', username: 'admin',
+      phone: '081200000000', password: 'admin123', role: 'admin', adminRole: 'super_admin',
+      branchId: null, branchName: 'Semua Cabang (Super Admin)', city: null,
+      wallet: 0, avatar: '', createdAt: new Date().toISOString()
+    };
+    const defaultBranchAdminNipah = {
+      id: 'u_admin_nipah', name: 'Admin Nipah Mall XXI', email: 'nipah@layartix.com', username: 'admin_nipah',
+      phone: '081211111111', password: 'nipah123', role: 'admin', adminRole: 'branch_admin',
+      branchId: 'c_mks_4', branchName: 'XXI Nipah Park', city: 'Makassar',
+      wallet: 0, avatar: '', createdAt: new Date().toISOString()
+    };
+    const defaultBranchAdminGorontalo = {
+      id: 'u_admin_gorontalo', name: 'Admin Gorontalo Mall', email: 'gorontalo@layartix.com', username: 'admin_gorontalo',
+      phone: '081222222222', password: 'gorontalo123', role: 'admin', adminRole: 'branch_admin',
+      branchId: 'c_gorontalo_1', branchName: 'XXI Gorontalo Mall', city: 'Gorontalo',
+      wallet: 0, avatar: '', createdAt: new Date().toISOString()
+    };
+    const defaultCustomer = {
+      id: 'u_test', name: 'Budi Santoso', email: 'user@test.com', username: 'budi',
+      phone: '081234567890', password: 'user123', role: 'customer',
+      wallet: 500000, avatar: '', createdAt: new Date().toISOString()
+    };
+
     if (users.length === 0) {
-      users = [
-        {
-          id: 'u_admin', name: 'Admin LayarTix', email: 'admin@layartix.com',
-          phone: '081200000000', password: 'admin123', role: 'admin',
-          wallet: 0, avatar: '',
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 'u_test', name: 'Budi Santoso', email: 'user@test.com',
-          phone: '081234567890', password: 'user123', role: 'customer',
-          wallet: 500000, avatar: '',
-          createdAt: new Date().toISOString()
-        }
-      ];
+      users = [defaultSuperAdmin, defaultBranchAdminNipah, defaultBranchAdminGorontalo, defaultCustomer];
       this.saveUsers(users);
 
       // Seed sample bookings for test user
@@ -915,6 +1210,7 @@ const LT = {
 // Auto-initialize movies and seed data on load
 LT.initMovies();
 LT.seedIfEmpty();
+LT.initFnbMenu();
 
 // Global function to save ticket and redirect immediately without loading delay
 window.saveAndRedirectToTickets = function (ticketData) {
@@ -999,4 +1295,35 @@ window.saveAndRedirectToTickets = function (ticketData) {
     window.location.href = 'tiket.html';
   }
 };
+
+// ── Global Avatar Sync Function ────────────────────────────────
+function syncAllUserAvatars() {
+  const saved = localStorage.getItem('layartix_user_avatar');
+  document.querySelectorAll('.user-avatar-img').forEach(img => {
+    if (saved) {
+      img.src = saved;
+      img.style.display = 'block';
+    } else {
+      img.src = '';
+      img.style.display = 'none';
+    }
+  });
+
+  document.querySelectorAll('.user-avatar-fallback').forEach(el => {
+    el.style.display = saved ? 'none' : 'inline-block';
+  });
+
+  document.querySelectorAll('.user-avatar-svg').forEach(svg => {
+    svg.style.display = saved ? 'none' : 'block';
+  });
+}
+
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', syncAllUserAvatars);
+  } else {
+    syncAllUserAvatars();
+  }
+}
+
 

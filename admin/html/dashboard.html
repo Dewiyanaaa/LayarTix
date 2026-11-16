@@ -69,11 +69,16 @@
           <div class="topbar-sub" id="pageDate"></div>
         </div>
       </div>
-      <div class="topbar-right">
+      <div class="topbar-right" style="display:flex;align-items:center;gap:10px;">
+        <div id="adminScopeBadge" class="admin-badge" style="font-weight:600;display:flex;align-items:center;gap:6px;background:rgba(255,215,0,0.12);border-color:rgba(255,215,0,0.3);color:var(--gold);">
+          👑 Mode: Super Admin (Semua Cabang)
+        </div>
         <a href="../../customer/html/beranda.html" class="admin-badge" style="text-decoration:none;cursor:pointer;background:rgba(230,57,70,0.15);border-color:rgba(230,57,70,0.3);color:#fff">
            Tampilan Customer
         </a>
-        <div class="admin-badge">Admin Mode</div>
+        <button onclick="doLogout()" class="admin-badge" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#ef4444;cursor:pointer;font-weight:600;">
+          🚪 Ganti Peran / Logout
+        </button>
         <div id="timeDisplay" style="font-size:13px;color:var(--muted)" class="hidden sm:block"></div>
       </div>
     </div>
@@ -275,81 +280,159 @@
   </div><!-- /main-content -->
 </div><!-- /admin-layout -->
 
-<!-- ADD FILM MODAL -->
+<!-- ADD & EDIT FILM MODAL -->
 <div class="modal-overlay" id="filmModal">
-  <div class="modal">
+  <div class="modal" style="max-width: 780px; width: 100%;">
     <div class="modal-header">
-      <div class="modal-title" id="filmModalTitle"> Tambah Film Baru</div>
-      <button class="modal-close" onclick="closeFilmModal()"></button>
+      <div class="modal-title" id="filmModalTitle">✨ Tambah Film Baru</div>
+      <button class="modal-close" onclick="closeFilmModal()">&times;</button>
     </div>
-    <div class="modal-body">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-        <div class="form-group" style="grid-column:1/-1;">
-          <label class="form-label">Judul Film *</label>
-          <input class="form-input" id="fm_title" placeholder="Judul film..." />
+    <div class="modal-body" style="padding: 24px;">
+      <div style="display:grid; grid-template-columns: 210px 1fr; gap: 24px;">
+        
+        <!-- KOLOM KIRI: UNGGAH & PREVIEW POSTER -->
+        <div>
+          <label class="form-label" style="font-weight:700;margin-bottom:8px;display:block;">Poster Film *</label>
+          <div id="fm_poster_preview_box" style="width: 100%; height: 280px; border-radius: 14px; border: 2px dashed rgba(255,215,0,0.35); background: rgba(0,0,0,0.4); overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 12px; box-shadow: 0 4px 14px rgba(0,0,0,0.4);">
+            <img id="fm_poster_preview_img" src="" alt="Preview Poster" style="width: 100%; height: 100%; object-fit: cover; display: none;" />
+            <div id="fm_poster_placeholder" style="text-align: center; color: var(--muted); padding: 16px;">
+              <div style="font-size: 38px; margin-bottom: 8px;">🎬</div>
+              <div style="font-size: 12px; font-weight: 700; color: #fff;">Belum Ada Poster</div>
+              <div style="font-size: 11px; opacity: 0.7; margin-top: 4px;">Pilih file gambar atau tempel URL</div>
+            </div>
+          </div>
+          
+          <!-- Tombol Unggah File Lokal -->
+          <div style="margin-bottom: 10px;">
+            <label class="btn btn-outline btn-sm" style="width: 100%; text-align: center; cursor: pointer; display: block; padding: 9px 12px; font-weight: 700; border-color: rgba(255,215,0,0.5); color: var(--gold); background: rgba(255,215,0,0.08); border-radius: 8px;">
+              📁 Pilih File Gambar...
+              <input type="file" id="fm_poster_file" accept="image/*" style="display: none;" onchange="handlePosterFileSelect(this)" />
+            </label>
+          </div>
+          
+          <!-- Alternatif Input URL Gambar -->
+          <div>
+            <label class="form-label" style="font-size: 11px; color: var(--muted); margin-bottom: 4px; display: block;">Atau Tempel URL Gambar:</label>
+            <input class="form-input" id="fm_poster" placeholder="https://..." style="font-size: 12px; padding: 8px 10px;" oninput="handlePosterUrlInput(this.value)" />
+          </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Genre</label>
-          <input class="form-input" id="fm_genre" placeholder="Aksi, Horor, dll." />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Rating</label>
-          <select class="form-input" id="fm_rating">
-            <option value="SU">SU (Semua Umur)</option>
-            <option value="D13">D13 (13+)</option>
-            <option value="D17">D17 (17+)</option>
-            <option value="D21">D21 (21+)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Durasi (menit)</label>
-          <input class="form-input" id="fm_duration" type="number" placeholder="120" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Harga Dasar (Rp)</label>
-          <input class="form-input" id="fm_price" type="number" placeholder="65000" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Status</label>
-          <select class="form-input" id="fm_status">
-            <option value="now_playing">Sedang Tayang</option>
-            <option value="coming_soon">Akan Datang</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Bahasa</label>
-          <input class="form-input" id="fm_lang" placeholder="Bahasa Indonesia" />
-        </div>
-        <div class="form-group" style="grid-column:1/-1;">
-          <label class="form-label">Sutradara</label>
-          <input class="form-input" id="fm_director" placeholder="Nama sutradara" />
-        </div>
-        <div class="form-group" style="grid-column:1/-1;">
-          <label class="form-label">Pemeran</label>
-          <input class="form-input" id="fm_cast" placeholder="Aktor 1, Aktor 2, ..." />
-        </div>
-        <div class="form-group" style="grid-column:1/-1;">
-          <label class="form-label">Sinopsis</label>
-          <textarea class="form-input" id="fm_synopsis" rows="3" placeholder="Sinopsis film..."></textarea>
-        </div>
-        <div class="form-group" style="grid-column:1/-1;">
-          <label class="form-label">URL Poster (opsional)</label>
-          <input class="form-input" id="fm_poster" placeholder="https://..." />
+
+        <!-- KOLOM KANAN: DETAIL RINCI FILM & PENGATURAN HARGA -->
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          
+          <!-- Judul Film & Status -->
+          <div style="display: grid; grid-template-columns: 1.8fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label class="form-label">Judul Film *</label>
+              <input class="form-input" id="fm_title" placeholder="Contoh: Kuasa Gelap: Perjanjian Darah" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status Tayang *</label>
+              <select class="form-input" id="fm_status">
+                <option value="now_playing">Sedang Tayang</option>
+                <option value="coming_soon">Akan Datang</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Genre, Durasi, Rating Usia -->
+          <div style="display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label class="form-label">Genre</label>
+              <input class="form-input" id="fm_genre" placeholder="Horror, Action, Drama" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Durasi (menit)</label>
+              <input class="form-input" id="fm_duration" type="number" placeholder="120" min="1" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Rating Usia</label>
+              <select class="form-input" id="fm_rating">
+                <option value="SU">SU (Semua Umur)</option>
+                <option value="D13" selected>D13 (13+)</option>
+                <option value="D17">D17 (17+)</option>
+                <option value="D21">D21 (21+)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Sutradara & Pemeran / Aktor -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label class="form-label">Sutradara</label>
+              <input class="form-input" id="fm_director" placeholder="Nama sutradara..." />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Pemeran / Aktor</label>
+              <input class="form-input" id="fm_cast" placeholder="Aktor 1, Aktor 2, ..." />
+            </div>
+          </div>
+
+          <!-- Sinopsis Lengkap -->
+          <div class="form-group">
+            <label class="form-label">Sinopsis Lengkap</label>
+            <textarea class="form-input" id="fm_synopsis" rows="3" placeholder="Tuliskan jalan cerita atau ringkasan sinopsis film secara lengkap..."></textarea>
+          </div>
+
+          <!-- Pengaturan Harga Tiket per Kategori Studio -->
+          <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,215,0,0.25); border-radius: 12px; padding: 14px;">
+            <div style="font-size: 12px; font-weight: 700; color: var(--gold); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+              🎟️ Pengaturan Harga Tiket per Kategori Studio (Rp)
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+              <div class="form-group">
+                <label class="form-label" style="font-size: 11px;">Regular (Rp) *</label>
+                <input class="form-input" id="fm_price_regular" type="number" placeholder="45000" min="0" oninput="syncBasePrice(this.value)" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" style="font-size: 11px;">Premiere (Rp)</label>
+                <input class="form-input" id="fm_price_premiere" type="number" placeholder="75000" min="0" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" style="font-size: 11px;">IMAX (Rp)</label>
+                <input class="form-input" id="fm_price_imax" type="number" placeholder="90000" min="0" />
+              </div>
+            </div>
+            <input type="hidden" id="fm_price" value="45000" />
+            <input type="hidden" id="fm_lang" value="Bahasa Indonesia" />
+            <input type="hidden" id="fm_releaseDate" value="" />
+          </div>
+
         </div>
       </div>
     </div>
-    <div class="modal-footer">
+    <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 12px;">
       <button class="btn btn-outline" onclick="closeFilmModal()">Batal</button>
-      <button class="btn btn-primary" onclick="saveFilm()"> Simpan Film</button>
+      <button class="btn btn-primary" onclick="saveFilm()" style="background: linear-gradient(135deg, #e63946, #c1121f); font-weight: 700; padding: 10px 22px;">💾 Simpan Film</button>
     </div>
   </div>
 </div>
 
 <script src="../../data.js"></script>
 <script>
-  // ── Auth check ──
+  // ── Auth & Scope Check ──
   const adminUser = LT.requireAuth('admin');
-  if (adminUser) document.getElementById('adminName').textContent = adminUser.name;
+  const scope = (typeof LT !== 'undefined' && typeof LT.getCurrentAdminScope === 'function')
+    ? LT.getCurrentAdminScope()
+    : { isSuperAdmin: true, isBranchAdmin: false, branchName: 'Semua Cabang', city: 'Semua Kota' };
+
+  if (adminUser) {
+    document.getElementById('adminName').textContent = adminUser.name || 'Administrator';
+    const badgeEl = document.getElementById('adminScopeBadge');
+    if (badgeEl) {
+      if (scope.isBranchAdmin) {
+        badgeEl.innerHTML = `📍 Mode: Admin Cabang — ${scope.branchName}`;
+        badgeEl.style.color = '#60a5fa';
+        badgeEl.style.borderColor = 'rgba(96,165,250,0.3)';
+        badgeEl.style.background = 'rgba(96,165,250,0.12)';
+      } else {
+        badgeEl.innerHTML = `👑 Mode: Super Admin (Semua Cabang)`;
+        badgeEl.style.color = 'var(--gold)';
+        badgeEl.style.borderColor = 'rgba(255,215,0,0.3)';
+        badgeEl.style.background = 'rgba(255,215,0,0.12)';
+      }
+    }
+  }
 
   // ── Time display ──
   function updateTime() {
@@ -386,7 +469,7 @@
 
   function doLogout() {
     LT.logout();
-    window.location.href = '../html/login.html';
+    window.location.href = '../../customer/html/login.html';
   }
 
   // ── Compute stats ──
@@ -568,20 +651,34 @@
     tbody.innerHTML = movies.map(m => {
       const rb = LT.getRatingBadge(m.rating);
       const statusBadge = m.status === 'now_playing'
-        ? '<span class="badge badge-green">Sedang Tayang</span>'
-        : '<span class="badge badge-yellow">Akan Datang</span>';
+        ? '<span class="badge badge-green" style="font-weight:700">Sedang Tayang</span>'
+        : '<span class="badge badge-yellow" style="font-weight:700">Akan Datang</span>';
+      const regPrice = m.prices?.regular || m.price_base || 45000;
       return `<tr>
-        <td><img src="${m.poster}" alt="" style="width:36px;height:52px;object-fit:cover;border-radius:4px;" onerror="this.src='https://picsum.photos/seed/${m.id}/36/52'"></td>
-        <td style="font-weight:600;max-width:160px">${m.title}</td>
-        <td style="font-size:12px;color:var(--muted)">${m.genre}</td>
+        <td>
+          <img src="${m.poster}" alt="${m.title}" style="width:44px;height:62px;object-fit:cover;border-radius:6px;border:1px solid rgba(255,255,255,0.15);box-shadow:0 3px 8px rgba(0,0,0,0.5);" onerror="this.src='https://picsum.photos/seed/${m.id}/44/62'">
+        </td>
+        <td style="max-width:200px">
+          <div style="font-weight:700;color:#fff;font-size:13px">${m.title}</div>
+          <div style="font-size:11px;color:var(--muted)">Sutradara: ${m.director || '–'}</div>
+        </td>
+        <td style="font-size:12px;color:var(--muted)">${m.genre || '–'}</td>
         <td><span class="badge" style="background:${rb.bg};color:${rb.color}">${rb.label}</span></td>
-        <td>${m.duration} mnt</td>
+        <td style="font-size:12px;font-weight:600">${m.duration} mnt</td>
         <td>${statusBadge}</td>
-        <td style="font-weight:600;color:var(--gold)">${LT.formatRp(m.price_base)}</td>
+        <td style="font-weight:700;color:var(--gold);font-size:13px">${LT.formatRp(regPrice)}</td>
         <td style="white-space:nowrap">
-          <button class="btn btn-outline btn-sm" onclick="editFilm('${m.id}')" title="Edit Film"></button>
-          <button class="btn btn-sm" style="background:rgba(255,215,0,0.12);color:var(--gold);border:1px solid rgba(255,215,0,0.3);" onclick="toggleStatus('${m.id}')" title="Ubah Status Tayang"></button>
-          <button class="btn btn-sm" style="background:rgba(239,68,68,0.12);color:#ef4444;border:1px solid rgba(239,68,68,0.3);" onclick="deleteFilm('${m.id}')" title="Hapus Film"></button>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <button class="btn btn-sm" style="background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;font-weight:700;padding:6px 12px;border-radius:8px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:4px;box-shadow:0 2px 6px rgba(37,99,235,0.35);" onclick="editFilm('${m.id}')" title="Ubah Detail Film">
+              ✏️ Edit
+            </button>
+            <button class="btn btn-sm" style="background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;font-weight:700;padding:6px 12px;border-radius:8px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:4px;box-shadow:0 2px 6px rgba(220,38,38,0.35);" onclick="deleteFilm('${m.id}')" title="Hapus Film">
+              🗑️ Hapus
+            </button>
+            <button class="btn btn-sm" style="background:rgba(255,215,0,0.12);color:var(--gold);border:1px solid rgba(255,215,0,0.35);font-weight:600;padding:6px 10px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;" onclick="toggleStatus('${m.id}')" title="Ubah Status Tayang">
+              🔄 Status
+            </button>
+          </div>
         </td>
       </tr>`;
     }).join('');
@@ -705,15 +802,89 @@
   }
 
   // ── Film Modal ──
+  // ── Film Modal & CRUD Logic ──
   let editFilmId = null;
+  let currentUploadedPosterBase64 = '';
+
+  function handlePosterFileSelect(input) {
+    const file = input.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      LT.toast('Silakan pilih file gambar yang valid (JPG/PNG/WEBP)', 'error');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      currentUploadedPosterBase64 = e.target.result;
+      updatePosterPreview(currentUploadedPosterBase64);
+      const posterInput = document.getElementById('fm_poster');
+      if (posterInput) posterInput.value = '';
+      LT.toast('File poster gambar berhasil dimuat!', 'success', 1500);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function handlePosterUrlInput(val) {
+    const cleanVal = (val || '').trim();
+    currentUploadedPosterBase64 = cleanVal;
+    updatePosterPreview(cleanVal);
+  }
+
+  function updatePosterPreview(src) {
+    const img = document.getElementById('fm_poster_preview_img');
+    const ph = document.getElementById('fm_poster_placeholder');
+    if (!img) return;
+    if (src) {
+      img.src = src;
+      img.style.display = 'block';
+      if (ph) ph.style.display = 'none';
+      img.onerror = function() {
+        img.style.display = 'none';
+        if (ph) {
+          ph.style.display = 'block';
+          ph.innerHTML = '<div style="font-size:28px;margin-bottom:4px">⚠️</div><div style="font-size:11px;color:#ef4444;font-weight:600">URL Gambar Rusak/Tidak Valid</div>';
+        }
+      };
+    } else {
+      img.src = '';
+      img.style.display = 'none';
+      if (ph) {
+        ph.style.display = 'block';
+        ph.innerHTML = '<div style="font-size:38px;margin-bottom:8px">🎬</div><div style="font-size:12px;font-weight:700;color:#fff">Belum Ada Poster</div><div style="font-size:11px;opacity:0.7;margin-top:4px">Pilih file gambar atau tempel URL</div>';
+      }
+    }
+  }
+
+  function syncBasePrice(val) {
+    const p = parseInt(val) || 45000;
+    document.getElementById('fm_price').value = p;
+    if (editFilmId === null || !document.getElementById('fm_price_premiere').value) {
+      document.getElementById('fm_price_premiere').value = Math.round(p * 1.5);
+    }
+    if (editFilmId === null || !document.getElementById('fm_price_imax').value) {
+      document.getElementById('fm_price_imax').value = Math.round(p * 1.8);
+    }
+  }
+
   function openAddFilmModal() {
     editFilmId = null;
-    document.getElementById('filmModalTitle').textContent = ' Tambah Film Baru';
-    ['title','genre','director','cast','synopsis','poster','lang'].forEach(f => {
-      document.getElementById('fm_'+f).value = '';
+    document.getElementById('filmModalTitle').textContent = '✨ Tambah Film Baru';
+    ['title','genre','director','cast','synopsis','poster'].forEach(f => {
+      const el = document.getElementById('fm_' + f);
+      if (el) el.value = '';
     });
-    document.getElementById('fm_duration').value = '';
-    document.getElementById('fm_price').value = '';
+    document.getElementById('fm_duration').value = '120';
+    document.getElementById('fm_rating').value = 'D13';
+    document.getElementById('fm_status').value = 'now_playing';
+    document.getElementById('fm_price_regular').value = '45000';
+    document.getElementById('fm_price_premiere').value = '75000';
+    document.getElementById('fm_price_imax').value = '90000';
+    document.getElementById('fm_price').value = '45000';
+    document.getElementById('fm_releaseDate').value = new Date().toISOString().split('T')[0];
+    const fileInput = document.getElementById('fm_poster_file');
+    if (fileInput) fileInput.value = '';
+    currentUploadedPosterBase64 = '';
+    updatePosterPreview('');
     document.getElementById('filmModal').classList.add('open');
   }
 
@@ -722,18 +893,33 @@
     const m = all.find(m => m.id === id);
     if (!m) return;
     editFilmId = id;
-    document.getElementById('filmModalTitle').textContent = 'Edit Film';
-    document.getElementById('fm_title').value = m.title;
-    document.getElementById('fm_genre').value = m.genre;
-    document.getElementById('fm_rating').value = m.rating;
-    document.getElementById('fm_duration').value = m.duration;
-    document.getElementById('fm_price').value = m.price_base;
-    document.getElementById('fm_status').value = m.status;
-    document.getElementById('fm_director').value = m.director||'';
-    document.getElementById('fm_cast').value = m.cast||'';
-    document.getElementById('fm_synopsis').value = m.synopsis||'';
-    document.getElementById('fm_poster').value = m.poster||'';
-    document.getElementById('fm_lang').value = m.language||'';
+    document.getElementById('filmModalTitle').textContent = '✏️ Edit Film: ' + m.title;
+    document.getElementById('fm_title').value = m.title || '';
+    document.getElementById('fm_genre').value = m.genre || '';
+    document.getElementById('fm_rating').value = m.rating || 'D13';
+    document.getElementById('fm_duration').value = m.duration || 120;
+    document.getElementById('fm_status').value = m.status || 'now_playing';
+    document.getElementById('fm_director').value = m.director || '';
+    document.getElementById('fm_cast').value = m.cast || '';
+    document.getElementById('fm_synopsis').value = m.synopsis || '';
+    document.getElementById('fm_lang').value = m.language || 'Bahasa Indonesia';
+    document.getElementById('fm_releaseDate').value = m.releaseDate || '';
+
+    const regPrice = m.prices?.regular || m.price_base || 45000;
+    const premPrice = m.prices?.premiere || Math.round(regPrice * 1.5);
+    const imaxPrice = m.prices?.imax || Math.round(regPrice * 1.8);
+
+    document.getElementById('fm_price_regular').value = regPrice;
+    document.getElementById('fm_price_premiere').value = premPrice;
+    document.getElementById('fm_price_imax').value = imaxPrice;
+    document.getElementById('fm_price').value = regPrice;
+
+    document.getElementById('fm_poster').value = (m.poster && !m.poster.startsWith('data:')) ? m.poster : '';
+    const fileInput = document.getElementById('fm_poster_file');
+    if (fileInput) fileInput.value = '';
+    currentUploadedPosterBase64 = m.poster || '';
+    updatePosterPreview(m.poster || '');
+
     document.getElementById('filmModal').classList.add('open');
   }
 
@@ -743,48 +929,70 @@
 
   function saveFilm() {
     const title = document.getElementById('fm_title').value.trim();
-    if (!title) { LT.toast('Judul film wajib diisi!','error'); return; }
+    if (!title) {
+      LT.toast('Judul film wajib diisi!', 'error');
+      return;
+    }
+    const regPrice = parseInt(document.getElementById('fm_price_regular').value) || 45000;
+    const premPrice = parseInt(document.getElementById('fm_price_premiere').value) || Math.round(regPrice * 1.5);
+    const imaxPrice = parseInt(document.getElementById('fm_price_imax').value) || Math.round(regPrice * 1.8);
+
+    let posterVal = currentUploadedPosterBase64 || document.getElementById('fm_poster').value.trim();
+    if (!posterVal) {
+      posterVal = `https://picsum.photos/seed/${title.replace(/\s/g, '')}/400/600`;
+    }
+
     const film = {
       id: editFilmId || ('m_' + Date.now()),
       title,
-      genre: document.getElementById('fm_genre').value || 'Aksi',
+      genre: document.getElementById('fm_genre').value.trim() || 'Aksi',
       rating: document.getElementById('fm_rating').value || 'D13',
       duration: parseInt(document.getElementById('fm_duration').value) || 120,
-      price_base: parseInt(document.getElementById('fm_price').value) || 65000,
+      price_base: regPrice,
+      prices: {
+        regular: regPrice,
+        premiere: premPrice,
+        imax: imaxPrice
+      },
       status: document.getElementById('fm_status').value || 'now_playing',
-      director: document.getElementById('fm_director').value || 'Sutradara',
-      cast: document.getElementById('fm_cast').value || 'Pemeran',
-      synopsis: document.getElementById('fm_synopsis').value || 'Sinopsis film...',
-      poster: document.getElementById('fm_poster').value || `https://picsum.photos/seed/${title.replace(/\s/g,'')}/400/600`,
+      director: document.getElementById('fm_director').value.trim() || 'Sutradara',
+      cast: document.getElementById('fm_cast').value.trim() || 'Pemeran',
+      synopsis: document.getElementById('fm_synopsis').value.trim() || 'Sinopsis film belum tersedia.',
+      poster: posterVal,
       language: document.getElementById('fm_lang').value || 'Bahasa Indonesia',
-      releaseDate: new Date().toISOString().split('T')[0]
+      releaseDate: document.getElementById('fm_releaseDate').value || new Date().toISOString().split('T')[0]
     };
 
-    // Save directly to localStorage via LT.saveMovie
+    // Save to localStorage single source of truth
     LT.saveMovie(film);
+
+    // Notifikasi sinkronisasi instan ke sisi Customer tanpa reload
+    localStorage.setItem('layartix_admin_update', Date.now().toString());
+
     closeFilmModal();
     renderFilmTable();
-    LT.toast('Data film berhasil disimpan ke sistem! ','success');
+    LT.toast(`Film "${film.title}" berhasil disimpan ke katalog!`, 'success');
   }
 
   function toggleStatus(id) {
     const updated = LT.toggleMovieStatus(id);
     if (updated) {
+      localStorage.setItem('layartix_admin_update', Date.now().toString());
       renderFilmTable();
       const statusLabel = updated.status === 'now_playing' ? 'Sedang Tayang' : 'Akan Datang';
-      LT.toast(`Status "${updated.title}" diubah ke ${statusLabel} `, 'success');
+      LT.toast(`Status "${updated.title}" diubah ke ${statusLabel}`, 'success');
     }
   }
 
   function deleteFilm(id) {
-    if (confirm('Apakah Anda yakin ingin menghapus film ini dari katalog?')) {
+    if (confirm("Yakin ingin menghapus film ini?")) {
       LT.deleteMovie(id);
+      localStorage.setItem('layartix_admin_update', Date.now().toString());
       renderFilmTable();
       LT.toast('Film berhasil dihapus dari katalog', 'info');
     }
   }
 
-  // Close modal on backdrop click
   document.getElementById('filmModal').addEventListener('click', e=>{
     if(e.target.id==='filmModal') closeFilmModal();
   });

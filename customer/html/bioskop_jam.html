@@ -273,20 +273,10 @@
     <div class="header-container">
       <div style="display:flex;align-items:center;gap:16px">
         <div class="header-logo" onclick="window.location.href='beranda.html'">LAYARTIX</div>
-        <button class="back-btn" onclick="history.back()" title="Kembali" aria-label="Kembali">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="19" y1="12" x2="5" y2="12"></line>
-            <polyline points="12 19 5 12 12 5"></polyline>
-          </svg>
-        </button>
-        <div>
-          <div style="font-size:16px;font-weight:700" id="movieTitleHeader">Pilih Bioskop</div>
-          <div style="font-size:11px;color:var(--muted)" id="movieRatingHeader"></div>
-        </div>
-        <nav class="desktop-nav" style="margin-left:14px">
+        <nav class="desktop-nav">
           <a href="beranda.html" class="desktop-nav-link ">LayarTix Beranda</a>
           <a href="fnb.html" class="desktop-nav-link ">LayarTix Kantin F&amp;B</a>
-          <a href="tiket.html" class="desktop-nav-link ">LayarTix Tiket &amp; Kenangan</a>
+          <a href="tiket.html" class="desktop-nav-link ">Tiket Anda</a>
           <a href="parkir.html" class="desktop-nav-link ">LayarTix Info Parkir</a>
           <a href="akun.html" class="desktop-nav-link ">Akun</a>
         </nav>
@@ -335,36 +325,56 @@
 
     <!-- BOTTOM NAV -->
     <nav class="bottom-nav">
-      <a class="nav-tab " href="beranda.html">
-        <div class="nav-icon-wrap"></div>
-        <div class="nav-label">LayarTix Beranda</div>
+      <a class="nav-tab " href="beranda.html" title="Beranda">
+        <div class="nav-icon-wrap">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        </div>
       </a>
-      <a class="nav-tab " href="fnb.html">
-        <div class="nav-icon-wrap"></div>
-        <div class="nav-label">LayarTix Kantin F&amp;B</div>
+      <a class="nav-tab " href="fnb.html" title="Kantin F&B">
+        <div class="nav-icon-wrap">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+            <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+            <line x1="6" y1="1" x2="6" y2="4"></line>
+            <line x1="10" y1="1" x2="10" y2="4"></line>
+            <line x1="14" y1="1" x2="14" y2="4"></line>
+          </svg>
+        </div>
       </a>
-      <a class="nav-tab " href="tiket.html">
-        <div class="nav-icon-wrap"></div>
-        <div class="nav-label">LayarTix Tiket &amp; Kenangan</div>
+      <a class="nav-tab " href="tiket.html" title="Tiket & Riwayat">
+        <div class="nav-icon-wrap">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+            <path d="M13 12h.01"></path>
+            <path d="M2 10a2 2 0 0 0 0 4"></path>
+            <path d="M22 10a2 2 0 0 1 0 4"></path>
+          </svg>
+        </div>
       </a>
-      <a class="nav-tab " href="parkir.html">
-        <div class="nav-icon-wrap"></div>
-        <div class="nav-label">LayarTix Info Parkir</div>
+      <a class="nav-tab " href="parkir.html" title="Info Parkir">
+        <div class="nav-icon-wrap">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+            <path d="M9 16V8h4a2 2 0 0 1 0 4H9"></path>
+          </svg>
+        </div>
       </a>
-      <a class="nav-tab " href="akun.html">
-        <div class="nav-icon-wrap"></div>
-        <div class="nav-label">Akun</div>
+      <a class="nav-tab " href="akun.html" title="Profil Akun">
+        <div class="nav-icon-wrap">
+          <div class="nav-tab-avatar-wrap">
+            <img class="user-avatar-img" src="" alt="Avatar" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;" />
+            <svg class="user-avatar-svg w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+        </div>
       </a>
     </nav>
   </div>
-
-  <!-- BOTTOM NAV -->
-  <nav class="bottom-nav">
-    <a class="nav-tab" href="beranda.html"><div class="nav-icon-wrap"></div><div class="nav-label">Beranda</div></a>
-    <a class="nav-tab" href="fnb.html"><div class="nav-icon-wrap"></div><div class="nav-label">Kantin F&amp;B</div></a>
-    <a class="nav-tab" href="tiket.html"><div class="nav-icon-wrap"></div><div class="nav-label">Tiket &amp; Kenangan</div></a>
-    <a class="nav-tab" href="akun.html"><div class="nav-icon-wrap"></div><div class="nav-label">Akun</div></a>
-  </nav>
 </div>
 
 <!-- AGE WARNING MODAL -->

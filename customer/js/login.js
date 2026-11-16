@@ -123,6 +123,15 @@ function showAuthError(message) {
   }
 }
 
+function fillQuickCreds(usernameOrEmail, password) {
+  const inputEl = document.getElementById('loginInput');
+  const passEl = document.getElementById('loginPass');
+  if (inputEl) inputEl.value = usernameOrEmail;
+  if (passEl) passEl.value = password;
+  const errorBox = document.getElementById('errorBox');
+  if (errorBox) errorBox.style.display = 'none';
+}
+
 function handleLoginSubmit(event) {
   if (event) event.preventDefault();
 
@@ -132,44 +141,128 @@ function handleLoginSubmit(event) {
   if (errorBox) errorBox.style.display = 'none';
 
   if (!val || !pass) {
-    showAuthError('Mohon lengkapi seluruh kolom masukan.');
+    showAuthError('Mohon lengkapi username/email dan password.');
     return;
+  }
+
+  // Pastikan data users seeded jika kosong
+  if (typeof LT !== 'undefined' && typeof LT.seedIfEmpty === 'function') {
+    LT.seedIfEmpty();
   }
 
   const users = (typeof LT !== 'undefined' && typeof LT.getUsers === 'function') 
     ? LT.getUsers() 
     : JSON.parse(localStorage.getItem('layartix_users') || '[]');
 
-  let userMatch;
-  if (loginMethod === 'email') {
-    userMatch = users.find(u => u.email === val && u.password === pass && u.role === 'customer');
-  } else {
-    userMatch = users.find(u => u.phone === val && u.password === pass && u.role === 'customer');
-  }
+  const valLower = val.toLowerCase();
 
-  // Fallback demo match for initial test user if users array is empty
-  if (!userMatch && ((val === 'user@test.com' || val === '081234567890') && pass === 'user123')) {
-    userMatch = {
-      id: 'u_customer_1',
-      name: 'Budi Santoso',
-      email: 'user@test.com',
-      phone: '081234567890',
-      role: 'customer'
-    };
+  // Cari user berdasarkan username, email, atau phone
+  let userMatch = users.find(u => {
+    const matchUser = (u.username && u.username.toLowerCase() === valLower) ||
+                      (u.email && u.email.toLowerCase() === valLower) ||
+                      (u.phone && u.phone === val);
+    return matchUser && u.password === pass;
+  });
+
+  // Fallback demo matching jika belum ada di database
+  if (!userMatch) {
+    if ((valLower === 'admin' || valLower === 'admin@layartix.com') && pass === 'admin123') {
+      userMatch = {
+        id: 'u_admin',
+        name: 'Super Administrator',
+        email: 'admin@layartix.com',
+        username: 'admin',
+        phone: '081200000000',
+        password: 'admin123',
+        role: 'admin',
+        adminRole: 'super_admin',
+        branchId: null,
+        branchName: 'Semua Cabang (Super Admin)',
+        city: null,
+        wallet: 0,
+        avatar: '',
+        createdAt: new Date().toISOString()
+      };
+    } else if ((valLower === 'admin_nipah' || valLower === 'nipah@layartix.com') && pass === 'nipah123') {
+      userMatch = {
+        id: 'u_admin_nipah',
+        name: 'Admin Nipah Mall XXI',
+        email: 'nipah@layartix.com',
+        username: 'admin_nipah',
+        phone: '081211111111',
+        password: 'nipah123',
+        role: 'admin',
+        adminRole: 'branch_admin',
+        branchId: 'c_mks_4',
+        branchName: 'XXI Nipah Park',
+        city: 'Makassar',
+        wallet: 0,
+        avatar: '',
+        createdAt: new Date().toISOString()
+      };
+    } else if ((valLower === 'admin_gorontalo' || valLower === 'gorontalo@layartix.com') && pass === 'gorontalo123') {
+      userMatch = {
+        id: 'u_admin_gorontalo',
+        name: 'Admin Gorontalo Mall',
+        email: 'gorontalo@layartix.com',
+        username: 'admin_gorontalo',
+        phone: '081222222222',
+        password: 'gorontalo123',
+        role: 'admin',
+        adminRole: 'branch_admin',
+        branchId: 'c_gorontalo_1',
+        branchName: 'XXI Gorontalo Mall',
+        city: 'Gorontalo',
+        wallet: 0,
+        avatar: '',
+        createdAt: new Date().toISOString()
+      };
+    } else if ((valLower === 'user@test.com' || valLower === 'budi' || val === '081234567890') && pass === 'user123') {
+      userMatch = {
+        id: 'u_test',
+        name: 'Budi Santoso',
+        email: 'user@test.com',
+        username: 'budi',
+        phone: '081234567890',
+        password: 'user123',
+        role: 'customer',
+        wallet: 500000,
+        avatar: '',
+        createdAt: new Date().toISOString()
+      };
+    }
   }
 
   if (!userMatch) {
-    showAuthError('Email/nomor telepon atau password yang dimasukkan tidak cocok.');
+    showAuthError('Username, email atau password yang dimasukkan salah.');
     return;
   }
 
+  // Set user aktif & simpan sesi
   if (typeof LT !== 'undefined' && typeof LT.setCurrentUser === 'function') {
     LT.setCurrentUser(userMatch);
   } else {
     localStorage.setItem('layartix_user', JSON.stringify(userMatch));
+    const sessionObj = {
+      id: userMatch.id,
+      name: userMatch.name,
+      username: userMatch.username || userMatch.email,
+      email: userMatch.email,
+      role: userMatch.role === 'admin' ? (userMatch.adminRole || 'super_admin') : 'customer',
+      branchId: userMatch.branchId || null,
+      branchName: userMatch.branchName || (userMatch.role === 'admin' ? 'Semua Cabang' : null),
+      city: userMatch.city || null,
+      loggedInAt: new Date().toISOString()
+    };
+    localStorage.setItem('layartix_session', JSON.stringify(sessionObj));
   }
 
-  window.location.href = 'beranda.html';
+  // Routing berdasarkan peran hak akses
+  if (userMatch.role === 'admin') {
+    window.location.href = '../../admin/html/dashboard.html';
+  } else {
+    window.location.href = 'beranda.html';
+  }
 }
 
 function handleRegisterSubmit(event) {

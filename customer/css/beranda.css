@@ -182,8 +182,46 @@ body {
   cursor: pointer;
   border: 1px solid rgba(230,57,70,0.3);
   transition: transform 0.2s;
+  overflow: hidden;
 }
 .header-avatar:hover { transform: scale(1.08); }
+.header-avatar .user-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.header-avatar .user-avatar-fallback {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* User avatar image generic styling */
+.user-avatar-img {
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* Nav Tab Avatar Support */
+.nav-tab-avatar-wrap {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.nav-tab-avatar-wrap .user-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.nav-tab.active .nav-tab-avatar-wrap .user-avatar-img {
+  box-shadow: 0 0 0 2px var(--gold);
+}
 
 .back-btn {
   background: none;
@@ -245,10 +283,44 @@ body {
   background: none;
   font-family: 'Inter', sans-serif;
 }
-.nav-tab.active { color: var(--red); }
-.nav-tab:hover:not(.active) { color: var(--text); }
-.nav-icon-wrap { font-size: 22px; line-height: 1; }
-.nav-label { font-size: 11px; font-weight: 500; letter-spacing: 0.02em; }
+.nav-tab.active { color: var(--gold); }
+.nav-tab.active svg { color: var(--gold); stroke: var(--gold); }
+.nav-tab:hover:not(.active) { color: #ffffff; }
+.nav-tab:hover:not(.active) svg { color: #ffffff; }
+.nav-icon-wrap { 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── MOBILE BOTTOM NAV: Hanya Ikon Tanpa Teks ── */
+@media (max-width: 767px) {
+  .nav-label { 
+    display: none !important; 
+  }
+  .nav-tab { 
+    justify-content: center; 
+    align-items: center;
+    padding: 10px 4px; 
+    min-height: 52px;
+    min-width: 52px;
+    border-radius: 14px;
+    gap: 0;
+  }
+  .nav-icon-wrap { 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .nav-icon-wrap svg {
+    width: 26px;
+    height: 26px;
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+  .nav-tab.active .nav-icon-wrap svg {
+    transform: scale(1.1);
+  }
+}
 
 /* ── SECTION HEADINGS ── */
 .section-title {
@@ -610,6 +682,7 @@ option { background: var(--dark2); color: var(--text); }
   height: 220px;
   overflow: hidden;
   background: #000;
+  margin-bottom: 20px;
 }
 @media (min-width: 640px) {
   .hero-wrap { height: 300px; border-radius: 20px; margin: 12px 16px 0; width: calc(100% - 32px); }
@@ -708,31 +781,47 @@ option { background: var(--dark2); color: var(--text); }
 /* ── HORIZONTAL SCROLL & MOVIE CARDS (NOW PLAYING KE SAMPING) ── */
 .movies-scroll {
   display: flex;
-  gap: 14px;
+  gap: 16px;
   overflow-x: auto;
-  padding: 4px 16px 16px;
+  padding: 6px 16px 20px;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+  align-items: stretch; /* make all cards same height in row */
 }
 .movies-scroll::-webkit-scrollbar { display: none; }
 
+/* Coming Soon section: uniform card heights */
+#comingSoonList {
+  align-items: stretch;
+}
+#comingSoonList .movie-card {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+}
+
 .movie-card {
   flex-shrink: 0;
-  width: 160px;
+  width: 200px;
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 16px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
 }
+@media (max-width: 480px) {
+  .movie-card {
+    width: 190px;
+  }
+}
 @media (min-width: 640px) {
-  .movie-card { width: 175px; }
+  .movie-card { width: 210px; }
 }
 @media (min-width: 1024px) {
-  .movie-card { width: 190px; }
+  .movie-card { width: 220px; }
 }
 .movie-card:hover {
   transform: translateY(-4px);

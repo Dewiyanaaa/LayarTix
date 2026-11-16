@@ -307,12 +307,39 @@
       errBox.style.display='block'; return;
     }
 
-    const users=LT.getUsers();
-    const user=users.find(u=>u.email===email && u.password===pass && u.role==='admin');
+    let users = LT.getUsers();
+    // Jika data users di localStorage belum ada / ter-reset, lakukan seed ulang
+    if (!users || users.length === 0) {
+      LT.seedIfEmpty();
+      users = LT.getUsers();
+    }
 
-    if(!user){
-      errText.textContent='Email atau password admin tidak valid.';
-      errBox.style.display='block'; return;
+    let user = users.find(u => (u.email === email || (u.email && u.email.toLowerCase() === email.toLowerCase())) && u.password === pass && u.role === 'admin');
+
+    // Fallback darurat jika user admin belum tersimpan di localStorage
+    if (!user && email.toLowerCase() === 'admin@layartix.com' && pass === 'admin123') {
+      user = {
+        id: 'u_admin',
+        name: 'Admin LayarTix',
+        email: 'admin@layartix.com',
+        phone: '081200000000',
+        password: 'admin123',
+        role: 'admin',
+        wallet: 0,
+        avatar: '',
+        createdAt: new Date().toISOString()
+      };
+      const existingUsers = users || [];
+      if (!existingUsers.some(u => u.id === 'u_admin')) {
+        existingUsers.push(user);
+        LT.saveUsers(existingUsers);
+      }
+    }
+
+    if (!user) {
+      errText.textContent = 'Email atau password admin tidak valid.';
+      errBox.style.display = 'block';
+      return;
     }
 
     LT.setCurrentUser(user);

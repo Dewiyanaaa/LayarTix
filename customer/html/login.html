@@ -49,20 +49,11 @@
 
       <!-- ================= LOGIN FORM ================= -->
       <form id="loginForm" onsubmit="handleLoginSubmit(event)" novalidate>
-        <!-- Method Toggle: Email / Nomor Telepon -->
-        <div class="method-toggle" role="group" aria-label="Metode Masuk">
-          <button type="button" class="method-btn active" id="loginByEmail" onclick="setLoginMethod('email')">
-            Email
-          </button>
-          <button type="button" class="method-btn" id="loginByPhone" onclick="setLoginMethod('phone')">
-            Nomor Telepon
-          </button>
-        </div>
 
         <div class="form-group">
-          <label class="form-label" id="loginInputLabel" for="loginInput">Alamat Email</label>
+          <label class="form-label" id="loginInputLabel" for="loginInput">Username, Email atau Nomor HP</label>
           <div class="input-container">
-            <input class="form-input" id="loginInput" type="email" placeholder="nama@email.com" autocomplete="username" required />
+            <input class="form-input" id="loginInput" type="text" placeholder="Username, email atau no. HP" autocomplete="username" required />
           </div>
         </div>
 
@@ -76,6 +67,25 @@
                 <circle cx="12" cy="12" r="3"></circle>
               </svg>
             </button>
+          </div>
+        </div>
+
+        <!-- Quick Demo Account Hint (Unified Multi-Role) -->
+        <div style="margin: 14px 0 16px; padding: 12px 14px; background: rgba(255, 215, 0, 0.05); border: 1px dashed rgba(255, 215, 0, 0.25); border-radius: 12px; font-size: 11px; line-height: 1.6;">
+          <div style="font-weight: 700; color: #ffd700; margin-bottom: 6px; letter-spacing: 0.08em; text-transform: uppercase;">Akun Demo Siap Pakai:</div>
+          <div style="display: flex; flex-direction: column; gap: 4px; color: rgba(255, 255, 255, 0.8);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span>👑 <b>Super Admin:</b> <code style="color:#ffd700">admin</code> / <code style="color:#ffd700">admin123</code></span>
+              <button type="button" onclick="fillQuickCreds('admin', 'admin123')" style="background: rgba(255,215,0,0.15); border: none; color: #ffd700; padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 10px;">Pilih</button>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span>📍 <b>Admin Nipah:</b> <code style="color:#60a5fa">admin_nipah</code> / <code style="color:#60a5fa">nipah123</code></span>
+              <button type="button" onclick="fillQuickCreds('admin_nipah', 'nipah123')" style="background: rgba(96,165,250,0.15); border: none; color: #60a5fa; padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 10px;">Pilih</button>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span>👤 <b>Customer:</b> <code style="color:#4ade80">user@test.com</code> / <code style="color:#4ade80">user123</code></span>
+              <button type="button" onclick="fillQuickCreds('user@test.com', 'user123')" style="background: rgba(74,222,128,0.15); border: none; color: #4ade80; padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 10px;">Pilih</button>
+            </div>
           </div>
         </div>
 

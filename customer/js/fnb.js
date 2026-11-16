@@ -1,4 +1,4 @@
-// fnb.js — Kantin F&B, Cart & Multi-Payment (Split Bill) Logic for LayarTix
+﻿// fnb.js — Kantin F&B, Cart & Multi-Payment (Split Bill) Logic for LayarTix
 'use strict';
 
 const user = LT.requireAuth('customer');
@@ -13,7 +13,7 @@ let splitCount = 3;
 let splitCollected = 0;
 let splitContributors = [];
 
-// Delivery Type: 'pickup' | 'in_seat'
+// Mode Standalone F&B murni untuk katalog dan pengambilan kantin (pickup)
 let deliveryType = isBundling ? 'in_seat' : 'pickup';
 
 function autoSyncSeatInfo() {
@@ -48,7 +48,7 @@ function autoSyncSeatInfo() {
       syncBadge.style.color = '#22c55e';
     }
     if (syncNotice) {
-      syncNotice.textContent = `Terkunci otomatis ke ${studioStr}, Kursi ${seatsStr} (${activeTicket.movieTitle} - ${activeTicket.cinemaName}). Makanan akan diantar langsung ke posisi duduk Anda.`;
+      syncNotice.textContent = `Terkunci otomatis ke ${studioStr}, Kursi ${seatsStr} (${activeTicket.movieTitle} - ${activeTicket.cinemaName}).`;
     }
 
     // Also auto-sync pickup cinema to match the active ticket's cinema
@@ -66,7 +66,7 @@ function autoSyncSeatInfo() {
     if (studioInput && !studioInput.value) studioInput.value = 'Studio 1';
     if (seatInput && !seatInput.value) seatInput.value = 'Kursi D4';
     if (syncBadge) {
-      syncBadge.textContent = 'Default Kursi Studio';
+      syncBadge.textContent = 'Default Bioskop';
       syncBadge.style.background = 'rgba(255,215,0,0.15)';
       syncBadge.style.color = '#ffd700';
     }
@@ -92,16 +92,16 @@ function setDeliveryType(type) {
 // Mode setup
 if (isBundling) {
   const backBtn = document.getElementById('fnbBackBtn');
-  if (backBtn) backBtn.style.display = 'flex';
+  if (backBtn) backBtn.style.display = 'none';
   const headerContainer = document.getElementById('headerTitleContainer');
-  if (headerContainer) headerContainer.style.display = 'block';
+  if (headerContainer) headerContainer.style.display = 'none';
   const modeBanner = document.getElementById('modeBanner');
   if (modeBanner) modeBanner.style.display = 'flex';
 
   const ht = document.getElementById('headerTitle');
-  if (ht) ht.textContent = 'Bundling F&B & Pembayaran';
+  if (ht) ht.textContent = '';
   const hs = document.getElementById('headerSubtitle');
-  if (hs) hs.textContent = `${session.movieTitle || 'Film'} · ${session.selectedSeats.join(', ')}`;
+  if (hs) hs.textContent = '';
   const mt = document.getElementById('modeTitle');
   if (mt) mt.textContent = `Bundling Tiket: ${session.movieTitle || ''}`;
   const md = document.getElementById('modeDesc');
@@ -111,9 +111,7 @@ if (isBundling) {
   const cpr = document.getElementById('cinemaPickRow');
   if (cpr) cpr.style.display = 'none';
 
-  // Auto-fill studio & seats for in-seat delivery from bundling session
   setTimeout(() => {
-    setDeliveryType('in_seat');
     autoSyncSeatInfo();
   }, 100);
 } else {
@@ -176,7 +174,7 @@ function setCat(cat, btn) {
 }
 
 function renderFnbGrid() {
-  const items = activeCat === 'Semua' ? LT.fnbMenu : LT.fnbMenu.filter(f => f.category === activeCat);
+  const items = activeCat === 'Semua' ? LT.getFnbMenu() : LT.getFnbMenu().filter(f => f.category === activeCat);
   document.getElementById('fnbGrid').innerHTML = items.map(f => {
     const qty = cart[f.id] || 0;
     return `<div class="fnb-item-card ${qty > 0 ? 'has-item' : ''}">
@@ -202,7 +200,7 @@ function changeQty(id, delta) {
 
 function getFnbSubtotal() {
   return Object.entries(cart).reduce((s, [id, qty]) => {
-    const item = LT.fnbMenu.find(f => f.id === id);
+    const item = LT.getFnbMenu().find(f => f.id === id);
     return s + (item ? item.price * qty : 0);
   }, 0);
 }
@@ -236,8 +234,10 @@ function switchView(view) {
     document.getElementById('bottomCartBar').style.display = 'none';
     const tabsRow = document.getElementById('fnbTabsRow');
     if (tabsRow) tabsRow.style.display = 'flex';
-    document.getElementById('tabBtnMenu').classList.remove('active');
-    document.getElementById('tabBtnCheckout').classList.add('active');
+    const btnMenu = document.getElementById('tabBtnMenu');
+    if (btnMenu) btnMenu.classList.remove('active');
+    const btnCheckout = document.getElementById('tabBtnCheckout');
+    if (btnCheckout) btnCheckout.classList.add('active');
     renderCheckoutView();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   } else {
@@ -246,8 +246,10 @@ function switchView(view) {
     document.getElementById('bottomCartBar').style.display = 'flex';
     const tabsRow = document.getElementById('fnbTabsRow');
     if (tabsRow) tabsRow.style.display = 'none';
-    document.getElementById('tabBtnMenu').classList.add('active');
-    document.getElementById('tabBtnCheckout').classList.remove('active');
+    const btnMenu = document.getElementById('tabBtnMenu');
+    if (btnMenu) btnMenu.classList.add('active');
+    const btnCheckout = document.getElementById('tabBtnCheckout');
+    if (btnCheckout) btnCheckout.classList.remove('active');
   }
 }
 
@@ -287,7 +289,7 @@ function renderCheckoutView() {
 
   // F&B item rows
   const fnbRows = Object.entries(cart).filter(([, q]) => q > 0).map(([id, qty]) => {
-    const f = LT.fnbMenu.find(f => f.id === id);
+    const f = LT.getFnbMenu().find(f => f.id === id);
     return `<div class="summary-row">
       <span class="summary-label">${f.emoji} ${f.name} x${qty}</span>
       <span class="summary-value">${LT.formatRp(f.price * qty)}</span>
@@ -517,7 +519,7 @@ function processPayment(overrideMethod) {
   );
 
   const fnbItems = Object.entries(cart).filter(([, q]) => q > 0).map(([id, qty]) => {
-    const f = LT.fnbMenu.find(f => f.id === id);
+    const f = LT.getFnbMenu().find(f => f.id === id);
     return { id: f.id, name: f.name, emoji: f.emoji, price: f.price, qty };
   });
 
@@ -626,3 +628,13 @@ function processPayment(overrideMethod) {
 
 renderFnbGrid();
 
+
+// ── Cross-tab sync: perubahan menu F&B atau kursi dari Admin/tab lain ──
+window.addEventListener('storage', (e) => {
+  if (e.key === 'layartix_fnb_menu') {
+    renderFnbGrid();
+  }
+  if (e.key === 'layartix_active_tickets' || e.key === 'lt_bookings') {
+    if (typeof autoSyncSeatInfo === 'function') autoSyncSeatInfo();
+  }
+});
