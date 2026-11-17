@@ -24,31 +24,28 @@
 
     <nav class="sidebar-nav">
       <div class="nav-item active" onclick="showSection('dashboard')" id="nav-dashboard">
-        <span class="nav-icon">📊</span> Dashboard
+        <span class="nav-icon"></span> Dashboard
       </div>
       <div class="nav-item" onclick="showSection('film')" id="nav-film">
-        <span class="nav-icon">🎬</span> Kelola Film
+        <span class="nav-icon"></span> Kelola Film
       </div>
       <div class="nav-item" onclick="showSection('jadwal')" id="nav-jadwal">
-        <span class="nav-icon">🏢</span> Cabang & Jadwal
+        <span class="nav-icon"></span> Cabang & Jadwal
       </div>
       <div class="nav-item" onclick="showSection('fnb')" id="nav-fnb">
-        <span class="nav-icon">🍿</span> Kantin F&B & Stok
+        <span class="nav-icon"></span> Kantin F&B & Stok
       </div>
       <div class="nav-item" onclick="showSection('transaksi')" id="nav-transaksi">
-        <span class="nav-icon">🎟️</span> Transaksi
+        <span class="nav-icon"></span> Transaksi
       </div>
       <div class="nav-item" onclick="showSection('refund')" id="nav-refund">
-        <span class="nav-icon">🔄</span> Manajemen Refund
+        <span class="nav-icon"></span> Manajemen Refund
       </div>
       <div class="nav-item" onclick="window.location.href='laporan.html'" id="nav-laporan">
-        <span class="nav-icon">📑</span> Laporan & PDF
+        <span class="nav-icon"></span> Laporan & PDF
       </div>
       <div class="nav-item" onclick="showSection('akun')" id="nav-akun">
-        <span class="nav-icon">👤</span> Profil & Sesi Admin
-      </div>
-      <div class="nav-item" onclick="window.location.href='../../customer/html/beranda.html'" style="color:var(--gold);margin-top:12px;border:1px dashed rgba(255,215,0,0.3)">
-        <span class="nav-icon">📱</span> Ke Sisi Customer
+        <span class="nav-icon"></span> Profil & Sesi Admin
       </div>
     </nav>
 
@@ -76,15 +73,6 @@
         </div>
       </div>
       <div class="topbar-right" style="display:flex;align-items:center;gap:10px;">
-        <div id="adminScopeBadge" class="admin-badge" style="font-weight:600;display:flex;align-items:center;gap:6px;background:rgba(255,215,0,0.12);border-color:rgba(255,215,0,0.3);color:var(--gold);">
-          👑 Mode: Super Admin (Semua Cabang)
-        </div>
-        <a href="../../customer/html/beranda.html" class="admin-badge" style="text-decoration:none;cursor:pointer;background:rgba(230,57,70,0.15);border-color:rgba(230,57,70,0.3);color:#fff">
-           Tampilan Customer
-        </a>
-        <button onclick="doLogout()" class="admin-badge" style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);color:#ef4444;cursor:pointer;font-weight:600;">
-          🚪 Ganti Peran / Logout
-        </button>
         <div id="timeDisplay" style="font-size:13px;color:var(--muted)" class="hidden sm:block"></div>
       </div>
     </div>
@@ -153,7 +141,8 @@
           </div>
           <button class="btn btn-primary" onclick="openAddFilmModal()">+ Tambah Film</button>
         </div>
-        <div class="card">
+        <!-- DESKTOP TABLE VIEW -->
+        <div class="card film-table-desktop">
           <div class="card-body" style="padding:0">
             <div class="table-wrap">
               <table>
@@ -174,6 +163,9 @@
             </div>
           </div>
         </div>
+
+        <!-- MOBILE CARD VIEW -->
+        <div class="film-cards-list" id="filmCardsMobile"></div>
       </div>
 
       <!-- ══ JADWAL SECTION ══ -->
@@ -286,7 +278,7 @@
       <div id="section-fnb" style="display:none">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
           <div>
-            <div style="font-size:18px;font-weight:600;">🍿 Kantin F&B & Kontrol Stok Produk</div>
+            <div style="font-size:18px;font-weight:600;">Kantin F&B & Kontrol Stok Produk</div>
             <div style="font-size:13px;color:var(--muted);">Kelola ketersediaan snack, minuman, dan status stok otomatis</div>
           </div>
           <button class="btn btn-primary" onclick="openAddFnbModal()" style="background:linear-gradient(135deg,var(--red),#c0392b);display:flex;align-items:center;gap:6px;font-weight:600;">
@@ -318,15 +310,15 @@
       <!-- ══ AKUN / PROFIL & SESI ADMIN SECTION ══ -->
       <div id="section-akun" style="display:none">
         <div style="margin-bottom:20px;">
-          <div style="font-size:18px;font-weight:600;">👤 Profil & Status Sesi Admin</div>
+          <div style="font-size:18px;font-weight:600;">Profil & Status Sesi Admin</div>
           <div style="font-size:13px;color:var(--muted);">Informasi hak akses, cabang aktif, dan autentikasi LayarTix</div>
         </div>
 
         <div class="card" style="max-width:680px;margin-bottom:24px;">
           <div class="card-body" style="padding:24px;">
             <div style="display:flex;align-items:center;gap:18px;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border);">
-              <div style="width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,rgba(255,215,0,0.2),rgba(230,57,70,0.2));border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:28px;">
-                👑
+              <div style="width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,rgba(255,215,0,0.2),rgba(230,57,70,0.2));border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;color:var(--gold);">
+                <svg viewBox="0 0 24 24" width="30" height="30" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
               </div>
               <div>
                 <div id="akunAdminName" style="font-size:20px;font-weight:800;color:#fff;">Administrator</div>
@@ -349,10 +341,7 @@
 
             <div style="display:flex;gap:12px;flex-wrap:wrap;">
               <button onclick="doLogout()" class="btn btn-danger" style="flex:1;padding:12px 18px;border-radius:12px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;">
-                <span>🚪</span> Keluar / Ganti Peran Admin
-              </button>
-              <button onclick="window.location.href='../../customer/html/beranda.html'" class="btn btn-outline" style="flex:1;padding:12px 18px;border-radius:12px;font-weight:600;color:#fff;border-color:rgba(255,255,255,0.2);">
-                <span>📱</span> Masuk ke Tampilan Customer
+                Keluar dari Panel Admin
               </button>
             </div>
           </div>
@@ -413,11 +402,11 @@
 <div class="modal-overlay" id="filmModal">
   <div class="modal" style="max-width: 780px; width: 100%;">
     <div class="modal-header">
-      <div class="modal-title" id="filmModalTitle">✨ Tambah Film Baru</div>
+      <div class="modal-title" id="filmModalTitle">Tambah Film Baru</div>
       <button class="modal-close" onclick="closeFilmModal()">&times;</button>
     </div>
     <div class="modal-body" style="padding: 24px;">
-      <div style="display:grid; grid-template-columns: 210px 1fr; gap: 24px;">
+      <div class="film-modal-container">
         
         <!-- KOLOM KIRI: UNGGAH & PREVIEW POSTER -->
         <div>
@@ -425,7 +414,7 @@
           <div id="fm_poster_preview_box" style="width: 100%; height: 280px; border-radius: 14px; border: 2px dashed rgba(255,215,0,0.35); background: rgba(0,0,0,0.4); overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 12px; box-shadow: 0 4px 14px rgba(0,0,0,0.4);">
             <img id="fm_poster_preview_img" src="" alt="Preview Poster" style="width: 100%; height: 100%; object-fit: cover; display: none;" />
             <div id="fm_poster_placeholder" style="text-align: center; color: var(--muted); padding: 16px;">
-              <div style="font-size: 38px; margin-bottom: 8px;">🎬</div>
+              <div style="margin-bottom: 8px; color: var(--gold);"><svg viewBox="0 0 24 24" width="38" height="38" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg></div>
               <div style="font-size: 12px; font-weight: 700; color: #fff;">Belum Ada Poster</div>
               <div style="font-size: 11px; opacity: 0.7; margin-top: 4px;">Pilih file gambar atau tempel URL</div>
             </div>
@@ -434,7 +423,7 @@
           <!-- Tombol Unggah File Lokal -->
           <div style="margin-bottom: 10px;">
             <label class="btn btn-outline btn-sm" style="width: 100%; text-align: center; cursor: pointer; display: block; padding: 9px 12px; font-weight: 700; border-color: rgba(255,215,0,0.5); color: var(--gold); background: rgba(255,215,0,0.08); border-radius: 8px;">
-              📁 Pilih File Gambar...
+              Pilih File Gambar...
               <input type="file" id="fm_poster_file" accept="image/*" style="display: none;" onchange="handlePosterFileSelect(this)" />
             </label>
           </div>
@@ -450,7 +439,7 @@
         <div style="display: flex; flex-direction: column; gap: 14px;">
           
           <!-- Judul Film & Status -->
-          <div style="display: grid; grid-template-columns: 1.8fr 1fr; gap: 12px;">
+          <div class="modal-grid-row-2">
             <div class="form-group">
               <label class="form-label">Judul Film *</label>
               <input class="form-input" id="fm_title" placeholder="Contoh: Kuasa Gelap: Perjanjian Darah" required />
@@ -465,7 +454,7 @@
           </div>
 
           <!-- Genre, Durasi, Rating Usia -->
-          <div style="display: grid; grid-template-columns: 1.3fr 1fr 1fr; gap: 12px;">
+          <div class="modal-grid-row-3">
             <div class="form-group">
               <label class="form-label">Genre</label>
               <input class="form-input" id="fm_genre" placeholder="Horror, Action, Drama" />
@@ -486,7 +475,7 @@
           </div>
 
           <!-- Sutradara & Pemeran / Aktor -->
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="modal-grid-row-2">
             <div class="form-group">
               <label class="form-label">Sutradara</label>
               <input class="form-input" id="fm_director" placeholder="Nama sutradara..." />
@@ -506,9 +495,9 @@
           <!-- Pengaturan Harga Tiket per Kategori Studio -->
           <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,215,0,0.25); border-radius: 12px; padding: 14px;">
             <div style="font-size: 12px; font-weight: 700; color: var(--gold); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-              🎟️ Pengaturan Harga Tiket per Kategori Studio (Rp)
+              Pengaturan Harga Tiket per Kategori Studio (Rp)
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+            <div class="modal-grid-studios">
               <div class="form-group">
                 <label class="form-label" style="font-size: 11px;">Regular (Rp) *</label>
                 <input class="form-input" id="fm_price_regular" type="number" placeholder="45000" min="0" oninput="syncBasePrice(this.value)" />
@@ -532,7 +521,7 @@
     </div>
     <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 12px;">
       <button class="btn btn-outline" onclick="closeFilmModal()">Batal</button>
-      <button class="btn btn-primary" onclick="saveFilm()" style="background: linear-gradient(135deg, #e63946, #c1121f); font-weight: 700; padding: 10px 22px;">💾 Simpan Film</button>
+      <button class="btn btn-primary" onclick="saveFilm()" style="background: linear-gradient(135deg, #e63946, #c1121f); font-weight: 700; padding: 10px 22px;">Simpan Film</button>
     </div>
   </div>
 </div>
@@ -547,20 +536,7 @@
 
   if (adminUser) {
     document.getElementById('adminName').textContent = adminUser.name || 'Administrator';
-    const badgeEl = document.getElementById('adminScopeBadge');
-    if (badgeEl) {
-      if (scope.isBranchAdmin) {
-        badgeEl.innerHTML = `📍 Mode: Admin Cabang — ${scope.branchName}`;
-        badgeEl.style.color = '#60a5fa';
-        badgeEl.style.borderColor = 'rgba(96,165,250,0.3)';
-        badgeEl.style.background = 'rgba(96,165,250,0.12)';
-      } else {
-        badgeEl.innerHTML = `👑 Mode: Super Admin (Semua Cabang)`;
-        badgeEl.style.color = 'var(--gold)';
-        badgeEl.style.borderColor = 'rgba(255,215,0,0.3)';
-        badgeEl.style.background = 'rgba(255,215,0,0.12)';
-      }
-    }
+    // Admin header simplified
 
     // Populate Akun Section
     const akunNameEl = document.getElementById('akunAdminName');
@@ -802,48 +778,95 @@
     });
   }
 
-  // ── Render Film Table ──
+    // ── Render Film Table & Mobile Cards ──
   function renderFilmTable() {
     const movies = LT.getAllMovies();
     const tbody = document.getElementById('filmTableBody');
+    const mobileCardsContainer = document.getElementById('filmCardsMobile');
+
     if (!movies.length) {
-      tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:30px">Belum ada film di katalog</td></tr>`;
+      if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:30px">Belum ada film di katalog</td></tr>';
+      if (mobileCardsContainer) mobileCardsContainer.innerHTML = '<div style="text-align:center;color:var(--muted);padding:30px">Belum ada film di katalog</div>';
       return;
     }
-    tbody.innerHTML = movies.map(m => {
-      const rb = LT.getRatingBadge(m.rating);
-      const statusBadge = m.status === 'now_playing'
-        ? '<span class="badge badge-green" style="font-weight:700">Sedang Tayang</span>'
-        : '<span class="badge badge-yellow" style="font-weight:700">Akan Datang</span>';
-      const regPrice = m.prices?.regular || m.price_base || 45000;
-      return `<tr>
-        <td>
-          <img src="${m.poster}" alt="${m.title}" style="width:44px;height:62px;object-fit:cover;border-radius:6px;border:1px solid rgba(255,255,255,0.15);box-shadow:0 3px 8px rgba(0,0,0,0.5);" onerror="this.src='https://picsum.photos/seed/${m.id}/44/62'">
-        </td>
-        <td style="max-width:200px">
-          <div style="font-weight:700;color:#fff;font-size:13px">${m.title}</div>
-          <div style="font-size:11px;color:var(--muted)">Sutradara: ${m.director || '–'}</div>
-        </td>
-        <td style="font-size:12px;color:var(--muted)">${m.genre || '–'}</td>
-        <td><span class="badge" style="background:${rb.bg};color:${rb.color}">${rb.label}</span></td>
-        <td style="font-size:12px;font-weight:600">${m.duration} mnt</td>
-        <td>${statusBadge}</td>
-        <td style="font-weight:700;color:var(--gold);font-size:13px">${LT.formatRp(regPrice)}</td>
-        <td style="white-space:nowrap">
-          <div style="display:flex;align-items:center;gap:6px;">
-            <button class="btn btn-sm" style="background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;font-weight:700;padding:6px 12px;border-radius:8px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:4px;box-shadow:0 2px 6px rgba(37,99,235,0.35);" onclick="editFilm('${m.id}')" title="Ubah Detail Film">
-              ✏️ Edit
+
+    // 1. Render Desktop Table Rows
+    if (tbody) {
+      tbody.innerHTML = movies.map(m => {
+        const rb = LT.getRatingBadge(m.rating);
+        const statusBadge = m.status === 'now_playing'
+          ? '<span class="badge badge-green" style="font-weight:700">Sedang Tayang</span>'
+          : '<span class="badge badge-yellow" style="font-weight:700">Akan Datang</span>';
+        const regPrice = m.prices?.regular || m.price_base || 45000;
+        return `<tr>
+          <td>
+            <img src="${m.poster}" alt="${m.title}" style="width:44px;height:62px;object-fit:cover;border-radius:6px;border:1px solid rgba(255,255,255,0.15);box-shadow:0 3px 8px rgba(0,0,0,0.5);" onerror="this.src='https://picsum.photos/seed/${m.id}/44/62'">
+          </td>
+          <td style="max-width:200px">
+            <div style="font-weight:700;color:#fff;font-size:13px">${m.title}</div>
+            <div style="font-size:11px;color:var(--muted)">Sutradara: ${m.director || '–'}</div>
+          </td>
+          <td style="font-size:12px;color:var(--muted)">${m.genre || '–'}</td>
+          <td><span class="badge" style="background:${rb.bg};color:${rb.color}">${rb.label}</span></td>
+          <td style="font-size:12px;font-weight:600">${m.duration} mnt</td>
+          <td>${statusBadge}</td>
+          <td style="font-weight:700;color:var(--gold);font-size:13px">${LT.formatRp(regPrice)}</td>
+          <td style="white-space:nowrap">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <button class="btn btn-sm" style="background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;font-weight:700;padding:6px 12px;border-radius:8px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:4px;box-shadow:0 2px 6px rgba(37,99,235,0.35);" onclick="editFilm('${m.id}')" title="Ubah Detail Film">
+                Edit
+              </button>
+              <button class="btn btn-sm" style="background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;font-weight:700;padding:6px 12px;border-radius:8px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:4px;box-shadow:0 2px 6px rgba(220,38,38,0.35);" onclick="deleteFilm('${m.id}')" title="Hapus Film">
+                Hapus
+              </button>
+              <button class="btn btn-sm" style="background:rgba(255,215,0,0.12);color:var(--gold);border:1px solid rgba(255,215,0,0.35);font-weight:600;padding:6px 10px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;" onclick="toggleStatus('${m.id}')" title="Ubah Status Tayang">
+                Ubah Status
+              </button>
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+
+    // 2. Render Mobile Cards (Touch Friendly, No Horizontal Scroll)
+    if (mobileCardsContainer) {
+      mobileCardsContainer.innerHTML = movies.map(m => {
+        const rb = LT.getRatingBadge(m.rating);
+        const statusBadge = m.status === 'now_playing'
+          ? '<span class="badge badge-green" style="font-weight:700">Sedang Tayang</span>'
+          : '<span class="badge badge-yellow" style="font-weight:700">Akan Datang</span>';
+        const regPrice = m.prices?.regular || m.price_base || 45000;
+        return `<div class="film-mobile-card">
+          <div class="film-card-main">
+            <img src="${m.poster}" alt="${m.title}" class="film-card-poster" onerror="this.src='https://picsum.photos/seed/${m.id}/72/102'">
+            <div class="film-card-info">
+              <div class="film-card-title">${m.title}</div>
+              <div class="film-card-director">Sutradara: ${m.director || '–'}</div>
+              <div class="film-card-tags">
+                <span class="badge" style="background:${rb.bg};color:${rb.color};font-weight:700;">${rb.label}</span>
+                <span class="badge badge-blue">${m.genre || '–'}</span>
+                <span class="badge badge-gray">${m.duration} mnt</span>
+              </div>
+              <div class="film-card-meta">
+                <div>${statusBadge}</div>
+                <div style="font-weight:800;color:var(--gold);font-size:14px;">${LT.formatRp(regPrice)}</div>
+              </div>
+            </div>
+          </div>
+          <div class="film-card-actions">
+            <button class="film-card-btn" style="background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;box-shadow:0 3px 8px rgba(37,99,235,0.35);" onclick="editFilm('${m.id}')">
+              Edit
             </button>
-            <button class="btn btn-sm" style="background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;font-weight:700;padding:6px 12px;border-radius:8px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:4px;box-shadow:0 2px 6px rgba(220,38,38,0.35);" onclick="deleteFilm('${m.id}')" title="Hapus Film">
-              🗑️ Hapus
+            <button class="film-card-btn" style="background:rgba(255,215,0,0.15);color:var(--gold);border:1px solid rgba(255,215,0,0.35);" onclick="toggleStatus('${m.id}')">
+              Status
             </button>
-            <button class="btn btn-sm" style="background:rgba(255,215,0,0.12);color:var(--gold);border:1px solid rgba(255,215,0,0.35);font-weight:600;padding:6px 10px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;" onclick="toggleStatus('${m.id}')" title="Ubah Status Tayang">
-              🔄 Status
+            <button class="film-card-btn" style="background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;box-shadow:0 3px 8px rgba(220,38,38,0.35);" onclick="deleteFilm('${m.id}')">
+              Hapus
             </button>
           </div>
-        </td>
-      </tr>`;
-    }).join('');
+        </div>`;
+      }).join('');
+    }
   }
 
   // ── Render Kantin F&B Table ──
@@ -865,7 +888,7 @@
       return `<tr>
         <td style="max-width:220px">
           <div style="display:flex;align-items:center;gap:10px;">
-            <span style="font-size:24px;">${item.emoji || '🍿'}</span>
+            <span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.06);color:var(--gold);"><svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path></svg></span>
             <div>
               <div style="font-weight:700;color:#fff;font-size:13px">${item.name}</div>
               <div style="font-size:11px;color:var(--muted)">${item.desc || '–'}</div>
@@ -881,10 +904,10 @@
         <td style="white-space:nowrap">
           <div style="display:flex;align-items:center;gap:6px;">
             <button class="btn btn-sm" style="background:rgba(255,215,0,0.12);color:var(--gold);border:1px solid rgba(255,215,0,0.35);font-weight:600;padding:5px 10px;border-radius:8px;cursor:pointer;" onclick="toggleFnbStock('${item.id}')" title="Ubah Status Tersedia/Habis">
-              🔄 ${isOutOfStock ? 'Set Tersedia' : 'Set Habis'}
+              ${isOutOfStock ? 'Set Tersedia' : 'Set Habis'}
             </button>
             <button class="btn btn-sm" style="background:rgba(59,130,246,0.15);color:#60a5fa;border:1px solid rgba(59,130,246,0.3);font-weight:600;padding:5px 10px;border-radius:8px;cursor:pointer;" onclick="editFnbStockCount('${item.id}')" title="Atur Jumlah Stok">
-              📦 Ubah Stok
+              Ubah Stok
             </button>
           </div>
         </td>
@@ -935,7 +958,7 @@
     const priceStr = prompt('Harga (Rp):', '35000');
     const price = parseInt(priceStr) || 35000;
     const category = prompt('Kategori (Popcorn / Minuman / Combo / Snack):', 'Popcorn') || 'Snack';
-    const emoji = prompt('Ikon Emoji (🍿 / 🥤 / 🍔 / 🌭):', '🍿') || '🍿';
+    const emoji = '';
 
     const newItem = {
       id: 'f_' + Date.now(),
@@ -1145,7 +1168,7 @@
         img.style.display = 'none';
         if (ph) {
           ph.style.display = 'block';
-          ph.innerHTML = '<div style="font-size:28px;margin-bottom:4px">⚠️</div><div style="font-size:11px;color:#ef4444;font-weight:600">URL Gambar Rusak/Tidak Valid</div>';
+          ph.innerHTML = '<div style="margin-bottom:4px;color:#ef4444"><svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg></div><div style="font-size:11px;color:#ef4444;font-weight:600">URL Gambar Rusak/Tidak Valid</div>';
         }
       };
     } else {
@@ -1153,7 +1176,7 @@
       img.style.display = 'none';
       if (ph) {
         ph.style.display = 'block';
-        ph.innerHTML = '<div style="font-size:38px;margin-bottom:8px">🎬</div><div style="font-size:12px;font-weight:700;color:#fff">Belum Ada Poster</div><div style="font-size:11px;opacity:0.7;margin-top:4px">Pilih file gambar atau tempel URL</div>';
+        ph.innerHTML = '<div style="margin-bottom:8px;color:var(--gold)"><svg viewBox="0 0 24 24" width="38" height="38" stroke="currentColor" stroke-width="1.8" fill="none"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line></svg></div><div style="font-size:12px;font-weight:700;color:#fff">Belum Ada Poster</div><div style="font-size:11px;opacity:0.7;margin-top:4px">Pilih file gambar atau tempel URL</div>';
       }
     }
   }
@@ -1171,7 +1194,7 @@
 
   function openAddFilmModal() {
     editFilmId = null;
-    document.getElementById('filmModalTitle').textContent = '✨ Tambah Film Baru';
+    document.getElementById('filmModalTitle').textContent = 'Tambah Film Baru';
     ['title','genre','director','cast','synopsis','poster'].forEach(f => {
       const el = document.getElementById('fm_' + f);
       if (el) el.value = '';
@@ -1196,7 +1219,7 @@
     const m = all.find(m => m.id === id);
     if (!m) return;
     editFilmId = id;
-    document.getElementById('filmModalTitle').textContent = '✏️ Edit Film: ' + m.title;
+    document.getElementById('filmModalTitle').textContent = 'Edit Film: ' + m.title;
     document.getElementById('fm_title').value = m.title || '';
     document.getElementById('fm_genre').value = m.genre || '';
     document.getElementById('fm_rating').value = m.rating || 'D13';

@@ -9,7 +9,7 @@ if (user) {
   const avatarEl = document.getElementById('userAvatar');
   const avatarFallback = avatarEl?.querySelector('.user-avatar-fallback');
   if (avatarFallback) {
-    avatarFallback.textContent = user.avatar || '👤';
+    avatarFallback.textContent = user.avatar || '';
   } else if (avatarEl && !avatarEl.querySelector('.user-avatar-img')) {
     avatarEl.textContent = user.avatar || '';
   }

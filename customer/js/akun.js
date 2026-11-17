@@ -29,7 +29,7 @@ function renderUserData() {
     }
     if (fallbackEl) {
       fallbackEl.style.display = 'inline-block';
-      fallbackEl.textContent = currentUser.avatar || '👤';
+      fallbackEl.textContent = currentUser.avatar || '';
     }
     if (btnRemove) btnRemove.style.display = 'none';
   }
@@ -116,7 +116,7 @@ function removeProfilePhoto() {
   }
   if (fallbackEl) {
     fallbackEl.style.display = 'inline-block';
-    fallbackEl.textContent = (cu && cu.avatar) || '👤';
+    fallbackEl.textContent = (cu && cu.avatar) || '';
   }
   if (btnRemove) btnRemove.style.display = 'none';
 
