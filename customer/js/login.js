@@ -135,102 +135,103 @@ function fillQuickCreds(usernameOrEmail, password) {
 function handleLoginSubmit(event) {
   if (event) event.preventDefault();
 
-  const val = (document.getElementById('loginInput')?.value || '').trim();
-  const pass = document.getElementById('loginPass')?.value || '';
+  const inputEl = document.getElementById('loginInput');
+  const passEl = document.getElementById('loginPass');
+  const val = (inputEl ? inputEl.value : '').trim();
+  const pass = (passEl ? passEl.value : '').trim();
   const errorBox = document.getElementById('errorBox');
   if (errorBox) errorBox.style.display = 'none';
 
   if (!val || !pass) {
-    showAuthError('Mohon lengkapi username/email dan password.');
+    showAuthError('Mohon masukkan username/email dan password.');
     return;
   }
 
-  // Pastikan data users seeded jika kosong
-  if (typeof LT !== 'undefined' && typeof LT.seedIfEmpty === 'function') {
-    LT.seedIfEmpty();
+  const valLower = val.toLowerCase();
+  let userMatch = null;
+
+  // 1. HARDCODED IMMEDIATE SYSTEM MATCH (Selalu berhasil tanpa bergantung localStorage yang korup)
+  if ((valLower === 'admin' || valLower === 'admin@layartix.com') && pass === 'admin123') {
+    userMatch = {
+      id: 'u_admin',
+      name: 'Super Administrator',
+      email: 'admin@layartix.com',
+      username: 'admin',
+      phone: '081200000000',
+      password: 'admin123',
+      role: 'admin',
+      adminRole: 'super_admin',
+      branchId: null,
+      branchName: 'Semua Cabang (Super Admin)',
+      city: null,
+      wallet: 0,
+      avatar: '',
+      createdAt: new Date().toISOString()
+    };
+  } else if ((valLower === 'admin_nipah' || valLower === 'nipah@layartix.com') && pass === 'nipah123') {
+    userMatch = {
+      id: 'u_admin_nipah',
+      name: 'Admin Nipah Mall XXI',
+      email: 'nipah@layartix.com',
+      username: 'admin_nipah',
+      phone: '081211111111',
+      password: 'nipah123',
+      role: 'admin',
+      adminRole: 'branch_admin',
+      branchId: 'c_mks_4',
+      branchName: 'XXI Nipah Park',
+      city: 'Makassar',
+      wallet: 0,
+      avatar: '',
+      createdAt: new Date().toISOString()
+    };
+  } else if ((valLower === 'admin_gorontalo' || valLower === 'gorontalo@layartix.com') && pass === 'gorontalo123') {
+    userMatch = {
+      id: 'u_admin_gorontalo',
+      name: 'Admin Gorontalo Mall',
+      email: 'gorontalo@layartix.com',
+      username: 'admin_gorontalo',
+      phone: '081222222222',
+      password: 'gorontalo123',
+      role: 'admin',
+      adminRole: 'branch_admin',
+      branchId: 'c_gorontalo_1',
+      branchName: 'XXI Gorontalo Mall',
+      city: 'Gorontalo',
+      wallet: 0,
+      avatar: '',
+      createdAt: new Date().toISOString()
+    };
+  } else if ((valLower === 'user@test.com' || valLower === 'budi' || val === '081234567890') && pass === 'user123') {
+    userMatch = {
+      id: 'u_test',
+      name: 'Budi Santoso',
+      email: 'user@test.com',
+      username: 'budi',
+      phone: '081234567890',
+      password: 'user123',
+      role: 'customer',
+      wallet: 500000,
+      avatar: '',
+      createdAt: new Date().toISOString()
+    };
   }
 
-  const users = (typeof LT !== 'undefined' && typeof LT.getUsers === 'function') 
-    ? LT.getUsers() 
-    : JSON.parse(localStorage.getItem('layartix_users') || '[]');
-
-  const valLower = val.toLowerCase();
-
-  // Cari user berdasarkan username, email, atau phone
-  let userMatch = users.find(u => {
-    const matchUser = (u.username && u.username.toLowerCase() === valLower) ||
-                      (u.email && u.email.toLowerCase() === valLower) ||
-                      (u.phone && u.phone === val);
-    return matchUser && u.password === pass;
-  });
-
-  // Fallback demo matching jika belum ada di database
+  // 2. Jika bukan akun sistem default, periksa di database localStorage (untuk customer baru)
   if (!userMatch) {
-    if ((valLower === 'admin' || valLower === 'admin@layartix.com') && pass === 'admin123') {
-      userMatch = {
-        id: 'u_admin',
-        name: 'Super Administrator',
-        email: 'admin@layartix.com',
-        username: 'admin',
-        phone: '081200000000',
-        password: 'admin123',
-        role: 'admin',
-        adminRole: 'super_admin',
-        branchId: null,
-        branchName: 'Semua Cabang (Super Admin)',
-        city: null,
-        wallet: 0,
-        avatar: '',
-        createdAt: new Date().toISOString()
-      };
-    } else if ((valLower === 'admin_nipah' || valLower === 'nipah@layartix.com') && pass === 'nipah123') {
-      userMatch = {
-        id: 'u_admin_nipah',
-        name: 'Admin Nipah Mall XXI',
-        email: 'nipah@layartix.com',
-        username: 'admin_nipah',
-        phone: '081211111111',
-        password: 'nipah123',
-        role: 'admin',
-        adminRole: 'branch_admin',
-        branchId: 'c_mks_4',
-        branchName: 'XXI Nipah Park',
-        city: 'Makassar',
-        wallet: 0,
-        avatar: '',
-        createdAt: new Date().toISOString()
-      };
-    } else if ((valLower === 'admin_gorontalo' || valLower === 'gorontalo@layartix.com') && pass === 'gorontalo123') {
-      userMatch = {
-        id: 'u_admin_gorontalo',
-        name: 'Admin Gorontalo Mall',
-        email: 'gorontalo@layartix.com',
-        username: 'admin_gorontalo',
-        phone: '081222222222',
-        password: 'gorontalo123',
-        role: 'admin',
-        adminRole: 'branch_admin',
-        branchId: 'c_gorontalo_1',
-        branchName: 'XXI Gorontalo Mall',
-        city: 'Gorontalo',
-        wallet: 0,
-        avatar: '',
-        createdAt: new Date().toISOString()
-      };
-    } else if ((valLower === 'user@test.com' || valLower === 'budi' || val === '081234567890') && pass === 'user123') {
-      userMatch = {
-        id: 'u_test',
-        name: 'Budi Santoso',
-        email: 'user@test.com',
-        username: 'budi',
-        phone: '081234567890',
-        password: 'user123',
-        role: 'customer',
-        wallet: 500000,
-        avatar: '',
-        createdAt: new Date().toISOString()
-      };
+    if (typeof LT !== 'undefined' && typeof LT.seedIfEmpty === 'function') {
+      LT.seedIfEmpty();
     }
+    const users = (typeof LT !== 'undefined' && typeof LT.getUsers === 'function') 
+      ? LT.getUsers() 
+      : JSON.parse(localStorage.getItem('layartix_users') || '[]');
+
+    userMatch = users.find(u => {
+      const matchUser = (u.username && u.username.toLowerCase() === valLower) ||
+                        (u.email && u.email.toLowerCase() === valLower) ||
+                        (u.phone && u.phone === val);
+      return matchUser && u.password === pass;
+    });
   }
 
   if (!userMatch) {
@@ -238,7 +239,7 @@ function handleLoginSubmit(event) {
     return;
   }
 
-  // Set user aktif & simpan sesi
+  // Simpan sesi aktif ke localStorage
   if (typeof LT !== 'undefined' && typeof LT.setCurrentUser === 'function') {
     LT.setCurrentUser(userMatch);
   } else {
@@ -257,7 +258,20 @@ function handleLoginSubmit(event) {
     localStorage.setItem('layartix_session', JSON.stringify(sessionObj));
   }
 
-  // Routing berdasarkan peran hak akses
+  // Pastikan user admin tersimpan di daftar users localStorage jika belum ada
+  try {
+    let allUsers = (typeof LT !== 'undefined' && typeof LT.getUsers === 'function') ? LT.getUsers() : [];
+    if (!allUsers.some(u => u.id === userMatch.id)) {
+      allUsers.push(userMatch);
+      if (typeof LT !== 'undefined' && typeof LT.saveUsers === 'function') {
+        LT.saveUsers(allUsers);
+      } else {
+        localStorage.setItem('layartix_users', JSON.stringify(allUsers));
+      }
+    }
+  } catch(e) {}
+
+  // Arahkan ke halaman tujuan berdasarkan role
   if (userMatch.role === 'admin') {
     window.location.href = '../../admin/html/dashboard.html';
   } else {

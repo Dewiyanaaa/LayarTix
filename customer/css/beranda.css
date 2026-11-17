@@ -1003,38 +1003,6 @@ option { background: var(--dark2); color: var(--text); }
   background: rgba(255,255,255,0.03);
   border: 1px solid rgba(255,255,255,0.06);
 }
-.spoiler-shield-box {
-  position: relative;
-  border-radius: 12px;
-  overflow: hidden;
-  background: rgba(0,0,0,0.4);
-  border: 1px dashed rgba(239,68,68,0.4);
-  padding: 12px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.spoiler-shield-box.revealed {
-  border-style: solid;
-  border-color: rgba(255,255,255,0.1);
-  background: rgba(255,255,255,0.02);
-}
-.spoiler-blur-text {
-  filter: blur(5px);
-  user-select: none;
-  transition: filter 0.3s;
-}
-.spoiler-shield-box.revealed .spoiler-blur-text {
-  filter: none;
-  user-select: text;
-}
-.review-media-preview {
-  width: 100%;
-  max-height: 160px;
-  object-fit: cover;
-  border-radius: 8px;
-  margin-top: 8px;
-  border: 1px solid rgba(255,255,255,0.1);
-}
 
 /* ── ANIMATIONS ── */
 .page-enter { animation: pageIn 0.3s ease; }

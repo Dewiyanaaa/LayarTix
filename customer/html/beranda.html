@@ -193,24 +193,25 @@
 
   <!-- AGE RATING WARNING MODAL (17+ / 21+) -->
   <div class="modal-overlay center" id="ageWarningModal">
-    <div class="modal" style="max-width:440px;border:1px solid rgba(230,57,70,0.5);box-shadow:0 0 35px rgba(230,57,70,0.25)">
-      <div class="modal-header" style="border-bottom:1px solid rgba(230,57,70,0.2)">
-        <div class="modal-title" style="color:#ef4444;display:flex;align-items:center;gap:8px">
-          <span></span> PERINGATAN BATAS USIA
+    <div class="modal" style="max-width:440px;border-radius:24px;background:#12131d;border:1px solid rgba(230,57,70,0.45);box-shadow:0 20px 50px rgba(0,0,0,0.85),0 0 30px rgba(230,57,70,0.25)">
+      <div class="modal-header" style="border-bottom:1px solid rgba(255,255,255,0.08);padding:18px 22px 14px;">
+        <div class="modal-title" style="color:#ef4444;display:flex;align-items:center;gap:8px;font-weight:800;font-size:15px;letter-spacing:0.04em;">
+          <span>🔞</span> PERINGATAN BATAS UMUR
         </div>
         <button class="modal-close" onclick="closeAgeWarningModal()"></button>
       </div>
-      <div class="modal-body" style="text-align:center;padding:24px 20px">
-        <div style="font-size:48px;margin-bottom:12px"></div>
-        <span class="badge" id="ageModalRatingBadge" style="background:#ef4444;color:#fff;font-size:13px;font-weight:800;padding:4px 12px;margin-bottom:10px">17+</span>
-        <div style="font-size:17px;font-weight:800;margin-bottom:6px" id="ageModalMovieTitle">Judul Film</div>
+      <div class="modal-body" style="text-align:center;padding:24px 22px">
+        <div style="font-size:42px;margin-bottom:8px">⚠️</div>
+        <span class="badge" id="ageModalRatingBadge" style="background:#ef4444;color:#fff;font-size:13px;font-weight:800;padding:4px 12px;margin-bottom:8px;border-radius:6px;display:inline-block;">17+</span>
+        <div style="font-size:17px;font-weight:800;color:#fff;margin-bottom:4px" id="ageModalMovieTitle">Judul Film</div>
         <div style="font-size:12px;color:var(--gold);font-weight:700;margin-bottom:14px" id="ageModalRatingDesc">KHUSUS 17 TAHUN KE ATAS</div>
-        <div style="font-size:13px;color:var(--muted);line-height:1.6;background:rgba(255,255,255,0.03);padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,0.08);margin-bottom:20px;text-align:left">
-          Film ini memuat konten intens atau adegan dewasa yang ditujukan bagi penonton sesuai klasifikasi usia. Petugas bioskop berhak memverifikasi KTP/Identitas di pintu masuk studio.
+        <div style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.6;background:rgba(255,255,255,0.04);padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,0.08);margin-bottom:20px;text-align:left">
+          <p id="ageModalMessage">Perhatian: Film ini memiliki batasan usia penonton. Apakah usia Anda sudah memenuhi syarat batas usia yang ditentukan?</p>
+          <p style="margin-top:6px;font-size:11px;color:rgba(255,255,255,0.5);">Petugas bioskop berhak memverifikasi kartu identitas (KTP/Kartu Pelajar) saat pemeriksaan tiket di pintu studio.</p>
         </div>
-        <div style="display:flex;gap:10px">
-          <button class="btn btn-outline" style="flex:1;padding:12px" onclick="closeAgeWarningModal()">Batal</button>
-          <button class="btn btn-danger" style="flex:1.5;padding:12px;border-radius:12px;font-weight:700" onclick="confirmAgeWarning()">Saya Berusia Cukup (Lanjut) ›</button>
+        <div style="display:flex;gap:12px">
+          <button class="btn btn-outline" style="flex:1;padding:12px;border-radius:12px;font-weight:600;border-color:rgba(255,255,255,0.2);color:#fff;" onclick="closeAgeWarningModal()">Batal</button>
+          <button class="btn btn-danger" style="flex:1.6;padding:12px;border-radius:12px;font-weight:700;background:linear-gradient(135deg,#e63946,#c1121f);" onclick="confirmAgeWarning()">Ya, Saya Sudah Cukup Umur ›</button>
         </div>
       </div>
     </div>

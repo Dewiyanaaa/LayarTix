@@ -431,7 +431,7 @@ function renderEventsAndAttractions() {
 // renderMovieLists();
 renderEventsAndAttractions();
 
-// ── Movie Detail Modal (Rincian Batasan Usia & Ulasan Spoiler Shield) ──
+// ── Movie Detail Modal (Informasi Film Bersih & Spoiler-Free) ──
 let activeDetailMovieId = null;
 
 function showMovieDetail(movieId) {
@@ -443,7 +443,6 @@ function showMovieDetail(movieId) {
   const rb = LT.getRatingBadge(m.rating);
   const advisory = LT.getContentAdvisory(m.rating, m.genre);
   const isComing = m.status === 'coming_soon' || m.status === 'upcoming';
-  const reviews = LT.getReviews(movieId);
 
   const modalContent = document.getElementById('movieModalContent');
   if (!modalContent) return;
@@ -468,7 +467,7 @@ function showMovieDetail(movieId) {
         <div class="p-4 bg-white/[0.02] border-t border-b md:border-b-0 border-white/10">
           <div class="flex items-center justify-between mb-2">
             <div class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
-              <span></span> <span>CONTENT ADVISORY & SENSOR</span>
+              <span>CONTENT ADVISORY & SENSOR</span>
             </div>
             <span class="text-[10px] font-bold px-2 py-0.5 rounded" style="background:${advisory.bg};color:${advisory.color};border:1px solid ${advisory.color}40">
               ${advisory.badge}
@@ -491,39 +490,31 @@ function showMovieDetail(movieId) {
         </div>
       </div>
 
-      <!-- SISI KANAN: SINOPSIS, ULASAN SPOILER SHIELD & AKSI -->
+      <!-- SISI KANAN: SINOPSIS ESENSIAL & INFORMASI FILM BEBAS SPOILER -->
       <div class="p-5 md:p-6 md:w-7/12 flex flex-col justify-between">
         <div>
-          ${!isComing ? `
-          <!-- Tab Navigasi Modal: Info Film vs Ulasan Penonton (Hanya untuk film Sedang Tayang) -->
-          <div class="flex border-b border-white/10 mb-4 gap-4">
-            <button class="pb-2 text-xs font-bold text-amber-400 border-b-2 border-amber-400" id="tabBtnInfo" onclick="switchModalTab('info')">
-               Sinopsis & Info
-            </button>
-            <button class="pb-2 text-xs font-bold text-gray-400 hover:text-white" id="tabBtnReviews" onclick="switchModalTab('reviews')">
-               Ulasan (${reviews.length}) & Spoiler Shield
-            </button>
-          </div>
-          ` : `
           <div class="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
-            <span class="text-xs font-bold uppercase tracking-wider text-amber-400"> INFORMASI FILM SEGERA TAYANG</span>
+            <span class="text-xs font-bold uppercase tracking-wider text-amber-400">
+              ${isComing ? 'INFORMASI FILM SEGERA TAYANG' : 'SINOPSIS & DETAIL FILM'}
+            </span>
             ${m.releaseDate ? `<span class="text-[11px] font-semibold text-sky-400 bg-sky-500/10 px-2.5 py-0.5 rounded-full border border-sky-500/30">Tayang: ${new Date(m.releaseDate).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})}</span>` : ''}
           </div>
-          `}
 
-          <!-- TAB CONTENT 1: SINOPSIS & KREDIT -->
+          <!-- DETAIL SINOPSIS & KREDIT -->
           <div id="modalTabInfo">
-            <div style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.7;margin-bottom:16px">${m.synopsis}</div>
+            <div style="font-size:13px;color:rgba(255,255,255,0.78);line-height:1.7;margin-bottom:16px">${m.synopsis}</div>
+            
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
               <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;flex:1;min-width:110px">
                 <div style="font-size:10px;color:var(--muted);margin-bottom:3px">SUTRADARA</div>
                 <div style="font-size:13px;font-weight:600">${m.director || '–'}</div>
               </div>
               <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;flex:2;min-width:140px">
-                <div style="font-size:10px;color:var(--muted);margin-bottom:3px">PEMERAN / AKTOR</div>
+                <div style="font-size:10px;color:var(--muted);margin-bottom:3px">PEMERAN / AKTOR UTAMA</div>
                 <div style="font-size:13px;font-weight:600">${m.cast || '–'}</div>
               </div>
             </div>
+
             <div style="display:flex;gap:8px;margin-bottom:18px">
               <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px 14px;flex:1">
                 <div style="font-size:10px;color:var(--muted)">DURASI & GENRE</div>
@@ -539,72 +530,6 @@ function showMovieDetail(movieId) {
               </div>` : ''}
             </div>
           </div>
-
-          <!-- TAB CONTENT 2: ULASAN SPOILER SHIELD & MEDIA UPLOAD (Hanya untuk Sedang Tayang) -->
-          ${!isComing ? `
-          <div id="modalTabReviews" style="display:none;">
-            <!-- Form Tulis Ulasan -->
-            <div class="bg-white/5 border border-white/10 rounded-xl p-3.5 mb-4">
-              <div class="text-xs font-bold text-white mb-2 flex items-center justify-between">
-                <span> Tulis Komentar / Keseruan Menonton</span>
-                <span class="text-[10px] text-green-400">Anti-Bot & Spam Protected</span>
-              </div>
-              <textarea id="newReviewText" rows="2" class="w-full bg-black/40 border border-white/10 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-amber-400 placeholder-gray-500" placeholder="Bagikan opini kamu tanpa merusak pengalaman orang lain..."></textarea>
-              
-              <!-- Attachment & Spoiler Shield Toggle -->
-              <div class="mt-2.5 flex flex-wrap items-center justify-between gap-2">
-                <div class="flex items-center gap-3">
-                  <label class="flex items-center gap-1.5 cursor-pointer text-[11px] text-amber-300 bg-amber-400/10 px-2 py-1 rounded border border-amber-400/20">
-                    <input type="checkbox" id="checkIsSpoiler" class="accent-amber-400 rounded">
-                    <span> Mengandung Spoiler</span>
-                  </label>
-                  <label class="cursor-pointer text-[11px] text-gray-300 hover:text-white flex items-center gap-1 bg-white/5 px-2 py-1 rounded border border-white/10">
-                    <span> Lampirkan Foto/Video</span>
-                    <input type="file" id="reviewMediaFile" accept="image/*,video/*" class="hidden" onchange="previewMediaUpload(this)">
-                  </label>
-                </div>
-                <button class="btn btn-primary btn-sm px-3.5 py-1 text-xs" onclick="submitReview('${m.id}')">Kirim Ulasan</button>
-              </div>
-              <div id="mediaUploadPreviewWrap" class="mt-2 hidden">
-                <span class="text-[10px] text-green-400" id="mediaUploadStatus">File terlampir siap diunggah!</span>
-              </div>
-            </div>
-
-            <!-- List Ulasan Terproteksi -->
-            <div class="space-y-3 max-h-56 overflow-y-auto pr-1">
-              ${reviews.map(r => `
-                <div class="bg-black/30 border border-white/5 rounded-xl p-3">
-                  <div class="flex items-center justify-between mb-1.5">
-                    <div class="flex items-center gap-2">
-                      <span class="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center text-xs">${r.userAvatar || ''}</span>
-                      <span class="text-xs font-bold text-white">${r.userName}</span>
-                      <span class="text-[10px] text-amber-400">${''.repeat(r.rating || 5)}</span>
-                    </div>
-                    <span class="text-[10px] text-gray-400">${r.date}</span>
-                  </div>
-
-                  ${r.isSpoiler ? `
-                    <div class="spoiler-shield-box" id="spoilerBox_${r.id}" onclick="revealSpoiler('${r.id}')">
-                      <div class="text-[11px] font-bold text-red-400 mb-1 flex items-center gap-1">
-                        <span> SPOILER SHIELD PROTECTION</span>
-                        <span class="text-[9px] text-gray-400">(Klik untuk membuka bocoran cerita)</span>
-                      </div>
-                      <div class="text-xs text-gray-300 spoiler-blur-text">${r.text}</div>
-                    </div>
-                  ` : `
-                    <div class="text-xs text-gray-300 leading-relaxed">${r.text}</div>
-                  `}
-
-                  ${r.mediaUrl ? `
-                    <div class="mt-2">
-                      <img src="${r.mediaUrl}" alt="Keseruan Penonton" class="review-media-preview" onerror="this.style.display='none'">
-                    </div>
-                  ` : ''}
-                </div>
-              `).join('')}
-            </div>
-          </div>
-          ` : ''}
         </div>
 
         <!-- Tombol Aksi / Penutup Modal -->
@@ -623,84 +548,12 @@ function showMovieDetail(movieId) {
   document.getElementById('movieModal').classList.add('open');
 }
 
-function switchModalTab(tab) {
-  const tabInfo = document.getElementById('modalTabInfo');
-  const tabReviews = document.getElementById('modalTabReviews');
-  const btnInfo = document.getElementById('tabBtnInfo');
-  const btnReviews = document.getElementById('tabBtnReviews');
-
-  if (tab === 'reviews') {
-    tabInfo.style.display = 'none';
-    tabReviews.style.display = 'block';
-    btnInfo.className = 'pb-2 text-xs font-bold text-gray-400 hover:text-white';
-    btnReviews.className = 'pb-2 text-xs font-bold text-amber-400 border-b-2 border-amber-400';
-  } else {
-    tabInfo.style.display = 'block';
-    tabReviews.style.display = 'none';
-    btnInfo.className = 'pb-2 text-xs font-bold text-amber-400 border-b-2 border-amber-400';
-    btnReviews.className = 'pb-2 text-xs font-bold text-gray-400 hover:text-white';
-  }
-}
-
-function revealSpoiler(revId) {
-  const el = document.getElementById(`spoilerBox_${revId}`);
-  if (el) el.classList.toggle('revealed');
-}
-
-let tempMediaData = '';
-function previewMediaUpload(input) {
-  if (input.files && input.files[0]) {
-    const file = input.files[0];
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      tempMediaData = e.target.result;
-      const wrap = document.getElementById('mediaUploadPreviewWrap');
-      const status = document.getElementById('mediaUploadStatus');
-      if (wrap && status) {
-        wrap.classList.remove('hidden');
-        status.textContent = ` ${file.name} (${Math.round(file.size/1024)} KB) siap dilampirkan!`;
-      }
-    };
-    reader.readAsDataURL(file);
-  }
-}
-
-function submitReview(movieId) {
-  const input = document.getElementById('newReviewText');
-  const text = (input ? input.value : '').trim();
-  if (!text) {
-    LT.toast('Silakan tulis ulasan atau komentar terlebih dahulu!', 'warning');
-    return;
-  }
-  const isSpoiler = document.getElementById('checkIsSpoiler')?.checked || false;
-  const cu = LT.getCurrentUser();
-
-  const newReview = {
-    id: 'rev_' + Date.now(),
-    userName: cu?.name || 'Sobat Nonton',
-    userAvatar: cu?.avatar || '',
-    rating: 5,
-    date: 'Baru saja',
-    text,
-    isSpoiler,
-    mediaUrl: tempMediaData || '',
-    mediaType: tempMediaData ? 'image' : '',
-    likes: 1
-  };
-
-  LT.addReview(movieId, newReview);
-  tempMediaData = '';
-  LT.toast(isSpoiler ? 'Ulasan aman dengan Spoiler Shield berhasil dikirim! ' : 'Ulasan Anda berhasil dipublikasikan! ', 'success');
-  showMovieDetail(movieId);
-  switchModalTab('reviews');
-}
-
 function closeMovieModal() {
   const modal = document.getElementById('movieModal');
   if (modal) modal.classList.remove('open');
 }
 
-// ── Age Rating Warning Check (17+ / 21+) ──
+// ── Age Rating Warning Check (13+, 17+, 21+) ──
 let pendingBookingMovieId = null;
 
 function handleBookingClick(movieId) {
@@ -719,7 +572,10 @@ function handleBookingClick(movieId) {
     return;
   }
 
-  const isRestricted = ['D17', '17+', 'D21', '21+'].includes(m.rating);
+  const ratingStr = (m.rating || '').toUpperCase();
+  // Hanya lewati jika SU (Semua Umur)
+  const isRestricted = ratingStr !== 'SU' && ratingStr !== 'SEMUA UMUR';
+
   if (isRestricted) {
     pendingBookingMovieId = movieId;
     closeMovieModal();
@@ -735,10 +591,28 @@ function openAgeWarningModal(movie) {
     proceedToBooking(movie.id);
     return;
   }
-  const ratingText = ['D21', '21+'].includes(movie.rating) ? '21 TAHUN KE ATAS (21+)' : '17 TAHUN KE ATAS (17+)';
-  document.getElementById('ageModalRatingBadge').textContent = movie.rating;
-  document.getElementById('ageModalMovieTitle').textContent = movie.title;
-  document.getElementById('ageModalRatingDesc').textContent = ratingText;
+  const ratingStr = (movie.rating || '').toUpperCase();
+  let ratingText = '13 TAHUN KE ATAS (13+)';
+  let messageText = 'Perhatian: Film ini berating 13+. Apakah usia Anda sudah 13 tahun ke atas?';
+
+  if (ratingStr === 'D21' || ratingStr === '21+') {
+    ratingText = '21 TAHUN KE ATAS (21+)';
+    messageText = 'Perhatian: Film ini berating 21+. Apakah usia Anda sudah 21 tahun ke atas?';
+  } else if (ratingStr === 'D17' || ratingStr === '17+') {
+    ratingText = '17 TAHUN KE ATAS (17+)';
+    messageText = 'Perhatian: Film ini berating 17+. Apakah usia Anda sudah 17 tahun ke atas?';
+  }
+
+  const badgeEl = document.getElementById('ageModalRatingBadge');
+  const titleEl = document.getElementById('ageModalMovieTitle');
+  const descEl = document.getElementById('ageModalRatingDesc');
+  const msgEl = document.getElementById('ageModalMessage');
+
+  if (badgeEl) badgeEl.textContent = movie.rating || '17+';
+  if (titleEl) titleEl.textContent = movie.title;
+  if (descEl) descEl.textContent = ratingText;
+  if (msgEl) msgEl.textContent = messageText;
+
   modal.classList.add('open');
 }
 

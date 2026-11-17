@@ -24,25 +24,31 @@
 
     <nav class="sidebar-nav">
       <div class="nav-item active" onclick="showSection('dashboard')" id="nav-dashboard">
-        <span class="nav-icon"></span> Dashboard
+        <span class="nav-icon">📊</span> Dashboard
       </div>
       <div class="nav-item" onclick="showSection('film')" id="nav-film">
-        <span class="nav-icon"></span> Kelola Film
+        <span class="nav-icon">🎬</span> Kelola Film
       </div>
       <div class="nav-item" onclick="showSection('jadwal')" id="nav-jadwal">
-        <span class="nav-icon"></span> Jadwal Tayang
+        <span class="nav-icon">🏢</span> Cabang & Jadwal
+      </div>
+      <div class="nav-item" onclick="showSection('fnb')" id="nav-fnb">
+        <span class="nav-icon">🍿</span> Kantin F&B & Stok
       </div>
       <div class="nav-item" onclick="showSection('transaksi')" id="nav-transaksi">
-        <span class="nav-icon"></span> Transaksi
+        <span class="nav-icon">🎟️</span> Transaksi
       </div>
       <div class="nav-item" onclick="showSection('refund')" id="nav-refund">
-        <span class="nav-icon"></span> Manajemen Refund
+        <span class="nav-icon">🔄</span> Manajemen Refund
       </div>
       <div class="nav-item" onclick="window.location.href='laporan.html'" id="nav-laporan">
-        <span class="nav-icon"></span> Laporan & PDF
+        <span class="nav-icon">📑</span> Laporan & PDF
+      </div>
+      <div class="nav-item" onclick="showSection('akun')" id="nav-akun">
+        <span class="nav-icon">👤</span> Profil & Sesi Admin
       </div>
       <div class="nav-item" onclick="window.location.href='../../customer/html/beranda.html'" style="color:var(--gold);margin-top:12px;border:1px dashed rgba(255,215,0,0.3)">
-        <span class="nav-icon"></span> Ke Sisi Customer
+        <span class="nav-icon">📱</span> Ke Sisi Customer
       </div>
     </nav>
 
@@ -276,9 +282,132 @@
         </div>
       </div>
 
+      <!-- ══ KANTIN F&B & STOK SECTION ══ -->
+      <div id="section-fnb" style="display:none">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+          <div>
+            <div style="font-size:18px;font-weight:600;">🍿 Kantin F&B & Kontrol Stok Produk</div>
+            <div style="font-size:13px;color:var(--muted);">Kelola ketersediaan snack, minuman, dan status stok otomatis</div>
+          </div>
+          <button class="btn btn-primary" onclick="openAddFnbModal()" style="background:linear-gradient(135deg,var(--red),#c0392b);display:flex;align-items:center;gap:6px;font-weight:600;">
+            <span>+</span> Tambah Menu F&B
+          </button>
+        </div>
+
+        <div class="card">
+          <div class="card-body" style="padding:0">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Menu</th>
+                    <th>Kategori</th>
+                    <th>Harga Satuan</th>
+                    <th>Stok Tersedia</th>
+                    <th>Status Stok</th>
+                    <th>Aksi Kontrol</th>
+                  </tr>
+                </thead>
+                <tbody id="fnbTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ AKUN / PROFIL & SESI ADMIN SECTION ══ -->
+      <div id="section-akun" style="display:none">
+        <div style="margin-bottom:20px;">
+          <div style="font-size:18px;font-weight:600;">👤 Profil & Status Sesi Admin</div>
+          <div style="font-size:13px;color:var(--muted);">Informasi hak akses, cabang aktif, dan autentikasi LayarTix</div>
+        </div>
+
+        <div class="card" style="max-width:680px;margin-bottom:24px;">
+          <div class="card-body" style="padding:24px;">
+            <div style="display:flex;align-items:center;gap:18px;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border);">
+              <div style="width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,rgba(255,215,0,0.2),rgba(230,57,70,0.2));border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:28px;">
+                👑
+              </div>
+              <div>
+                <div id="akunAdminName" style="font-size:20px;font-weight:800;color:#fff;">Administrator</div>
+                <div id="akunAdminRoleBadge" style="display:inline-block;margin-top:4px;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;background:rgba(255,215,0,0.15);color:var(--gold);border:1px solid rgba(255,215,0,0.3);">
+                  Super Admin
+                </div>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
+              <div style="background:rgba(255,255,255,0.03);padding:12px 16px;border-radius:12px;border:1px solid var(--border);">
+                <div style="font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:600;margin-bottom:4px;">Cakupan Wilayah / Cabang</div>
+                <div id="akunAdminBranch" style="font-size:14px;font-weight:700;color:#fff;">Semua Cabang (Nasional)</div>
+              </div>
+              <div style="background:rgba(255,255,255,0.03);padding:12px 16px;border-radius:12px;border:1px solid var(--border);">
+                <div style="font-size:11px;color:var(--muted);text-transform:uppercase;font-weight:600;margin-bottom:4px;">Kota Operasional</div>
+                <div id="akunAdminCity" style="font-size:14px;font-weight:700;color:var(--gold);">Semua Kota</div>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+              <button onclick="doLogout()" class="btn btn-danger" style="flex:1;padding:12px 18px;border-radius:12px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;">
+                <span>🚪</span> Keluar / Ganti Peran Admin
+              </button>
+              <button onclick="window.location.href='../../customer/html/beranda.html'" class="btn btn-outline" style="flex:1;padding:12px 18px;border-radius:12px;font-weight:600;color:#fff;border-color:rgba(255,255,255,0.2);">
+                <span>📱</span> Masuk ke Tampilan Customer
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-content-spacer"></div>
     </div><!-- /content-area -->
   </div><!-- /main-content -->
 </div><!-- /admin-layout -->
+
+<!-- ══ BOTTOM NAVIGATION BAR (CUSTOMER DESIGN STYLE) ══ -->
+<nav class="admin-bottom-nav" aria-label="Navigasi Bawah Admin">
+  <button type="button" class="admin-nav-tab active" id="bnav-dashboard" onclick="showSection('dashboard')">
+    <div class="nav-icon-wrap">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+    </div>
+    <span class="nav-label">Dashboard</span>
+  </button>
+
+  <button type="button" class="admin-nav-tab" id="bnav-film" onclick="showSection('film')">
+    <div class="nav-icon-wrap">
+      <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>
+    </div>
+    <span class="nav-label">Film</span>
+  </button>
+
+  <button type="button" class="admin-nav-tab" id="bnav-jadwal" onclick="showSection('jadwal')">
+    <div class="nav-icon-wrap">
+      <svg viewBox="0 0 24 24"><path d="M3 21h18"></path><path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16"></path><path d="M9 9h1"></path><path d="M9 13h1"></path><path d="M9 17h1"></path><path d="M14 9h1"></path><path d="M14 13h1"></path><path d="M14 17h1"></path></svg>
+    </div>
+    <span class="nav-label">Cabang</span>
+  </button>
+
+  <button type="button" class="admin-nav-tab" id="bnav-fnb" onclick="showSection('fnb')">
+    <div class="nav-icon-wrap">
+      <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>
+    </div>
+    <span class="nav-label">Kantin</span>
+  </button>
+
+  <button type="button" class="admin-nav-tab" id="bnav-laporan" onclick="window.location.href='laporan.html'">
+    <div class="nav-icon-wrap">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+    </div>
+    <span class="nav-label">Laporan</span>
+  </button>
+
+  <button type="button" class="admin-nav-tab" id="bnav-akun" onclick="showSection('akun')">
+    <div class="nav-icon-wrap">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+    </div>
+    <span class="nav-label">Akun</span>
+  </button>
+</nav>
 
 <!-- ADD & EDIT FILM MODAL -->
 <div class="modal-overlay" id="filmModal">
@@ -432,6 +561,21 @@
         badgeEl.style.background = 'rgba(255,215,0,0.12)';
       }
     }
+
+    // Populate Akun Section
+    const akunNameEl = document.getElementById('akunAdminName');
+    const akunRoleEl = document.getElementById('akunAdminRoleBadge');
+    const akunBranchEl = document.getElementById('akunAdminBranch');
+    const akunCityEl = document.getElementById('akunAdminCity');
+    if (akunNameEl) akunNameEl.textContent = adminUser.name || 'Administrator';
+    if (akunRoleEl) {
+      akunRoleEl.textContent = scope.isBranchAdmin ? 'Admin Cabang' : 'Super Admin (Semua Cabang)';
+      akunRoleEl.style.color = scope.isBranchAdmin ? '#60a5fa' : 'var(--gold)';
+      akunRoleEl.style.borderColor = scope.isBranchAdmin ? 'rgba(96,165,250,0.3)' : 'rgba(255,215,0,0.3)';
+      akunRoleEl.style.background = scope.isBranchAdmin ? 'rgba(96,165,250,0.12)' : 'rgba(255,215,0,0.12)';
+    }
+    if (akunBranchEl) akunBranchEl.textContent = scope.branchName || 'Semua Cabang';
+    if (akunCityEl) akunCityEl.textContent = scope.city || 'Semua Kota';
   }
 
   // ── Time display ──
@@ -445,22 +589,33 @@
   setInterval(updateTime, 60000);
 
   // ── Section navigation ──
-  const sections = ['dashboard','film','jadwal','transaksi','refund'];
+  const sections = ['dashboard','film','jadwal','fnb','transaksi','refund','akun'];
   function showSection(name) {
     sections.forEach(s => {
-      document.getElementById('section-'+s).style.display = s === name ? '' : 'none';
+      const secEl = document.getElementById('section-'+s);
+      if (secEl) secEl.style.display = s === name ? '' : 'none';
+      
+      // Update sidebar nav
       const nav = document.getElementById('nav-'+s);
       if (nav) nav.classList.toggle('active', s === name);
+
+      // Update bottom nav
+      const bnav = document.getElementById('bnav-'+s);
+      if (bnav) bnav.classList.toggle('active', s === name);
     });
+
     const titles = {
-      dashboard: 'Dashboard', film: 'Kelola Film', jadwal: 'Jadwal Tayang',
-      transaksi: 'Transaksi', refund: 'Manajemen Refund'
+      dashboard: 'Dashboard', film: 'Kelola Film', jadwal: 'Cabang & Jadwal Bioskop',
+      fnb: 'Kantin F&B & Stok Produk', transaksi: 'Transaksi Penjualan', refund: 'Manajemen Refund',
+      akun: 'Profil & Sesi Admin'
     };
     document.getElementById('pageTitle').textContent = titles[name] || name;
     if (name === 'transaksi') renderTransaksi();
     if (name === 'jadwal') renderJadwal();
     if (name === 'refund') renderRefund();
     if (name === 'film') renderFilmTable();
+    if (name === 'fnb') renderFnbTable();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function toggleSidebar() {
@@ -689,6 +844,112 @@
         </td>
       </tr>`;
     }).join('');
+  }
+
+  // ── Render Kantin F&B Table ──
+  function renderFnbTable() {
+    const fnbItems = (typeof LT !== 'undefined' && typeof LT.getFnbMenu === 'function') ? LT.getFnbMenu() : [];
+    const tbody = document.getElementById('fnbTableBody');
+    if (!tbody) return;
+    if (!fnbItems.length) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:30px">Belum ada item kantin F&B</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = fnbItems.map(item => {
+      const isOutOfStock = (item.stock !== undefined && Number(item.stock) <= 0) || item.status === 'habis';
+      const stockBadge = isOutOfStock
+        ? `<span class="badge badge-red" style="font-weight:700">Habis</span>`
+        : `<span class="badge badge-green" style="font-weight:700">Tersedia</span>`;
+
+      return `<tr>
+        <td style="max-width:220px">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:24px;">${item.emoji || '🍿'}</span>
+            <div>
+              <div style="font-weight:700;color:#fff;font-size:13px">${item.name}</div>
+              <div style="font-size:11px;color:var(--muted)">${item.desc || '–'}</div>
+            </div>
+          </div>
+        </td>
+        <td><span class="badge badge-blue">${item.category || 'Snack'}</span></td>
+        <td style="font-weight:700;color:var(--gold);font-size:13px">${LT.formatRp(item.price)}</td>
+        <td style="font-size:13px;font-weight:700;color:${isOutOfStock ? '#ef4444' : '#22c55e'}">
+          ${item.stock !== undefined ? item.stock : 50} Porsi
+        </td>
+        <td>${stockBadge}</td>
+        <td style="white-space:nowrap">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <button class="btn btn-sm" style="background:rgba(255,215,0,0.12);color:var(--gold);border:1px solid rgba(255,215,0,0.35);font-weight:600;padding:5px 10px;border-radius:8px;cursor:pointer;" onclick="toggleFnbStock('${item.id}')" title="Ubah Status Tersedia/Habis">
+              🔄 ${isOutOfStock ? 'Set Tersedia' : 'Set Habis'}
+            </button>
+            <button class="btn btn-sm" style="background:rgba(59,130,246,0.15);color:#60a5fa;border:1px solid rgba(59,130,246,0.3);font-weight:600;padding:5px 10px;border-radius:8px;cursor:pointer;" onclick="editFnbStockCount('${item.id}')" title="Atur Jumlah Stok">
+              📦 Ubah Stok
+            </button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  function toggleFnbStock(id) {
+    let menu = LT.getFnbMenu();
+    const item = menu.find(x => x.id === id);
+    if (!item) return;
+    const isOutOfStock = (item.stock !== undefined && Number(item.stock) <= 0) || item.status === 'habis';
+    if (isOutOfStock) {
+      item.stock = 50;
+      item.status = 'tersedia';
+    } else {
+      item.stock = 0;
+      item.status = 'habis';
+    }
+    LT.saveFnbMenu(menu);
+    try { localStorage.setItem('layartix_admin_update', Date.now().toString()); } catch(e) {}
+    renderFnbTable();
+    LT.toast(`Status stok "${item.name}" berhasil diubah!`, 'success');
+  }
+
+  function editFnbStockCount(id) {
+    let menu = LT.getFnbMenu();
+    const item = menu.find(x => x.id === id);
+    if (!item) return;
+    const input = prompt(`Masukkan jumlah stok baru untuk "${item.name}":`, item.stock !== undefined ? item.stock : 50);
+    if (input === null) return;
+    const count = parseInt(input);
+    if (isNaN(count) || count < 0) {
+      LT.toast('Jumlah stok harus berupa angka positif!', 'error');
+      return;
+    }
+    item.stock = count;
+    item.status = count > 0 ? 'tersedia' : 'habis';
+    LT.saveFnbMenu(menu);
+    try { localStorage.setItem('layartix_admin_update', Date.now().toString()); } catch(e) {}
+    renderFnbTable();
+    LT.toast(`Stok "${item.name}" diatur ke ${count} porsi!`, 'success');
+  }
+
+  function openAddFnbModal() {
+    const name = prompt('Nama Menu F&B Baru:');
+    if (!name) return;
+    const priceStr = prompt('Harga (Rp):', '35000');
+    const price = parseInt(priceStr) || 35000;
+    const category = prompt('Kategori (Popcorn / Minuman / Combo / Snack):', 'Popcorn') || 'Snack';
+    const emoji = prompt('Ikon Emoji (🍿 / 🥤 / 🍔 / 🌭):', '🍿') || '🍿';
+
+    const newItem = {
+      id: 'f_' + Date.now(),
+      name,
+      price,
+      category,
+      emoji,
+      desc: 'Menu segar pilihan LayarTix',
+      stock: 50,
+      status: 'tersedia'
+    };
+    LT.saveFnbItem(newItem);
+    renderFnbTable();
+    LT.toast(`Menu F&B "${name}" berhasil ditambahkan!`, 'success');
   }
 
   // ── Render Jadwal ──
@@ -1046,7 +1307,13 @@
   });
 
   // Init
-  renderDashboard();
+  const targetSec = sessionStorage.getItem('admin_target_section');
+  if (targetSec && sections.includes(targetSec)) {
+    sessionStorage.removeItem('admin_target_section');
+    showSection(targetSec);
+  } else {
+    renderDashboard();
+  }
   window.addEventListener('resize', ()=>{
     if(document.getElementById('section-dashboard').style.display!=='none') renderRevenueChart();
   });
